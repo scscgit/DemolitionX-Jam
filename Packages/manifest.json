@@ -1,15 +1,12 @@
 {
   "dependencies": {
-    "com.tayx.graphy": "https://github.com/Tayx94/graphy.git#dev-upm",
-    "com.unity.collab-proxy": "1.2.16",
-    "com.unity.ide.rider": "1.1.4",
-    "com.unity.ide.vscode": "1.1.4",
-    "com.unity.test-framework": "1.1.11",
-    "com.unity.textmeshpro": "2.0.1",
-    "com.unity.timeline": "1.2.12",
-    "com.unity.ugui": "1.0.0",
+    "com.unity.ads": "2.0.8",
+    "com.unity.analytics": "3.2.3",
+    "com.unity.collab-proxy": "1.2.15",
+    "com.unity.package-manager-ui": "2.0.8",
+    "com.unity.purchasing": "2.0.3",
+    "com.unity.textmeshpro": "1.4.1",
     "com.unity.modules.ai": "1.0.0",
-    "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.assetbundle": "1.0.0",
     "com.unity.modules.audio": "1.0.0",
@@ -39,11 +36,5 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  },
-  "lock": {
-    "com.tayx.graphy": {
-      "revision": "dev-upm",
-      "hash": "d16473e71eeb11c611af96db01d7565ef179b2b3"
-    }
   }
 }
