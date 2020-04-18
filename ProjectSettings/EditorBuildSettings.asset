@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Game/Scenes/MainMenu.unity
+    guid: 3fe51eaff921c934ca764a224825a30f
+  - enabled: 1
+    path: Assets/Game/Scenes/CarSelection.unity
+    guid: a13d799d7b6f9c74e987bc00033df327
+  - enabled: 1
+    path: Assets/Game/Scenes/Arena.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects: {}
