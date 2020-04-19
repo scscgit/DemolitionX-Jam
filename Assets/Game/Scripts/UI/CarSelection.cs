@@ -1,12 +1,7 @@
-﻿using System;
-using Game.Scripts.Network;
-using Game.Scripts.UI;
-using TMPro.EditorUtilities;
+﻿using Game.Scripts.Network;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
-using Object = UnityEngine.Object;
 
 public class CarSelection : MonoBehaviour
 {
@@ -24,6 +19,10 @@ public class CarSelection : MonoBehaviour
     private void Awake()
     {
         _game = FindObjectOfType<GameNetworkPlayer>();
+        if (ReferenceEquals(_game, null))
+        {
+            Debug.LogError("Launched CarSelection without the active game scene. You won't be able to start.");
+        }
     }
 
     private void Update()

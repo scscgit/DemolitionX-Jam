@@ -114,7 +114,7 @@ public class VehiclePhysics : MonoBehaviour {
     /// Is engine running?
     /// </summary>
     [Tooltip("Is engine running?")]				
-	public bool engineRunning = false;
+	public bool engineRunning = true;
 	/// <summary>
     /// Is automatic gear?
     /// </summary>
@@ -242,7 +242,7 @@ public class VehiclePhysics : MonoBehaviour {
 		
 		
 	private float orgSteerAngle = 0f;		
-	internal float fuelInput = 0f;
+	internal float fuelInput = 1f;
 
 	[Header("Transmission")]
 	/// <summary>
@@ -887,8 +887,8 @@ public class VehiclePhysics : MonoBehaviour {
 				highBeamHeadLightsOn = false;
 			}
 
-			if(Input.GetKeyDown(CommonSettings.startEngineKB))
-				KillOrStartEngine();
+			// if(Input.GetKeyDown(CommonSettings.startEngineKB))
+			// 	KillOrStartEngine();
 
 			if(Input.GetKeyDown(CommonSettings.rightIndicatorKB)){
 				if(indicatorsOn != IndicatorsOn.Right)

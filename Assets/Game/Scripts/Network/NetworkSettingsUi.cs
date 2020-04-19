@@ -12,7 +12,6 @@ namespace Game.Scripts.Network
     {
         public const string RealServer = "localhost";
 
-        public Text serverAddress;
         public Text disconnectButtonText;
 
         public UnityEvent onConnected;
@@ -25,20 +24,16 @@ namespace Game.Scripts.Network
             _manager = FindObjectOfType<NetworkManager>();
         }
 
-        public void StartClient()
+        public void OnChangeAddress(string serverAddress)
         {
-            if (!serverAddress.isActiveAndEnabled || "".Equals(serverAddress.text))
+            if ("".Equals(serverAddress))
             {
                 _manager.networkAddress = RealServer;
             }
             else
             {
-                _manager.networkAddress = serverAddress.text;
+                _manager.networkAddress = serverAddress;
             }
-
-            Debug.Log("Connecting client to " + _manager.networkAddress);
-            _manager.StartClient();
-            WhenConnected();
         }
 
         public void StartServer()

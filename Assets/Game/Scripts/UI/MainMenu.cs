@@ -1,5 +1,6 @@
 ﻿using System;
 using Game.Scripts.Network;
+using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,10 +8,14 @@ namespace Game.Scripts.UI
 {
     public class MainMenu : MonoBehaviour
     {
-        public NetworkSettingsUi NetworkSettings;
+        private NetworkManager _networkManager;
 
         private void Awake()
         {
+            _networkManager = FindObjectOfType<NetworkManager>();
+            // Assign the default until changed
+            _networkManager.networkAddress = NetworkSettingsUi.RealServer;
+
             // Android: don't sleep
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
         }
@@ -25,7 +30,7 @@ namespace Game.Scripts.UI
 
         public void ConnectClient()
         {
-            NetworkSettings.StartClient();
+            _networkManager.StartClient();
         }
 
         [Obsolete]

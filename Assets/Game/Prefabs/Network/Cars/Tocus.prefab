@@ -1068,6 +1068,7 @@ GameObject:
   - component: {fileID: 6192708082130723621}
   - component: {fileID: 6192708082130723622}
   - component: {fileID: 6192708082130723620}
+  - component: {fileID: 114497762773797218}
   m_Layer: 0
   m_Name: Tocus
   m_TagString: Untagged
@@ -1083,7 +1084,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6192708082130723623}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.423724, y: 0.99, z: -2.1355495}
+  m_LocalPosition: {x: 0, y: 0.99, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2895012294162620687}
@@ -1136,7 +1137,7 @@ MonoBehaviour:
   ExtraRearWheelsCollider: []
   applyEngineTorqueToExtraRearWheelColliders: 1
   canControl: 0
-  engineRunning: 0
+  engineRunning: 1
   automaticGear: 1
   semiAutomaticGear: 0
   useRevLimiter: 1
@@ -1512,6 +1513,21 @@ MonoBehaviour:
   radiusDeformate: 0.7
   maxDeformation: 0.16
   minVelocity: 5
+--- !u!114 &114497762773797218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192708082130723623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  serverOnly: 0
+  m_AssetId: 
 --- !u!1 &6192752807182338737
 GameObject:
   m_ObjectHideFlags: 0
