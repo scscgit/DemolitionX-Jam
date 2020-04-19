@@ -1,27 +1,22 @@
 fileFormatVersion: 2
-guid: c3ac6ec982f58a44292c96e493be5cc8
+guid: 57cf9d07cf82b424cb089d75fb5c078b
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
-    100000: //RootNode
-    400000: //RootNode
-    2100000: Oildrum-ref__oil-drum_col_jpg_002
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: Oildrum-ref
-    7400000: Default Take
-    9500000: //RootNode
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Oildrum-ref__oil-drum_col_jpg_002
-    second: {fileID: 2100000, guid: eb890a93ddd9f7a42a0a01e61342efee, type: 2}
+    100000: Arch
+    100002: //RootNode
+    400000: Arch
+    400002: //RootNode
+    2100000: Dirt
+    2300000: Arch
+    3300000: Arch
+    4300000: Arch
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
-    materialLocation: 0
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -69,7 +64,7 @@ ModelImporter:
     secondaryUVPackMargin: 4
     useFileScale: 1
     previousCalculatedGlobalScale: 1
-    hasPreviousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
@@ -96,7 +91,7 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 2
+  animationType: 0
   humanoidOversampling: 1
   additionalBone: 0
   userData: 

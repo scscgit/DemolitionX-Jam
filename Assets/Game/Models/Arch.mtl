@@ -1,0 +1,5 @@
+newmtl Dirt
+map_Kd rock_albedo.png
+Kd 1.0 1.0 1.0
+d 1.0
+
