@@ -8,6 +8,9 @@ namespace Game.Scripts.UI
 {
     public class MainMenu : MonoBehaviour
     {
+        public GameObject menuPage;
+        public GameObject settingsPage;
+
         private NetworkManager _networkManager;
 
         private void Awake()
@@ -24,7 +27,15 @@ namespace Game.Scripts.UI
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
-                ConnectClient();
+                if (menuPage.activeInHierarchy)
+                {
+                    ConnectClient();
+                }
+                else
+                {
+                    settingsPage.SetActive(false);
+                    menuPage.SetActive(true);
+                }
             }
         }
 

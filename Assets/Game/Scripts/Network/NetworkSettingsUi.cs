@@ -10,7 +10,7 @@ namespace Game.Scripts.Network
     /// </summary>
     public class NetworkSettingsUi : MonoBehaviour
     {
-        public const string RealServer = "localhost";
+        public const string RealServer = "pc.scscdev.eu";
 
         public Text disconnectButtonText;
 

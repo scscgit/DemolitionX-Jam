@@ -165,7 +165,7 @@ GameObject:
   - component: {fileID: 5772148404218700820}
   - component: {fileID: 8790986315628503750}
   m_Layer: 0
-  m_Name: OK
+  m_Name: OkButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -815,7 +815,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc9cf7100fd67e54c953ddcff339472f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkSettings: {fileID: 9012272575861803951}
+  menuPage: {fileID: 2147218097781361208}
+  settingsPage: {fileID: 459850405366176920}
 --- !u!223 &8079697127462544145
 Canvas:
   m_ObjectHideFlags: 0
@@ -1599,15 +1600,3 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 3152670385662445183}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &9012272575861803951 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6256220249372298704, guid: f622e1975d81b6a4f9ee5c45d0064cf9,
-    type: 3}
-  m_PrefabInstance: {fileID: 3152670385662445183}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0530c60fc1240d485a4619d6467fb19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
