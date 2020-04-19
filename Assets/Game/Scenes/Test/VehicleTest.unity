@@ -119,6 +119,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 114497762773797218, guid: 3a11d7d88773e5049bef77411dbd06a0,
+        type: 3}
+      propertyPath: sceneId
+      value: 3275442319
+      objectReference: {fileID: 0}
     - target: {fileID: 8693096481018392832, guid: 3a11d7d88773e5049bef77411dbd06a0,
         type: 3}
       propertyPath: m_Name
@@ -261,7 +266,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1089933300
 GameObject:
@@ -384,7 +389,7 @@ Transform:
   - {fileID: 2086959555}
   - {fileID: 1089933301}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2032095742
 PrefabInstance:
@@ -393,6 +398,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 114494543944100526, guid: 8243eb0c9c9235e45b3dd53a82209659,
+        type: 3}
+      propertyPath: sceneId
+      value: 2877177067
+      objectReference: {fileID: 0}
     - target: {fileID: 3156276881257452517, guid: 8243eb0c9c9235e45b3dd53a82209659,
         type: 3}
       propertyPath: m_Name
