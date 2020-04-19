@@ -1,7 +1,12 @@
-﻿using Game.Scripts.UI;
+﻿using System;
+using Game.Scripts.Network;
+using Game.Scripts.UI;
+using TMPro.EditorUtilities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
+using Object = UnityEngine.Object;
 
 public class CarSelection : MonoBehaviour
 {
@@ -10,24 +15,21 @@ public class CarSelection : MonoBehaviour
     [Range(0, 100)] public float rotationSpeed = 1.7f;
     [Range(10, 180)] public float wobblingIntensity = 30f;
     public GameObject rotatingCars;
-    public UnityEvent onAsyncSceneLoad;
-
+    public UnityEvent disableReady;
+    public UnityEvent enableReady;
 
     private int _carIndex;
-    private AsyncOperation _arenaScene;
-    private bool _asyncSceneLoaded;
+    private GameNetworkPlayer _game;
 
-    private void Start()
+    private void Awake()
     {
-        _arenaScene = SceneManager.LoadSceneAsync("Game/Scenes/Arena");
-        _arenaScene.allowSceneActivation = false;
+        _game = FindObjectOfType<GameNetworkPlayer>();
     }
 
     private void Update()
     {
         HandleVisualRotation();
         HandleInput();
-        HandleOnAsyncSceneLoadFeedback();
     }
 
     private void HandleVisualRotation()
@@ -59,17 +61,6 @@ public class CarSelection : MonoBehaviour
         }
     }
 
-    private void HandleOnAsyncSceneLoadFeedback()
-    {
-        if (_asyncSceneLoaded || _arenaScene.progress < 0.9f)
-        {
-            return;
-        }
-
-        _asyncSceneLoaded = true;
-        onAsyncSceneLoad.Invoke();
-    }
-
     public void Left()
     {
         SetCarActive(false);
@@ -92,9 +83,7 @@ public class CarSelection : MonoBehaviour
 
     public void EnterGame()
     {
-        var scenePassingData = new GameObject(ScenePassingData).AddComponent<ScenePassingData>();
-        scenePassingData.number = _carIndex;
-        DontDestroyOnLoad(scenePassingData);
-        _arenaScene.allowSceneActivation = true;
+        _game.SelectedCar(_carIndex);
+        SceneManager.UnloadSceneAsync("Game/Scenes/CarSelection");
     }
 }

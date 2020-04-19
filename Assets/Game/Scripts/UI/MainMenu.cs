@@ -1,4 +1,5 @@
 ﻿using System;
+using Game.Scripts.Network;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -6,6 +7,8 @@ namespace Game.Scripts.UI
 {
     public class MainMenu : MonoBehaviour
     {
+        public NetworkSettingsUi NetworkSettings;
+
         private void Awake()
         {
             // Android: don't sleep
@@ -16,11 +19,17 @@ namespace Game.Scripts.UI
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
-                SelectCar();
+                ConnectClient();
             }
         }
 
-        public void SelectCar()
+        public void ConnectClient()
+        {
+            NetworkSettings.StartClient();
+        }
+
+        [Obsolete]
+        public void CarSelectionOffline()
         {
             try
             {
