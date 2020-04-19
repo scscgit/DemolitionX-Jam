@@ -47,3 +47,5 @@ sysinfo.txt
 # Doxygen Documentation
 /[Dd]ocs/*
 !/[Dd]ocs/[Dd]oxyfile*
+Assets/Samples/Terrain Tools/0.1.0-preview/Terrain Assets/TerrainBrushes/
+Assets/Samples/Terrain Tools/0.1.0-preview/Terrain Assets/BrushTextures/
