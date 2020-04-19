@@ -106,7 +106,7 @@ MonoBehaviour:
   showDebugMessages: 0
   serverTickRate: 30
   offlineScene: Assets/Game/Scenes/MainMenu.unity
-  onlineScene: Assets/Game/Scenes/Arena.unity
+  onlineScene: Assets/Game/Scenes/RoomScene.unity
   transport: {fileID: 4136253233753687424}
   networkAddress: localhost
   maxConnections: 32
