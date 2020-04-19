@@ -9,7 +9,7 @@ public class VehiclePhysicsEditor : Editor {
 	bool openAll;
 	bool setup;
 	
-	bool CarSettings;	
+	//bool CarSettings;	
 	bool SuspensionSettings;
 	bool FrontSuspension;
 	bool RearSuspension;	
@@ -104,9 +104,6 @@ public class VehiclePhysicsEditor : Editor {
 			EditorGUILayout.Space();
 		
 		EditorGUILayout.BeginHorizontal();
-
-		if(GUILayout.Button("Car Settings"))
-			CarSettings = EnableCategory();
 		
 		if(GUILayout.Button("Suspension Settings"))
 			SuspensionSettings = EnableCategory();
@@ -115,12 +112,6 @@ public class VehiclePhysicsEditor : Editor {
 			LightSettings = EnableCategory();
 		
 		EditorGUILayout.EndHorizontal();
-
-		if(CarSettings){
-			EditorGUILayout.Space();
-			EditorGUILayout.Space();
-			base.OnInspectorGUI();
-		}	
 
 		if(SuspensionSettings){
 
@@ -190,7 +181,7 @@ public class VehiclePhysicsEditor : Editor {
 			
 		}
 		
-		if(LightSettings){
+		else if(LightSettings){
 			
 			EditorGUILayout.Space();
 			EditorGUILayout.Space();
@@ -309,7 +300,10 @@ public class VehiclePhysicsEditor : Editor {
 
 			EditorGUILayout.EndHorizontal();			
 			
-		}		
+		}	
+
+		
+		DrawDefaultInspector();
 		//else if (GUILayout.Button("CloseProperties")) CloseAllCatergory();
 		
 	}
@@ -317,7 +311,7 @@ public class VehiclePhysicsEditor : Editor {
 
 	bool EnableCategory(){
 
-		CarSettings = false;
+		//CarSettings = false;
 		SuspensionSettings = false;
 		FrontSuspension = false;
 		RearSuspension = false;		
@@ -328,7 +322,6 @@ public class VehiclePhysicsEditor : Editor {
 	}
 
 	void CloseAllCatergory(){
-		CarSettings = false;
 		SuspensionSettings = false;
 		FrontSuspension = false;
 		RearSuspension = false;		

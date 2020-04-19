@@ -1352,7 +1352,7 @@ public class VehiclePhysics : MonoBehaviour {
 	/// </summary>
 	void GearBox (){
 
-		if(brakeInput > .9f  && transform.InverseTransformDirection(rigid.velocity).z < 1f && canGoReverseNow && automaticGear && !semiAutomaticGear && !changingGear && direction != -1)
+		if(brakeInput > .5f  && transform.InverseTransformDirection(rigid.velocity).z < 1f && canGoReverseNow && automaticGear && !semiAutomaticGear && !changingGear && direction != -1)
 			StartCoroutine("ChangingGear", -1);
 		else if(brakeInput < .1f && transform.InverseTransformDirection(rigid.velocity).z > -1f && direction == -1 && !changingGear && automaticGear && !semiAutomaticGear)
 			StartCoroutine("ChangingGear", 0);
