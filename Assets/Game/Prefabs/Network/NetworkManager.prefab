@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4136253233753687430}
   - component: {fileID: 4136253233753687424}
   - component: {fileID: 4136253233753687427}
-  - component: {fileID: 4136253233753687431}
+  - component: {fileID: 6104229479492370092}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -88,7 +88,7 @@ MonoBehaviour:
   showGUI: 1
   offsetX: 0
   offsetY: 0
---- !u!114 &4136253233753687431
+--- !u!114 &6104229479492370092
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,7 +97,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4136253233753687426}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 615e6c6589cf9e54cad646b5a11e0529, type: 3}
+  m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
@@ -106,10 +106,10 @@ MonoBehaviour:
   showDebugMessages: 0
   serverTickRate: 30
   offlineScene: Assets/Game/Scenes/MainMenu.unity
-  onlineScene: Assets/Game/Scenes/RoomScene.unity
+  onlineScene: Assets/Game/Scenes/Arena.unity
   transport: {fileID: 4136253233753687424}
   networkAddress: localhost
-  maxConnections: 32
+  maxConnections: 48
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 8695240316343602707, guid: ea189b9a90a94a54b947ed6472160350,
     type: 3}
@@ -118,11 +118,3 @@ MonoBehaviour:
   spawnPrefabs:
   - {fileID: 8661405591729687195, guid: 8243eb0c9c9235e45b3dd53a82209659, type: 3}
   - {fileID: 6192708082130723623, guid: 3a11d7d88773e5049bef77411dbd06a0, type: 3}
-  showRoomGUI: 1
-  minPlayers: 1
-  roomPlayerPrefab: {fileID: 114033720796874720, guid: deae2134a1d77704b9c595efe69767dd,
-    type: 3}
-  RoomScene: Assets/Game/Scenes/RoomScene.unity
-  GameplayScene: Assets/Game/Scenes/Arena.unity
-  allPlayersReady: 0
-  roomSlots: []
