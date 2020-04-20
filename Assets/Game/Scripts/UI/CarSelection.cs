@@ -1,4 +1,4 @@
-﻿using Game.Scripts.Network;
+using Game.Scripts.Network;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -82,7 +82,7 @@ public class CarSelection : MonoBehaviour
 
     public void EnterGame()
     {
-        _game.SelectedCar(_carIndex);
         SceneManager.UnloadSceneAsync("Game/Scenes/CarSelection");
+        _game.CmdSelectedCar(_carIndex);
     }
 }

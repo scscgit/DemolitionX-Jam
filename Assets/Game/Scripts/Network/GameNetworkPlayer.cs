@@ -14,6 +14,10 @@ namespace Game.Scripts.Network
         public Camera vehicleCamera;
 
         private Camera _spectatorCamera;
+
+        [SyncVar]
+        public uint Id;
+
         private VehiclePhysics _car;
 
         public void Start()
@@ -50,13 +54,24 @@ namespace Game.Scripts.Network
             SceneManager.LoadScene("CarSelection", LoadSceneMode.Additive);
         }
 
-        public void SelectedCar(int carIndex)
+        [Command]
+        public void CmdSelectedCar(int carIndex)
         {
-            vehicleCamera.gameObject.SetActive(true);
             var car = Instantiate(cars[carIndex], transform);
+            Id = car.GetComponent<NetworkIdentity>().netId;
             NetworkServer.Spawn(car);
             _car = car.GetComponent<VehiclePhysics>();
-            _car.canControl = true;
+            RpcSetPlayer();
+        }
+
+        [ClientRpc]
+        public void RpcSetPlayer()
+        {
+            if (isLocalPlayer)
+            {
+                vehicleCamera.gameObject.SetActive(true);
+                _car.canControl = true;
+            }
         }
     }
 }
