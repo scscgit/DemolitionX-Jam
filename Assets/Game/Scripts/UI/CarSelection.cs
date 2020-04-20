@@ -37,7 +37,7 @@ public class CarSelection : MonoBehaviour
         rotatingCars.transform.rotation = Quaternion.Euler(
             0,
             lastRotation.y + rotationSpeed,
-            Mathf.Sin(Time.time) * wobblingIntensity
+            Mathf.Sin(Time.deltaTime) * wobblingIntensity
         );
     }
 

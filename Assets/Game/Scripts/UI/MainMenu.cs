@@ -16,8 +16,11 @@ namespace Game.Scripts.UI
         private void Awake()
         {
             _networkManager = FindObjectOfType<NetworkManager>();
-            // Assign the default until changed
-            _networkManager.networkAddress = NetworkSettingsUi.RealServer;
+            // Assign the default until changed, but keep any persisted value between connections
+            if (_networkManager.networkAddress.Equals(""))
+            {
+                _networkManager.networkAddress = NetworkSettingsUi.RealServer;
+            }
 
             // Android: don't sleep
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
