@@ -195,8 +195,8 @@ FixedJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6052318273008069976}
   m_ConnectedBody: {fileID: 8661405591729687189}
-  m_BreakForce: 25000
-  m_BreakTorque: 25000
+  m_BreakForce: 250000
+  m_BreakTorque: 250000
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
@@ -536,8 +536,8 @@ FixedJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6052318274545515751}
   m_ConnectedBody: {fileID: 8661405591729687189}
-  m_BreakForce: 25000
-  m_BreakTorque: 25000
+  m_BreakForce: 250000
+  m_BreakTorque: 250000
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
@@ -2239,8 +2239,8 @@ GameObject:
   - component: {fileID: 8661405592054819016}
   - component: {fileID: 8661405592055917064}
   - component: {fileID: 8661405592057918663}
-  - component: {fileID: 8661405592057918659}
-  - component: {fileID: 8661405592057918681}
+  - component: {fileID: 5031536648178013654}
+  - component: {fileID: 428199285821180468}
   m_Layer: 0
   m_Name: Classic_16_Door_R
   m_TagString: Untagged
@@ -2323,7 +2323,7 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 14
   m_Mesh: {fileID: 4300006, guid: 000e268602069ee41b503cc210240ef7, type: 3}
---- !u!54 &8661405592057918659
+--- !u!54 &5031536648178013654
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2331,7 +2331,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8661405592057918662}
   serializedVersion: 2
-  m_Mass: 20
+  m_Mass: 50
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 1
@@ -2339,7 +2339,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!138 &8661405592057918681
+--- !u!138 &428199285821180468
 FixedJoint:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2347,8 +2347,8 @@ FixedJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8661405592057918662}
   m_ConnectedBody: {fileID: 8661405591729687189}
-  m_BreakForce: 100000
-  m_BreakTorque: 100000
+  m_BreakForce: 250000
+  m_BreakTorque: 250000
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
@@ -2365,8 +2365,8 @@ GameObject:
   - component: {fileID: 8661405592054819018}
   - component: {fileID: 8661405592055917066}
   - component: {fileID: 8661405592057918665}
-  - component: {fileID: 8661405592057918685}
-  - component: {fileID: 8661405592057918667}
+  - component: {fileID: 6768237822865925693}
+  - component: {fileID: 5535938531888491862}
   m_Layer: 0
   m_Name: Classic_16_Door_L
   m_TagString: Untagged
@@ -2449,7 +2449,7 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 14
   m_Mesh: {fileID: 4300008, guid: 000e268602069ee41b503cc210240ef7, type: 3}
---- !u!54 &8661405592057918685
+--- !u!54 &6768237822865925693
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2457,7 +2457,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8661405592057918664}
   serializedVersion: 2
-  m_Mass: 20
+  m_Mass: 50
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 1
@@ -2465,7 +2465,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!138 &8661405592057918667
+--- !u!138 &5535938531888491862
 FixedJoint:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2473,8 +2473,8 @@ FixedJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8661405592057918664}
   m_ConnectedBody: {fileID: 8661405591729687189}
-  m_BreakForce: 100000
-  m_BreakTorque: 100000
+  m_BreakForce: 250000
+  m_BreakTorque: 250000
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
@@ -3115,8 +3115,8 @@ GameObject:
   - component: {fileID: 8661405592054819036}
   - component: {fileID: 8661405592055917084}
   - component: {fileID: 8661405592057918683}
-  - component: {fileID: 8661405592057918508}
-  - component: {fileID: 8661405592057918675}
+  - component: {fileID: 5442814951823014780}
+  - component: {fileID: 3983805773980483296}
   m_Layer: 0
   m_Name: Classic_16_Trunk
   m_TagString: Untagged
@@ -3199,7 +3199,7 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 14
   m_Mesh: {fileID: 4300012, guid: 000e268602069ee41b503cc210240ef7, type: 3}
---- !u!54 &8661405592057918508
+--- !u!54 &5442814951823014780
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3207,7 +3207,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8661405592057918682}
   serializedVersion: 2
-  m_Mass: 20
+  m_Mass: 50
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 1
@@ -3215,7 +3215,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!138 &8661405592057918675
+--- !u!138 &3983805773980483296
 FixedJoint:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3223,8 +3223,8 @@ FixedJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8661405592057918682}
   m_ConnectedBody: {fileID: 8661405591729687189}
-  m_BreakForce: 100000
-  m_BreakTorque: 100000
+  m_BreakForce: 250000
+  m_BreakTorque: 250000
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
@@ -3426,8 +3426,8 @@ FixedJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8661405592057918686}
   m_ConnectedBody: {fileID: 8661405591729687189}
-  m_BreakForce: 100000
-  m_BreakTorque: 100000
+  m_BreakForce: 250000
+  m_BreakTorque: 250000
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
   m_MassScale: 1
