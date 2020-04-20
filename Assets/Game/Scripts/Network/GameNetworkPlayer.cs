@@ -15,11 +15,8 @@ namespace Game.Scripts.Network
 
         private Camera _spectatorCamera;
 
-        private VehiclePhysics _car;
-
         [SyncVar]
-        public uint id;
-
+        private GameObject _car;
         [SyncVar]
         public bool fetchCar = false;
 
@@ -61,8 +58,8 @@ namespace Game.Scripts.Network
         public void CmdSelectedCar(int carIndex)
         {
             var car = Instantiate(cars[carIndex], transform);
-            id = car.GetComponent<NetworkIdentity>().netId;
             NetworkServer.Spawn(car);
+            _car = car;
             fetchCar = true;
         }
 
@@ -73,20 +70,10 @@ namespace Game.Scripts.Network
                 if (isLocalPlayer)
                 {
                     vehicleCamera.gameObject.SetActive(true);
-                    _car = RetriveID.Netids[id].GetComponent<VehiclePhysics>();
-                    _car.canControl = true;
+                    _car.transform.parent = transform;
+                    _car.GetComponent<VehiclePhysics>().canControl = true;
                 }
-            }
-        }
-
-        [ClientRpc]
-        public void RpcSetPlayer(uint id)
-        {
-            if (isLocalPlayer)
-            {
-                vehicleCamera.gameObject.SetActive(true);
-                _car = RetriveID.Netids[id].GetComponent<VehiclePhysics>();
-                _car.canControl = true;
+                fetchCar = false;
             }
         }
     }
