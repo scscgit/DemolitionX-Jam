@@ -37,7 +37,7 @@ public class Timer : MonoBehaviour
 
 
         if (time < 11)
-            a.SetBool("start", start);
+            a.SetBool("start", true);
     }
 
     public void ResetGame()
