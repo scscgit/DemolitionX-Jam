@@ -4,7 +4,6 @@ using UnityEngine.UI;
 public class Timer : MonoBehaviour
 {
     private Text t;
-    public bool start;
     public float mins;
     public float sec;
     public float time;
@@ -26,7 +25,7 @@ public class Timer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(start)
+        if (time > 0)
         { 
             time -= Time.deltaTime;
             string m = Mathf.Floor((time /60) % 60).ToString();
@@ -36,7 +35,9 @@ public class Timer : MonoBehaviour
         if (time < 0)
             ResetGame();
 
-        a.SetBool("start", start);
+
+        if (time < 11)
+            a.SetBool("start", start);
     }
 
     public void ResetGame()
