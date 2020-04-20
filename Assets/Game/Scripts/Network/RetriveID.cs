@@ -6,12 +6,13 @@ using Mirror;
 public class RetriveID : MonoBehaviour
 {
     public static Dictionary<uint, GameObject> Netids;
+    public uint id;
 
-    public void OnEnable()
+    public void Update()
     {
         if (Netids == null)
             Netids = new Dictionary<uint, GameObject>();
-        var id = GetComponent<NetworkIdentity>().netId;
+        id = GetComponent<NetworkIdentity>().netId;
         if (!Netids.ContainsKey(id))
             Netids[id] = gameObject;
     }
