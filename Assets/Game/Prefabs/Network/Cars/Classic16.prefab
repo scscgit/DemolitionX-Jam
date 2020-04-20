@@ -1219,6 +1219,7 @@ GameObject:
   - component: {fileID: 8661405591729687189}
   - component: {fileID: 8661405591729687188}
   - component: {fileID: 114494543944100526}
+  - component: {fileID: 114928445585656634}
   m_Layer: 0
   m_Name: Classic16
   m_TagString: Untagged
@@ -1675,6 +1676,24 @@ MonoBehaviour:
   sceneId: 0
   serverOnly: 0
   m_AssetId: 
+--- !u!114 &114928445585656634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
 --- !u!1 &8661405591737631105
 GameObject:
   m_ObjectHideFlags: 0
