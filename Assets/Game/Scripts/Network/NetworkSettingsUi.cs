@@ -60,31 +60,35 @@ namespace Game.Scripts.Network
 
         public void Disconnect()
         {
+            DisconnectStatic(_manager);
+            WhenDisconnected();
+        }
+
+        public static void DisconnectStatic(NetworkManager manager)
+        {
             if (NetworkServer.active && NetworkClient.isConnected)
             {
-                _manager.StopHost();
+                manager.StopHost();
             }
             else if (NetworkClient.isConnected)
             {
                 // stop client if client-only
-                _manager.StopClient();
+                manager.StopClient();
             }
             else if (NetworkServer.active)
             {
                 // stop server if server-only
-                _manager.StopServer();
+                manager.StopServer();
             }
             else if (NetworkClient.active)
             {
                 // TODO: verify - client connecting?
-                _manager.StopClient();
+                manager.StopClient();
             }
             else
             {
                 Debug.LogError("Disconnect didn't match any conditions");
             }
-
-            WhenDisconnected();
         }
 
         public bool SetDisconnectButtonName()

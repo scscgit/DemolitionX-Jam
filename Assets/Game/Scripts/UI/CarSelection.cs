@@ -1,4 +1,5 @@
 using Game.Scripts.Network;
+using Mirror;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -37,7 +38,7 @@ public class CarSelection : MonoBehaviour
         rotatingCars.transform.rotation = Quaternion.Euler(
             0,
             lastRotation.y + rotationSpeed,
-            Mathf.Sin(Time.deltaTime) * wobblingIntensity
+            Mathf.Sin(Time.time / Time.timeScale) * wobblingIntensity
         );
     }
 
@@ -84,5 +85,10 @@ public class CarSelection : MonoBehaviour
     {
         SceneManager.UnloadSceneAsync("Game/Scenes/CarSelection");
         _game.SelectedCar(_carIndex);
+    }
+
+    public void ExitToMenu()
+    {
+        NetworkSettingsUi.DisconnectStatic(FindObjectOfType<NetworkManager>());
     }
 }

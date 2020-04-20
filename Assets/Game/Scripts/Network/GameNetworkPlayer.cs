@@ -14,6 +14,8 @@ namespace Game.Scripts.Network
         [Tooltip("Reference to the child object of a vehicle camera, which is automatically enabled when playing")]
         public VehicleCamera vehicleCamera;
 
+        public string playerName;
+
         private ArenaUi _arenaUi;
         private Camera _spectatorCamera;
 
@@ -22,6 +24,7 @@ namespace Game.Scripts.Network
 
         public void Start()
         {
+            playerName = MainMenu.PlayerName;
             _arenaUi = GameObject.Find("ArenaUI").GetComponent<ArenaUi>();
             if (isLocalPlayer)
             {
@@ -35,11 +38,11 @@ namespace Game.Scripts.Network
         {
             if (ReferenceEquals(_car, null))
             {
-              var vehicle =  transform.GetComponentInChildren<VehiclePhysics>();
-              if (vehicle != null)
-              {
-                  Debug.Log("Quick-assigned missing _cars reference to a found VehiclePhysics");
-              }
+                var vehicle = transform.GetComponentInChildren<VehiclePhysics>();
+                if (vehicle != null)
+                {
+                    Debug.Log("Quick-assigned missing _cars reference to a found VehiclePhysics");
+                }
             }
         }
 

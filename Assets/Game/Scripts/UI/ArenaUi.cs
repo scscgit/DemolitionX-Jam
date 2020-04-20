@@ -27,6 +27,8 @@ namespace Game.Scripts.UI
                 {
                     toggleOnEscape[i].SetActive(!toggleOnEscape[i].activeSelf);
                 }
+
+                ChangeCar();
             }
         }
 
