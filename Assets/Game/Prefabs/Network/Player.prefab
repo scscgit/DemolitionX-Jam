@@ -51,6 +51,7 @@ MonoBehaviour:
   - {fileID: 8661405591729687195, guid: 8243eb0c9c9235e45b3dd53a82209659, type: 3}
   - {fileID: 6192708082130723623, guid: 3a11d7d88773e5049bef77411dbd06a0, type: 3}
   vehicleCamera: {fileID: 9065674381794747462}
+  fetchCar: 0
 --- !u!114 &3343494049405777883
 MonoBehaviour:
   m_ObjectHideFlags: 0

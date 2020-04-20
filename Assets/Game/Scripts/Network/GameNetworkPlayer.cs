@@ -15,10 +15,7 @@ namespace Game.Scripts.Network
 
         private Camera _spectatorCamera;
 
-        [SyncVar]
         private GameObject _car;
-        [SyncVar]
-        public bool fetchCar = false;
 
         public void Start()
         {
@@ -60,20 +57,20 @@ namespace Game.Scripts.Network
             var car = Instantiate(cars[carIndex], transform);
             NetworkServer.Spawn(car);
             _car = car;
-            fetchCar = true;
+            RpcSetup(car);
         }
 
-        public void Update()
+        [ClientRpc]
+        public void RpcSetup(GameObject car)
         {
-            if (fetchCar)
+            _car = car;
+            if (isLocalPlayer)
             {
-                if (isLocalPlayer)
-                {
-                    vehicleCamera.gameObject.SetActive(true);
-                    _car.transform.parent = transform;
-                    _car.GetComponent<VehiclePhysics>().canControl = true;
-                }
-                fetchCar = false;
+                vehicleCamera.gameObject.SetActive(true);
+                _car.transform.parent = transform;
+                var tmp = GetComponent<NetworkIdentity>();
+                _car.GetComponent<NetworkIdentity>().AssignClientAuthority(tmp.connectionToClient);
+                _car.GetComponent<VehiclePhysics>().canControl = true;
             }
         }
     }
