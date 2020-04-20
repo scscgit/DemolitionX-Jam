@@ -10,7 +10,7 @@ public class Enviroment : NetworkBehaviour
     {
         if (isServer)
         {
-            var tmp = Instantiate(arena, Vector3.zero, new Quaternion(0f, 0f, 0f, 0f));
+            var tmp = Instantiate(arena, new Vector3(-27.1f,-4.8f,-27.4f), new Quaternion(0f, 0f, 0f, 0f));
             NetworkServer.Spawn(arena);
         }
     }
