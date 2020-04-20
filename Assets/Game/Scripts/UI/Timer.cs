@@ -15,8 +15,7 @@ public class Timer : NetworkBehaviour
     {
         t = GetComponent<Text>();  
         a = GetComponent<Animator>();
-        if (isServer)
-            OnReset();
+        OnReset();
     }
 
     public void OnReset()
@@ -32,22 +31,23 @@ public class Timer : NetworkBehaviour
             if (time > 0)
             {
                 time -= Time.deltaTime;
-                string m = Mathf.Floor((time / 60) % 60).ToString();
-                string s = Mathf.Floor(time % 60).ToString();
-                RpcShowText(m + ":" + s,time);
+                RpcSetTime(time);
             }
-
-            if (time < 0)
-                ResetGame();
         }
+        string m = Mathf.Floor((time / 60) % 60).ToString();
+        string s = Mathf.Floor(time % 60).ToString();
+        t.text = m + ":" + s;
+
+        if (time < 0)
+                ResetGame();
+        if (time < 11)
+            a.SetBool("start", true);
     }
 
     [ClientRpc]
-    public void RpcShowText(string text, float time)
+    public void RpcSetTime(float time)
     {
-        t.text = text;
-        if (time < 11)
-            a.SetBool("start", true);
+        this.time = time;
     }
 
     public void ResetGame()
