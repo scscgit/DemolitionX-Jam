@@ -83,6 +83,6 @@ public class CarSelection : MonoBehaviour
     public void EnterGame()
     {
         SceneManager.UnloadSceneAsync("Game/Scenes/CarSelection");
-        _game.CmdSelectedCar(_carIndex);
+        _game.SelectedCar(_carIndex);
     }
 }
