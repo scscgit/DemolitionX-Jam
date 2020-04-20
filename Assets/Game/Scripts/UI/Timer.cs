@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Mirror;
 
-public class Timer : MonoBehaviour
+public class Timer : NetworkBehaviour
 {
     private Text t;
     public float mins;
@@ -14,7 +15,8 @@ public class Timer : MonoBehaviour
     {
         t = GetComponent<Text>();  
         a = GetComponent<Animator>();
-        OnReset();
+        if (isServer)
+            OnReset();
     }
 
     public void OnReset()
@@ -25,17 +27,25 @@ public class Timer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (time > 0)
-        { 
-            time -= Time.deltaTime;
-            string m = Mathf.Floor((time /60) % 60).ToString();
-            string s = Mathf.Floor(time % 60).ToString();
-            t.text = m + ":" + s;
+        if (isServer)
+        {
+            if (time > 0)
+            {
+                time -= Time.deltaTime;
+                string m = Mathf.Floor((time / 60) % 60).ToString();
+                string s = Mathf.Floor(time % 60).ToString();
+                RpcShowText(m + ":" + s,time);
+            }
+
+            if (time < 0)
+                ResetGame();
         }
-        if (time < 0)
-            ResetGame();
+    }
 
-
+    [ClientRpc]
+    public void RpcShowText(string text, float time)
+    {
+        t.text = text;
         if (time < 11)
             a.SetBool("start", true);
     }
