@@ -14,21 +14,32 @@ namespace Game.Scripts.Network
         [Tooltip("Reference to the child object of a vehicle camera, which is automatically enabled when playing")]
         public VehicleCamera vehicleCamera;
 
+        private ArenaUi _arenaUi;
         private Camera _spectatorCamera;
 
+        // TODO FIXME: SyncVar does nothing, not even with public field, so it's missing for old players before connect
         [SyncVar] private GameObject _car;
-
-        private ArenaUi _arenaUi;
 
         public void Start()
         {
             _arenaUi = GameObject.Find("ArenaUI").GetComponent<ArenaUi>();
-            _arenaUi.ActivePlayer = this;
             if (isLocalPlayer)
             {
                 _spectatorCamera = GameObject.Find("SpectatorCamera").GetComponent<Camera>()
                                    ?? throw new NullReferenceException($"Missing SpectatorCamera");
                 ChangeCar();
+            }
+        }
+
+        private void Update()
+        {
+            if (ReferenceEquals(_car, null))
+            {
+              var vehicle =  transform.GetComponentInChildren<VehiclePhysics>();
+              if (vehicle != null)
+              {
+                  Debug.Log("Quick-assigned missing _cars reference to a found VehiclePhysics");
+              }
             }
         }
 
@@ -58,7 +69,7 @@ namespace Game.Scripts.Network
 
             _spectatorCamera.gameObject.SetActive(false);
             vehicleCamera.gameObject.SetActive(false);
-            _arenaUi.SetActiveCanvas(false);
+            _arenaUi.DisableUi();
             SceneManager.LoadScene("CarSelection", LoadSceneMode.Additive);
         }
 
@@ -72,7 +83,8 @@ namespace Game.Scripts.Network
         {
             var car = Instantiate(cars[carIndex], transform);
             NetworkServer.Spawn(car, player);
-            _car = car;
+            // TODO: Placebo, doesn't work
+            //_car = car;
             RpcSetup(car);
         }
 
@@ -82,7 +94,7 @@ namespace Game.Scripts.Network
             _car = car;
             if (isLocalPlayer)
             {
-                _arenaUi.SetActiveCanvas(true);
+                _arenaUi.EnableUi(this);
                 vehicleCamera.gameObject.SetActive(true);
                 vehicleCamera.playerCar = car.transform;
                 _car.transform.parent = transform;

@@ -36,9 +36,15 @@ namespace Game.Scripts.UI
             ActivePlayer.ChangeCar();
         }
 
-        public void SetActiveCanvas(bool active)
+        public void EnableUi(GameNetworkPlayer player)
         {
-            canvas.SetActive(active);
+            ActivePlayer = player;
+            canvas.SetActive(true);
+        }
+
+        public void DisableUi()
+        {
+            canvas.SetActive(false);
         }
     }
 }
