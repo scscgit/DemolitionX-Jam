@@ -1,4 +1,4 @@
-using Game.Scripts.Network;
+﻿using Game.Scripts.Network;
 using UnityEngine;
 
 namespace Game.Scripts.UI
@@ -9,7 +9,7 @@ namespace Game.Scripts.UI
         public GameObject[] toggleOnEscape;
         public GameObject canvas;
 
-        public GameNetworkPlayer ActivePlayer { get; set; }
+        private GameNetworkPlayer _activePlayer;
 
         void Start()
         {
@@ -32,13 +32,12 @@ namespace Game.Scripts.UI
 
         public void ChangeCar()
         {
-            //gameObject.SetActive(false);
-            ActivePlayer.ChangeCar();
+            _activePlayer.ChangeCar();
         }
 
         public void EnableUi(GameNetworkPlayer player)
         {
-            ActivePlayer = player;
+            _activePlayer = player;
             canvas.SetActive(true);
         }
 
