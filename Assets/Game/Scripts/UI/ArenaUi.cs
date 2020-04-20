@@ -1,4 +1,4 @@
-﻿using Game.Scripts.Network;
+using Game.Scripts.Network;
 using UnityEngine;
 
 namespace Game.Scripts.UI
@@ -32,7 +32,7 @@ namespace Game.Scripts.UI
 
         public void ChangeCar()
         {
-            gameObject.SetActive(false);
+            //gameObject.SetActive(false);
             ActivePlayer.ChangeCar();
         }
 
