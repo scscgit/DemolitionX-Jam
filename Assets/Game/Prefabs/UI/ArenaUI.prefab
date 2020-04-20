@@ -92,7 +92,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   start: 0
-  tim: 600
+  mins: 10
+  sec: 30
+  time: 0
 --- !u!95 &4696708170375395024
 Animator:
   serializedVersion: 3
