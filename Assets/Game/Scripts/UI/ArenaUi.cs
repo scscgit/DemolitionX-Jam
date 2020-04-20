@@ -1,11 +1,15 @@
-﻿using UnityEngine;
+﻿using Game.Scripts.Network;
+using UnityEngine;
 
 namespace Game.Scripts.UI
 {
-    public class UI : MonoBehaviour
+    public class ArenaUi : MonoBehaviour
     {
         public GameObject[] enableOnStart;
         public GameObject[] toggleOnEscape;
+        public GameObject canvas;
+
+        public GameNetworkPlayer ActivePlayer { get; set; }
 
         void Start()
         {
@@ -24,6 +28,17 @@ namespace Game.Scripts.UI
                     toggleOnEscape[i].SetActive(!toggleOnEscape[i].activeSelf);
                 }
             }
+        }
+
+        public void ChangeCar()
+        {
+            gameObject.SetActive(false);
+            ActivePlayer.ChangeCar();
+        }
+
+        public void SetActiveCanvas(bool active)
+        {
+            canvas.SetActive(active);
         }
     }
 }

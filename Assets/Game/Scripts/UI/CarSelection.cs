@@ -2,7 +2,7 @@ using Game.Scripts.Network;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using Mirror;
+
 public class CarSelection : MonoBehaviour
 {
     public const string ScenePassingData = "ScenePassingData_CarSelection";

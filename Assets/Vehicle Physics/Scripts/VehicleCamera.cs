@@ -30,12 +30,14 @@ public class VehicleCamera : MonoBehaviour{
     public GameObject hoodCameraObj;
 	
 	void Start(){
-		
-		if (!playerCar){
-			if(GameObject.FindObjectOfType<VehiclePhysics>())
-				playerCar = GameObject.FindObjectOfType<VehiclePhysics>().transform;
-			else
-				return;
+
+		if (ReferenceEquals(playerCar, null)){
+			// Need to explicitly assign playerCar
+			// Automatic search would be:
+			// if(GameObject.FindObjectOfType<VehiclePhysics>())
+			// 	playerCar = GameObject.FindObjectOfType<VehiclePhysics>().transform;
+			// else
+			return;
 		}
 
 		playerRigid = playerCar.GetComponent<Rigidbody>();
