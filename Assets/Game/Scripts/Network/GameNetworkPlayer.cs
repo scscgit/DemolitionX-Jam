@@ -126,6 +126,8 @@ namespace Game.Scripts.Network
                 car.GetComponent<VehiclePhysics>().canControl = true;
                 // playerName SyncVar isn't set until the next frame, but if this is a callback, we know the name
                 playerName = MainMenu.PlayerName;
+                // Always rotate HoveringDetails towards the current player
+                HoveringDetails.VehicleCamera = vehicleCamera.transform;
             }
 
             ConfigureHoveringDetails(car);
@@ -146,6 +148,10 @@ namespace Game.Scripts.Network
         {
             score = setScore;
             RpcDisplayScore(setScore);
+            if (!ReferenceEquals(_hoveringDetails, null))
+            {
+                _hoveringDetails.DisplayScore(setScore);
+            }
         }
 
         [Command]
@@ -153,18 +159,28 @@ namespace Game.Scripts.Network
         {
             health = setHealth;
             RpcDisplayHealth(setHealth);
+            if (!ReferenceEquals(_hoveringDetails, null))
+            {
+                _hoveringDetails.DisplayHealth(setHealth);
+            }
         }
 
         [ClientRpc]
         public void RpcDisplayScore(int displayScore)
         {
-            _hoveringDetails.DisplayScore(displayScore);
+            if (!ReferenceEquals(_hoveringDetails, null))
+            {
+                _hoveringDetails.DisplayScore(displayScore);
+            }
         }
 
         [ClientRpc]
         public void RpcDisplayHealth(float displayHealth)
         {
-            _hoveringDetails.DisplayHealth(displayHealth);
+            if (!ReferenceEquals(_hoveringDetails, null))
+            {
+                _hoveringDetails.DisplayHealth(displayHealth);
+            }
         }
     }
 }

@@ -6,6 +6,8 @@ namespace Game.Scripts.UI
 {
     public class HoveringDetails : MonoBehaviour
     {
+        public static Transform VehicleCamera;
+
         public Text text;
         public Slider slider;
 
@@ -14,24 +16,22 @@ namespace Game.Scripts.UI
             set
             {
                 _playerName = value.playerName;
-                _vehicleCamera = value.vehicleCamera.transform;
                 _player = value;
             }
         }
 
         private string _playerName;
-        private Transform _vehicleCamera;
         private GameNetworkPlayer _player;
 
         private void Update()
         {
-            if (!_vehicleCamera) // || !_playerName
+            if (!VehicleCamera) // || !_playerName
             {
                 Debug.Log("HoveringDetails doesn't have any camera assigned");
                 return;
             }
 
-            var cameraPosition = _vehicleCamera.transform.position;
+            var cameraPosition = VehicleCamera.transform.position;
             transform.rotation = Quaternion.LookRotation(
                 (transform.position - cameraPosition).normalized
             );

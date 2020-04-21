@@ -18,13 +18,7 @@ public class Timer : NetworkBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        OnReset();
-    }
-
-    public void OnReset()
-    {
         resultsText.enabled = false;
-        paused = false;
         time = (sec + (mins * 60));
     }
 
@@ -33,50 +27,77 @@ public class Timer : NetworkBehaviour
     {
         if (isServer)
         {
-            if (time > 0)
+            if (time - Time.deltaTime > 0)
             {
                 time -= Time.deltaTime;
-                RpcSetTime(time);
+                RpcSetTime(time, paused);
             }
-        }
-
-        if (paused)
-        {
-            if (time < 0)
+            else
             {
-                OnReset();
+                if (paused)
+                {
+                    time = sec + (mins * 60);
+                    paused = false;
+                    resultsText.enabled = false;
+                    RpcSetTime(sec + (mins * 60), false);
+                }
+                else
+                {
+                    time = breakSec;
+                    ResultScreen();
+                    RpcSetTime(breakSec, true);
+                }
             }
-
-            return;
         }
 
         string m = Mathf.Floor((time / 60) % 60).ToString("00");
         string s = Mathf.Floor(time % 60).ToString("00");
         timerText.text = m + ":" + s;
 
-        if (time < 0)
-        {
-            ResultScreen();
-        }
-
-        if (time < 11)
+        if (!paused && time < 11)
         {
             a.SetBool("start", true);
         }
     }
 
     [ClientRpc]
-    public void RpcSetTime(float time)
+    public void RpcSetTime(float time, bool doPause)
     {
-        this.time = time;
+        if (doPause)
+        {
+            if (!paused)
+            {
+                ResultScreen();
+            }
+
+            this.time = time;
+        }
+        else
+        {
+            if (paused)
+            {
+                resultsText.enabled = false;
+                paused = false;
+            }
+
+            paused = false;
+            this.time = time;
+        }
     }
 
     public void ResultScreen()
     {
-        var players = FindObjectsOfType<GameNetworkPlayer>();
-
         paused = true;
-        time = breakSec;
+        var players = FindObjectsOfType<GameNetworkPlayer>();
+        if (isServer)
+        {
+            foreach (var player in players)
+            {
+                player.CmdSetScore(0);
+                player.CmdSetHealth(100);
+            }
+        }
+
         if (players.Length == 0)
         {
             resultsText.text = "No players, what a shame";
