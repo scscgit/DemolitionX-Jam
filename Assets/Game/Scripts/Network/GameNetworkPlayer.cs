@@ -78,7 +78,16 @@ namespace Game.Scripts.Network
 
         public void SelectedCar(int carIndex)
         {
-            CmdSelectedCar(carIndex, gameObject, MainMenu.PlayerName);
+            if (isServer)
+            {
+                var car = Instantiate(cars[carIndex], transform);
+                NetworkServer.Spawn(car);
+                _car = car;
+                playerName = MainMenu.PlayerName;
+                RpcSetup(car);
+            }
+            else
+                CmdSelectedCar(carIndex, gameObject, MainMenu.PlayerName);
         }
 
         [Command]
