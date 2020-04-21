@@ -13,11 +13,12 @@ GameObject:
   - component: {fileID: 1782061959939654341}
   - component: {fileID: 8225856994674558063}
   - component: {fileID: 6202392387099167575}
+  - component: {fileID: 310872646321824948}
   - component: {fileID: 114868227092928088}
   - component: {fileID: 114398525873303888}
   m_Layer: 0
   m_Name: Oildrum-ref
-  m_TagString: Untagged
+  m_TagString: Barrel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -111,6 +112,24 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &310872646321824948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3735417826791522069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 953ee47cf0ff215419d1d6c6a076bc89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  exploaded: 0
+  radius: 5
+  force: 2000
+  damage: 200
 --- !u!114 &114868227092928088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,7 +143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
-  serverOnly: 0
+  serverOnly: 1
   m_AssetId: 
 --- !u!114 &114398525873303888
 MonoBehaviour:
