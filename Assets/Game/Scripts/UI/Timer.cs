@@ -1,25 +1,30 @@
+using System.Linq;
+using Game.Scripts.Network;
 using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
 
 public class Timer : NetworkBehaviour
 {
-    private Text t;
-    public float mins;
+    public Text timerText;
+    public Animator a;
+    public Text resultsText;
+    public float mins = 3;
     public float sec;
+    public float breakSec = 10;
     public float time;
-    Animator a;
-    
+    private bool paused;
+
     // Start is called before the first frame update
     void Awake()
     {
-        t = GetComponent<Text>();  
-        a = GetComponent<Animator>();
         OnReset();
     }
 
     public void OnReset()
     {
+        resultsText.enabled = false;
+        paused = false;
         time = (sec + (mins * 60));
     }
 
@@ -34,14 +39,30 @@ public class Timer : NetworkBehaviour
                 RpcSetTime(time);
             }
         }
+
+        if (paused)
+        {
+            if (time < 0)
+            {
+                OnReset();
+            }
+
+            return;
+        }
+
         string m = Mathf.Floor((time / 60) % 60).ToString("00");
         string s = Mathf.Floor(time % 60).ToString("00");
-        t.text = m + ":" + s;
+        timerText.text = m + ":" + s;
 
         if (time < 0)
-                ResetGame();
+        {
+            ResultScreen();
+        }
+
         if (time < 11)
+        {
             a.SetBool("start", true);
+        }
     }
 
     [ClientRpc]
@@ -50,8 +71,26 @@ public class Timer : NetworkBehaviour
         this.time = time;
     }
 
-    public void ResetGame()
+    public void ResultScreen()
     {
-        
+        var players = FindObjectsOfType<GameNetworkPlayer>();
+
+        paused = true;
+        time = breakSec;
+        if (players.Length == 0)
+        {
+            resultsText.text = "No players, what a shame";
+        }
+        else
+        {
+            var best = players.First(p1 => p1.score == players.Max(p2 => p2.score));
+            resultsText.text = $@"Best player:
+{best.playerName}
+
+with score:
+{best.score}";
+        }
+
+        resultsText.enabled = true;
     }
 }
