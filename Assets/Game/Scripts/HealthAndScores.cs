@@ -1,59 +1,46 @@
-﻿using Game.Scripts.UI;
+﻿using Game.Scripts.Network;
 using UnityEngine;
 
 public class HealthAndScores : MonoBehaviour
 {
-    public float health = 100f;
-    public int scores = 0;
-    private Rigidbody r;
+    public GameNetworkPlayer Player { get; set; }
 
-    public HoveringDetails display;
+    private Rigidbody _rigidbody;
 
     private void Start()
     {
-        r = GetComponent<Rigidbody>();
-    }
-
-    public void DisplayCurrent()
-    {
-        display.SetHealth(health);
-        display.SetScore(scores);
+        _rigidbody = GetComponent<Rigidbody>();
     }
 
     private void OnCollisionEnter(Collision other)
     {
-        float v = r.velocity.magnitude;
+        float v = _rigidbody.velocity.magnitude;
         if (!other.gameObject.GetComponent<Rigidbody>())
         {
-            health -= v / 20f;
-            display.SetHealth(health);
+            Player.CmdSetHealth(Player.health - v / 20f);
         }
 
 
         if (other.gameObject.GetComponent<Rigidbody>())
         {
             float impactMag = Mathf.Abs(other.gameObject.GetComponent<Rigidbody>().velocity.magnitude *
-                other.gameObject.GetComponent<Rigidbody>().mass - v * r.mass);
+                other.gameObject.GetComponent<Rigidbody>().mass - v * _rigidbody.mass);
             if (v > other.gameObject.GetComponent<Rigidbody>().velocity.magnitude)
             {
                 var otherHealthAndScores = other.gameObject.GetComponent<HealthAndScores>();
                 if (otherHealthAndScores)
                 {
-                    otherHealthAndScores.health -= impactMag / 10000f;
-                    otherHealthAndScores.display.SetHealth(otherHealthAndScores.health);
-                    scores += Mathf.RoundToInt(impactMag);
-                    display.SetScore(scores);
+                    otherHealthAndScores.Player.CmdSetHealth(otherHealthAndScores.Player.health - impactMag / 10000f);
+                    Player.CmdSetScore(Player.score + Mathf.RoundToInt(impactMag));
                 }
                 else
                 {
-                    health -= 1;
-                    display.SetHealth(health);
+                    Player.CmdSetHealth(Player.health - 1);
                 }
             }
             else
             {
-                health -= impactMag / 10000f;
-                display.SetHealth(health);
+                Player.CmdSetHealth(Player.health - impactMag / 10000f);
             }
         }
     }

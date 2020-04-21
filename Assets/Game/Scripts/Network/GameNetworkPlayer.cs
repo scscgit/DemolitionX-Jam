@@ -8,6 +8,8 @@ namespace Game.Scripts.Network
 {
     public class GameNetworkPlayer : NetworkBehaviour
     {
+        public const float StartHealth = 100;
+
         [Tooltip("All car prefabs available for Player's spawn; ordered as CarSelection")]
         public GameObject[] cars;
 
@@ -18,9 +20,12 @@ namespace Game.Scripts.Network
         public VehicleCamera vehicleCamera;
 
         [Header("Synced vars")] [SyncVar] public string playerName;
+        [SyncVar] public int score;
+        [SyncVar] public float health;
 
         private ArenaUi _arenaUi;
         private Camera _spectatorCamera;
+        private HoveringDetails _hoveringDetails;
 
         [SyncVar] private GameObject _car;
 
@@ -84,12 +89,15 @@ namespace Game.Scripts.Network
             _car = car;
             // Also set the player name before creating the HoveringDetails
             playerName = setPlayerName;
+            health = StartHealth;
             RpcSetup(car);
         }
 
         [ClientRpc]
         public void RpcSetup(GameObject car)
         {
+            health = StartHealth;
+
             // The _car will be set in the following cycle, so we have to use param car instead
             if (isLocalPlayer)
             {
@@ -107,11 +115,38 @@ namespace Game.Scripts.Network
 
         private void ConfigureHoveringDetails(GameObject carObject)
         {
-            var hoveringDetails = Instantiate(hoveringPrefab, carObject.transform).GetComponent<HoveringDetails>();
-            hoveringDetails.Player = this;
+            _hoveringDetails = Instantiate(hoveringPrefab, carObject.transform).GetComponent<HoveringDetails>();
+            _hoveringDetails.Player = this;
+            _hoveringDetails.DisplayScore(score);
+            _hoveringDetails.DisplayHealth(health);
             var healthAndScores = carObject.GetComponent<HealthAndScores>();
-            healthAndScores.display = hoveringDetails;
-            healthAndScores.DisplayCurrent();
+            healthAndScores.Player = this;
+        }
+
+        [Command]
+        public void CmdSetScore(int setScore)
+        {
+            score = setScore;
+            RpcDisplayScore(setScore);
+        }
+
+        [Command]
+        public void CmdSetHealth(float setHealth)
+        {
+            health = setHealth;
+            RpcDisplayHealth(setHealth);
+        }
+
+        [ClientRpc]
+        public void RpcDisplayScore(int displayScore)
+        {
+            _hoveringDetails.DisplayScore(displayScore);
+        }
+
+        [ClientRpc]
+        public void RpcDisplayHealth(float displayHealth)
+        {
+            _hoveringDetails.DisplayHealth(displayHealth);
         }
     }
 }

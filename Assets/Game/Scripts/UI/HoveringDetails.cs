@@ -15,12 +15,13 @@ namespace Game.Scripts.UI
             {
                 _playerName = value.playerName;
                 _vehicleCamera = value.vehicleCamera.transform;
-                SetScore(0);
+                _player = value;
             }
         }
 
         private string _playerName;
         private Transform _vehicleCamera;
+        private GameNetworkPlayer _player;
 
         private void Update()
         {
@@ -36,12 +37,12 @@ namespace Game.Scripts.UI
             );
         }
 
-        public void SetScore(int score)
+        public void DisplayScore(int score)
         {
             text.text = $"{_playerName}: {score}";
         }
 
-        public void SetHealth(float healthPercentage)
+        public void DisplayHealth(float healthPercentage)
         {
             slider.value = healthPercentage / 100;
         }
