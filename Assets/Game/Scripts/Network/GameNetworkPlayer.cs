@@ -27,7 +27,7 @@ namespace Game.Scripts.Network
         private Camera _spectatorCamera;
         private HoveringDetails _hoveringDetails;
 
-        [SyncVar] private GameObject _car;
+        [SyncVar] public GameObject _car;
 
         public void Start()
         {
@@ -43,6 +43,15 @@ namespace Game.Scripts.Network
                 // If the car was already spawned, add the relevant additions
                 // If it wasn't, then wait for the RPC callback
                 ConfigureHoveringDetails(_car);
+            }
+        }
+
+        private void Update()
+        {
+            if (_car)
+            {
+                if (!_car.transform.parent || _car.transform.parent != transform)
+                    _car.transform.parent = transform;
             }
         }
 
