@@ -27,7 +27,7 @@ namespace Game.Scripts.Network
         private Camera _spectatorCamera;
         private HoveringDetails _hoveringDetails;
 
-        [SyncVar] public GameObject _car;
+        [SyncVar] private GameObject _car;
 
         public void Start()
         {
