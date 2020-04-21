@@ -36,14 +36,14 @@ namespace Game.Scripts.UI
             );
         }
 
-        private void SetScore(int score)
+        public void SetScore(int score)
         {
             text.text = $"{_playerName}: {score}";
         }
 
-        private void SetHealth(float healthPercentage)
+        public void SetHealth(float healthPercentage)
         {
-            slider.value = healthPercentage;
+            slider.value = healthPercentage / 100;
         }
     }
 }

@@ -1070,6 +1070,7 @@ GameObject:
   - component: {fileID: 6192708082130723620}
   - component: {fileID: 114497762773797218}
   - component: {fileID: 114090387739729192}
+  - component: {fileID: 114027494657568386}
   m_Layer: 0
   m_Name: Tocus
   m_TagString: Untagged
@@ -1547,6 +1548,21 @@ MonoBehaviour:
   localPositionSensitivity: 0.01
   localRotationSensitivity: 0.01
   localScaleSensitivity: 0.01
+--- !u!114 &114027494657568386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192708082130723623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9a6f576a8cf4814f86924e3f2cb693b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 100
+  scores: 0
+  display: {fileID: 0}
 --- !u!1 &6192752807182338737
 GameObject:
   m_ObjectHideFlags: 0

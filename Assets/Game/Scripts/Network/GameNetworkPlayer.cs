@@ -37,7 +37,7 @@ namespace Game.Scripts.Network
             {
                 // If the car was already spawned, add the relevant additions
                 // If it wasn't, then wait for the RPC callback
-                ConfigureHoveringDetails(_car.transform);
+                ConfigureHoveringDetails(_car);
             }
         }
 
@@ -102,12 +102,16 @@ namespace Game.Scripts.Network
                 playerName = MainMenu.PlayerName;
             }
 
-            ConfigureHoveringDetails(car.transform);
+            ConfigureHoveringDetails(car);
         }
 
-        private void ConfigureHoveringDetails(Transform carParent)
+        private void ConfigureHoveringDetails(GameObject carObject)
         {
-            Instantiate(hoveringPrefab, carParent).GetComponent<HoveringDetails>().Player = this;
+            var hoveringDetails = Instantiate(hoveringPrefab, carObject.transform).GetComponent<HoveringDetails>();
+            hoveringDetails.Player = this;
+            var healthAndScores = carObject.GetComponent<HealthAndScores>();
+            healthAndScores.display = hoveringDetails;
+            healthAndScores.DisplayCurrent();
         }
     }
 }
