@@ -34,8 +34,8 @@ public class Timer : NetworkBehaviour
                 RpcSetTime(time);
             }
         }
-        string m = Mathf.Floor((time / 60) % 60).ToString();
-        string s = Mathf.Floor(time % 60).ToString();
+        string m = Mathf.Floor((time / 60) % 60).ToString("00");
+        string s = Mathf.Floor(time % 60).ToString("00");
         t.text = m + ":" + s;
 
         if (time < 0)
