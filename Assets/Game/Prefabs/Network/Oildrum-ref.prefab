@@ -143,7 +143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
-  serverOnly: 1
+  serverOnly: 0
   m_AssetId: 
 --- !u!114 &114398525873303888
 MonoBehaviour:
