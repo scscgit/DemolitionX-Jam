@@ -270,6 +270,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1412735045, guid: f06fbc6c576baf14ba07d1dd426a4453, type: 3}
+      propertyPath: port
+      value: 7777
+      objectReference: {fileID: 0}
     - target: {fileID: 4136253233753687426, guid: f06fbc6c576baf14ba07d1dd426a4453,
         type: 3}
       propertyPath: m_Name
