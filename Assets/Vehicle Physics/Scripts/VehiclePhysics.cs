@@ -1,13 +1,11 @@
 using UnityEngine;
-using UnityEngine.Audio;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent (typeof(Rigidbody))]
-///<summary>
-///Main script that handles most of the functionalities of the vehicle!
-///</summary>
+/// <summary>
+/// Main vehicle controller that includes Wheels, Steering, Suspensions, Mechanic Configuration, Stability, Lights, Sounds, and Damage.
+/// </summary>
 public class VehiclePhysics : MonoBehaviour {
 
 	[Header("Behaviour Preset")]
@@ -17,295 +15,189 @@ public class VehiclePhysics : MonoBehaviour {
     [Tooltip("How must the vehicle behave?")]	
 	public BehaviorType behaviorType = BehaviorType.SportsMuscle;
 	public enum BehaviorType{CivilianCars, SuperCars, Jeeps, SportsMuscle, Rovers, Custom}
-	[Header("Drive Choise")]
-	/// <summary>
-    /// What kind of vehicle is it?
-    /// </summary>
-    [Tooltip("What kind of vehicle is it?")]
+
+	[Header("Wheel Type")]
 	public WheelType _wheelTypeChoise = WheelType.RWD;
 	public enum WheelType{FWD, RWD, AWD, BIASED}
-	/// <summary>
-    /// How much torque bias?
-    /// </summary>
-    [Tooltip("How much torque bias?")]
 	[Range(0f, 100f)]public float biasedWheelTorque = 100f;
 
-	private CommonSettings CommonSettingsInstance;
-	private CommonSettings CommonSettings {
+	private CommonSettings commonSettingsInstance;
+	private CommonSettings commonSettings {
 		get {
-			if (CommonSettingsInstance == null) {
-				CommonSettingsInstance = CommonSettings.Instance;
+			if (commonSettingsInstance == null) {
+				commonSettingsInstance = CommonSettings.Instance;
 			}
-			return CommonSettingsInstance;
+			return commonSettingsInstance;
 		}
 	}
 
-
-	private Rigidbody rigid;		
-	internal bool sleepingRigid = false;
-
-	[Header("Wheel Transforms")]	
-	/// <summary>
-    /// Front Left Wheel Transform
-    /// </summary>
-    [Tooltip("Front Left Wheel Transform")]
-	public Transform FrontLeftWheelTransform;
-	/// <summary>
-    /// Front Right Wheel Transform
-    /// </summary>
-    [Tooltip("Front Right Wheel Transform")]
-	public Transform FrontRightWheelTransform;
-	/// <summary>
-    /// Front Rear Wheel Transform
-    /// </summary>
-    [Tooltip("Rear Left Wheel Transform")]
-	public Transform RearLeftWheelTransform;
-	/// <summary>
-    /// Rear Right Wheel Transform 
-    /// </summary>
-    [Tooltip("Rear Right Wheel Transform")]
-	public Transform RearRightWheelTransform;
-	/// <summary>
-    /// Any extra wheels other than four
-    /// </summary>
-     [Tooltip("Any extra wheels other than four")]
-	public Transform[] ExtraRearWheelsTransform;
-
-	[Header("Wheel Colliders")]	
-	/// <summary>
-    /// Front Left Wheel Collider
-    /// </summary>
-    [Tooltip("Front Left Wheel Collider")]
-	public VehiclePhysicsWheelCollider FrontLeftWheelCollider;
-	/// <summary>
-    /// Front Left Wheel Collider
-    /// </summary>
-    [Tooltip("Front Left Wheel Collider")]
-	public VehiclePhysicsWheelCollider FrontRightWheelCollider;
-	/// <summary>
-    /// Front Left Wheel Collider
-    /// </summary>
-    [Tooltip("Front Left Wheel Collider")]
-	public VehiclePhysicsWheelCollider RearLeftWheelCollider;
-	/// <summary>
-    /// Front Left Wheel Collider
-    /// </summary>
-    [Tooltip("Front Left Wheel Collider")]
-	public VehiclePhysicsWheelCollider RearRightWheelCollider;
-	internal VehiclePhysicsWheelCollider[] allWheelColliders;
-	/// <summary>
-    /// Any extra wheels other than four
-    /// </summary>
-    [Tooltip("Any extra wheels other than four")]	
-	public VehiclePhysicsWheelCollider[] ExtraRearWheelsCollider;
-
-	[Header("Preferences")]	
-	/// <summary>
-    /// Applies Motor Torque for extra wheel colliders
-    /// </summary>
-    [Tooltip("Applies Motor Torque for extra wheel colliders")]	
-	public bool applyEngineTorqueToExtraRearWheelColliders = true;
-	/// <summary>
-    /// Can The Car be Controlled?
-    /// </summary>
-    [Tooltip("Can The Car be Controlled?")]		
-	public bool canControl = true;
-	/// <summary>
-    /// Is engine running?
-    /// </summary>
-    [Tooltip("Is engine running?")]				
-	public bool engineRunning = true;
-	/// <summary>
-    /// Is automatic gear?
-    /// </summary>
-    [Tooltip("Is automatic gear?")]			
-	public bool automaticGear = true;	
-	/// <summary>
-    /// Is semi automatic gear?
-    /// </summary>
-    [Tooltip("Is semi automatic gear?")]	
-	public bool semiAutomaticGear = false;
-	/// <summary>
-    /// Is semi automatic gear?
-    /// </summary>
-    [Tooltip("Is semi automatic gear?")]			
-	private bool canGoReverseNow = false;
-	/// <summary>
-    /// Is semi automatic gear?
-    /// </summary>
-    [Tooltip("Is semi automatic gear?")]	
-	public bool useRevLimiter = true;
-	/// <summary>
-    /// Must use clutch margin? (for smoother first gear change.)
-    /// </summary>
-    [Tooltip("Must use clutch margin? (for smoother first gear change.)")]	
-	public bool useClutchMarginAtFirstGear = true;
+	internal Rigidbody rigid;							// Rigidbody.
+	internal bool isSleeping = false;				// Used For Disabling Unnecessary Raycasts When RB Is Sleeping.
 	
-	/// <summary>
-    /// Use exhaust flame?
-    /// </summary>
-    [Tooltip("Use exhaust flame?")]	
-	public bool useExhaustFlame = true;
+	
+	// Wheel Transforms Of The Vehicle.
+	[Header("Wheel Transforms")]
+	public Transform FrontLeftWheelTransform;
+	public Transform FrontRightWheelTransform;
+	public Transform RearLeftWheelTransform;
+	public Transform RearRightWheelTransform;
+	public Transform[] ExtraRearWheelsTransform;
+	
+	// Wheel Colliders Of The Vehicle.
+	[Header("Wheel Colliders")]
+	public VehiclePhysicsWheelCollider FrontLeftWheelCollider;
+	public VehiclePhysicsWheelCollider FrontRightWheelCollider;
+	public VehiclePhysicsWheelCollider RearLeftWheelCollider;
+	public VehiclePhysicsWheelCollider RearRightWheelCollider;
 
+	// All Wheel Colliders.
+	internal VehiclePhysicsWheelCollider[] allWheelColliders;
+	
+	// Extra Wheels. In case of if your vehicle has extra wheels.
+	
+	public VehiclePhysicsWheelCollider[] ExtraRearWheelsCollider;
+	public bool applyEngineTorqueToExtraRearWheelColliders = true;	//Applies Engine Torque To Extra Rear Wheels.
+
+	// Steering wheel model.
 	[Header("Steering")]
-	/// <summary>
-    /// Steering wheel transform!
-    /// </summary>
-    [Tooltip("Steering Wheel Transform")]	
-	public Transform SteeringWheel;		
-	private Quaternion orgSteeringWheelRot;
-	/// <summary>
-    /// Axis of rotation of steering Wheel!
-    /// </summary>
-    [Tooltip("Axis of rotation of steering Wheel!")]	
-	public SteeringWheelRotateAround steeringWheelRotateAround;
-	public enum SteeringWheelRotateAround { XAxis, YAxis, ZAxis }
-	/// <summary>
-    /// How much the steering wheel must rotate? (with respect to the steer angle of wheel!)
-    /// </summary>
-    [Tooltip("How much the steering wheel must rotate? (with respect to the steer angle of wheel!)")]
-	public float steeringWheelAngleMultiplier = 3f;
-	/// <summary>
-    /// Maximum Steering angle
-    /// </summary>
-    [Tooltip("Maximum Steering angle")]	
-	public float steerAngle = 40f;		
-	/// <summary>
-    /// Minimum Steering angle
-    /// </summary>
-    [Tooltip("Minimum Steering angle")]	
-	public float highspeedsteerAngle = 15f;	
-	/// <summary>
-    /// AT what speed minimum steer angle must be achieved?
-    /// </summary>
-    [Tooltip("AT what speed minimum steer angle must be achieved?")]		
-	public float highspeedsteerAngleAtspeed = 100f;	
+	public Transform SteeringWheel;														// Driver Steering Wheel. In case of if your vehicle has individual steering wheel model in interior.
+	private Quaternion orgSteeringWheelRot;											// Original rotation of Steering Wheel.
+	public SteeringWheelRotateAround steeringWheelRotateAround;		// Current rotation of Steering Wheel.
+	public enum SteeringWheelRotateAround { XAxis, YAxis, ZAxis }		//	Rotation axis of Steering Wheel.
+	public float steeringWheelAngleMultiplier = 3f;		
+	public float steerAngle = 40f;									// Maximum Steer Angle Of Your Vehicle.
+	public float highspeedsteerAngle = 15f;					// Maximum Steer Angle At Highest Speed.
+	public float highspeedsteerAngleAtspeed = 100f;		// Highest Speed For Maximum Steer Angle.					// Angle multiplier of Steering Wheel.
 
-	[Header("Center of Mass")]
-	/// <summary>
-    /// Center of mass of the vehicle
-    /// </summary>
-    [Tooltip("Center of mass of the vehicle")]	
-	public Transform COM;
-	[Header("Engine Properties")]	
-	/// <summary>
-    /// Max Engine Torque
-    /// </summary>
-    [Tooltip("Max Engine Torque")]	
-	public float engineTorque = 2000f;		
-	/// <summary>
-    /// Max Brake Torque
-    /// </summary>
-    [Tooltip("Max Brake Torque")]	
-	public float brakeTorque = 2000f;		
-	/// <summary>
-    /// Max Engine RPM
-    /// </summary>
-    [Tooltip("Max Engine RPM")]	
-	public float maxEngineRPM = 7000f;		
-	/// <summary>
-    /// Min Engine RPM
-    /// </summary>
-    [Tooltip("Min Engine RPM")]	
-	public float minEngineRPM = 1000f;	
-	/// <summary>
-    /// Engine's inertia! (how fast can it reach max RPM?)
-    /// </summary>
-    [Tooltip("Engine's inertia! (how fast can it reach max RPM?)")]		
-	[Range(.75f, 2f)]public float engineInertia = 1f;
+	[Header("Center Of Mass")]
+	public Transform COM;		// Center of mass.
 
-	[Header("AntiRoll Bars")]	
-	/// <summary>
-    /// Horizontal Anti Roll Force at front wheels
-    /// </summary>
-    [Tooltip("Horizontal Anti Roll Force at front wheels")]		
-	public float antiRollFrontHorizontal = 5000f;
-	/// <summary>
-    /// Horizontal Anti Roll Force at rear wheels
-    /// </summary>
-    [Tooltip("Horizontal Anti Roll Force at rear wheels")]				
-	public float antiRollRearHorizontal = 5000f;
-	/// <summary>
-    /// Vertical Anti Roll Force 
-    /// </summary>
-    [Tooltip("Horizontal Anti Roll Force")]			
-	public float antiRollVertical = 0f;		
+	[Header("Preferences")]
+	// Bools.
+	public bool canControl = true;																			// Enables / Disables controlling the vehicle.
 
-	[Header("Speed")]
-	/// <summary>
-    /// Max speed vehicle can attain
-    /// </summary>
-    [Tooltip("Max speed vehicle can attain")]	
-	public float maxspeed = 220f;	
-	[HideInInspector] public float speed;		
-	[HideInInspector] public float orgMaxSpeed;	
-		
-		
-	private float orgSteerAngle = 0f;		
-	internal float fuelInput = 1f;
+	public bool engineRunning = false;															// Enables / Disables auto reversing when player press brake button. Useful for if you are making parking style game.
+	public bool automaticGear = true;			// Enables / Disables automatic gear shifting of the vehicle.
+	internal bool semiAutomaticGear = false;															// Enables / Disables automatic gear shifting of the vehicle.
+	internal bool canGoReverseNow = false;
+	public bool useRevLimiter = true;								// Rev Limiter above Maximum Engine RPM.
+	public bool useExhaustFlame = true;							// Exhaust blow flame.
+	public bool useClutchMarginAtFirstGear = true;			// Smooth clutching at first gear.
+	public bool autoGenerateGearCurves = true;		// Each gear has it's own torque curve.
+	public bool autoGenerateTargetSpeedsForChangingGear = true;		// Target speeds for shifting between gears.
+	 
+	// Configurations.
+					// Each Gear Ratio Curves Generated By Editor Script.
 
+	[Header("Engine")]	
+	public float engineTorque = 2000f;							// Default Engine Torque.
+	public float brakeTorque = 2000f;							// Maximum Brake Torque.,
+	public float minEngineRPM = 1000f;							// Minimum Engine RPM.
+	public float maxEngineRPM = 7000f;							// Maximum Engine RPM.
+	[Range(.75f, 2f)]public float engineInertia = 1f;		// Inertia of the engine.
+	public float maxspeed = 220f;		// Maximum speed.
+
+	[Header("Antiroll")]	
+	public float antiRollFrontHorizontal = 5000f;			// Anti Roll Horizontal Force For Preventing Flip Overs And Stability.
+	public float antiRollRearHorizontal = 5000f;				// Anti Roll Horizontal Force For Preventing Flip Overs And Stability.
+	public float antiRollVertical = 0f;								// Anti Roll Vertical Force For Preventing Flip Overs And Stability. I know it doesn't exist, but it can improve gameplay if you have height COM vehicles like monster trucks.
+
+	// Downforce.
+	public float downForce = 25f;		// Applies downforce related with vehicle speed.
+
+	[HideInInspector] public float speed;						// Vehicle speed.
+	[HideInInspector] public float orgMaxSpeed;			// Original maximum speed.
+	
+
+	private float resetTime = 0f;					// Used for resetting the vehicle if upside down.
+	private float orgSteerAngle = 0f;			// Original steer angle.
+
+	[Header("Fuel")]
+	public bool useFuelConsumption = false;		// Enable / Disable Fuel Consumption.
+	public float fuelTankCapacity = 62f;			// Fuel Tank Capacity.
+	public float fuelTank = 62f;							// Fuel Amount.
+	public float fuelConsumptionRate = .1f;			// Fuel Consumption Rate.
+
+	// Engine heat.
+	[Header("Engine Heat")]
+	public bool useEngineHeat = false;							// Enable / Disable engine heat.
+	public float engineHeat = 15f;									// Engine heat.
+	public float engineCoolingWaterThreshold = 60f;		// Engine coolign water engage point.
+	public float engineHeatRate = 1f;								// Engine heat multiplier.
+	public float engineCoolRate = 1f;								// Engine cool multiplier.
+
+	// Gears.
 	[Header("Transmission")]
-	/// <summary>
-    /// Total number of gears
-    /// </summary>
-    [Tooltip("Total number of gears")]	
-	public int totalGears = 6;
-	[HideInInspector]public int currentGear = 0;
-	/// <summary>
-    /// Time in seconds taken to change gear
-    /// </summary>
-    [Tooltip(" Time in seconds taken to change gear")]				
+	public int currentGear = 0;		// Current Gear Of The Vehicle.
+	public int totalGears = 6;			// Total Gears Of The Vehicle.
 	[Range(0f, .5f)]public float gearShiftingDelay = .35f;
-	/// <summary>
-    /// Gear shifting treshold
-    /// </summary>
-    [Tooltip("Gear shifting treshold")]	
 	[Range(.5f, .95f)]public float gearShiftingThreshold = .85f;
-	/// <summary>
-    /// Clutch's inertia, used to change the first gear
-    /// </summary>
-    [Tooltip("Clutch's inertia, used to change the first gear")]	
 	[Range(.1f, .9f)]public float clutchInertia = .25f;
-	private float orgGearShiftingThreshold;		
-	[HideInInspector]public bool changingGear = false;		
-	[HideInInspector]public bool NGear = false;		
-	[HideInInspector]public int direction = 1;		
-	[HideInInspector]public float launched = 0f;
+	private float orgGearShiftingThreshold;		// Original Gear Shifting Threshold.
+	[HideInInspector] public bool changingGear = false;		// Changing Gear Currently.
+	[HideInInspector] public bool NGear = false;		// N Gear.
+	[HideInInspector] public int direction = 1;		// Reverse Gear Currently.
+	[HideInInspector] public float launched = 0f;
 
-	[Header("Audio")]	
-	public AudioClip engineStartClip;
+	
+	
+	// How many source we will use for simulating engine sounds?. Usually, all modern driving games have around 6 audio sources per vehicle.
+	// Low RPM, Medium RPM, and High RPM. And their off versions.
+
+	[Header("Audio System")]
+	public AudioType audioType;
+	public enum AudioType{OneSource, TwoSource, ThreeSource, Off}
+
+	// If you don't have off versions, generate them.
+	public bool autoCreateEngineOffSounds = true;
+
+	// AudioSources and AudioClips.
 	private AudioSource engineStartSound;
-	internal AudioSource engineSoundOn;
-	public AudioClip engineClipOn;
-	private AudioSource engineSoundOff;
-	public AudioClip engineClipOff;
+	public AudioClip engineStartClip;
+	internal AudioSource engineSoundHigh;
+	public AudioClip engineClipHigh;
+	private AudioSource engineSoundMed;
+	public AudioClip engineClipMed;
+	private AudioSource engineSoundLow;
+	public AudioClip engineClipLow;
 	private AudioSource engineSoundIdle;
 	public AudioClip engineClipIdle;
 	private AudioSource gearShiftingSound;
 
-	private AudioClip[] gearShiftingClips{get{return CommonSettings.gearShiftingClips;}}
-	private AudioSource crashSound;
-	private AudioClip[] crashClips{get{return CommonSettings.crashClips;}}
-	private AudioSource reversingSound;
-	private AudioClip reversingClip{get{return CommonSettings.reversingClip;}}
-	private AudioSource windSound;
-	private AudioClip windClip{get{return CommonSettings.windClip;}}
-	private AudioSource brakeSound;
-	private AudioClip brakeClip{get{return CommonSettings.brakeClip;}}
-	private AudioSource NOSSound;
-	private AudioClip NOSClip{get{return CommonSettings.NOSClip;}}
-	private AudioSource turboSound;
-	private AudioClip turboClip{get{return CommonSettings.turboClip;}}
-	private AudioSource blowSound;
-	private AudioClip blowClip{get{return CommonSettings.turboClip;}}
+	internal AudioSource engineSoundHighOff;
+	public AudioClip engineClipHighOff;
+	internal AudioSource engineSoundMedOff;
+	public AudioClip engineClipMedOff;
+	internal AudioSource engineSoundLowOff;
+	public AudioClip engineClipLowOff;
 
-	[Range(.25f, 1f)]public float minEngineSoundPitch = .75f;
-	[Range(1.25f, 2f)]public float maxEngineSoundPitch = 1.75f;
+	// Shared AudioSources and AudioClips.
+	private AudioClip[] gearShiftingClips{get{return commonSettings.gearShiftingClips;}}
+	private AudioSource crashSound;
+	private AudioClip[] crashClips{get{return commonSettings.crashClips;}}
+	private AudioSource reversingSound;
+	private AudioClip reversingClip{get{return commonSettings.reversingClip;}}
+	private AudioSource windSound;
+	private AudioClip windClip{get{return commonSettings.windClip;}}
+	private AudioSource brakeSound;
+	private AudioClip brakeClip{get{return commonSettings.brakeClip;}}
+	private AudioSource NOSSound;
+	private AudioClip NOSClip{get{return commonSettings.NOSClip;}}
+	private AudioSource turboSound;
+	private AudioClip turboClip{get{return commonSettings.turboClip;}}
+	private AudioSource blowSound;
+	private AudioClip blowClip{get{return commonSettings.turboClip;}}
+
+	// Min / Max sound pitches and volumes.
+	[Range(0f, 1f)]public float minEngineSoundPitch = .75f;
+	[Range(1f, 2f)]public float maxEngineSoundPitch = 1.75f;
 	[Range(0f, 1f)]public float minEngineSoundVolume = .05f;
 	[Range(0f, 1f)]public float maxEngineSoundVolume = .85f;
 
+	// Main Gameobjects for keep the Hierarchy clean and organized.
 	private GameObject allContactParticles;
 	
+	// Inputs.
 	[HideInInspector]public float gasInput = 0f;
 	[HideInInspector]public float brakeInput = 0f;
 	[HideInInspector]public float steerInput = 0f;
@@ -314,10 +206,15 @@ public class VehiclePhysics : MonoBehaviour {
 	[HideInInspector]public float boostInput = 1f;
 	[HideInInspector]public bool cutGas = false;
 	[HideInInspector]public float idleInput = 0f;
+	[HideInInspector]public float fuelInput = 0f;
 
+	//public bool permanentGas = false;
+
+	#region Processed Inputs
+	// Processed Inputs. DO NOT FEED THESE VALUES on your own script. Feed only above inputs.
 	internal float _gasInput{get{
 
-			if(fuelInput <= .25f)
+			if(_fuelInput <= 0f)
 				return 0f;
 
 			if(!automaticGear || semiAutomaticGear){
@@ -357,190 +254,145 @@ public class VehiclePhysics : MonoBehaviour {
 
 		}set{boostInput = value;}}
 
-	internal float _steerInput;
+	internal float _steerInput{get{
 
+			return steerInput + _counterSteerInput;
 
-	internal float engineRPM = 0f;		
-	internal float rawEngineRPM = 0f;
+		}}
 
-	[Header("Chassis")]	
-	///<summary>
-	/// The chassis of the vehicle
-	///</summary>
-	[Tooltip("The chassis of the vehicle")]
-	public GameObject chassis;			
+	internal float _counterSteerInput{get{
+
+			if (applyCounterSteering)
+				return (driftAngle * counterSteeringFactor);
+			else
+				return 0f;
+
+		}}
+
+	internal float _fuelInput{get{
+
+			if(fuelTank > 0){
+				return fuelInput;
+			}else{
+				if(engineRunning)
+					KillEngine ();
+				return 0f;
+			}
+
+		}set{fuelInput = value;}}
+
+	#endregion
+
+	internal float rawEngineRPM = 0f;	// Actual engine RPM.
+	internal float engineRPM = 0f;			// Smoothed engine RPM.
+
+	[Header("Chassis")]
 	
-	[HideInInspector]public bool lowBeamHeadLightsOn = false;		
-	[HideInInspector]public bool highBeamHeadLightsOn = false;		
+	public GameObject chassis;						// Script will simulate chassis movement based on vehicle rigidbody velocity.
+	public float chassisVerticalLean = 4f;		// Chassis vertical lean sensitivity.
+	public float chassisHorizontalLean = 4f;	// Chassis horizontal lean sensitivity.
+	
+	// Lights.
+	[HideInInspector] public bool lowBeamHeadLightsOn = false;	// Low beam head lights.
+	[HideInInspector] public bool highBeamHeadLightsOn = false;	// High beam head lights.
 
-	[HideInInspector]public IndicatorsOn indicatorsOn;		
+	// For Indicators.
+	public IndicatorsOn indicatorsOn;		// Indicator system.
 	public enum IndicatorsOn{Off, Right, Left, All}
-	[HideInInspector]public float indicatorTimer = 0f;		
+	public float indicatorTimer = 0f;			// Used timer for indicator on / off sequence.
 
-	public GameObject contactSparkle{get{return CommonSettings.contactParticles;}}		
-	[HideInInspector]public int maximumContactSparkle = 5;		
-	private List<ParticleSystem> contactSparkeList = new List<ParticleSystem>();	
+	// Damage.
+	[Header("Deform System")]
+	public bool useDamage = true;													// Use Damage.
+	struct originalMeshVerts{public Vector3[] meshVerts;}				// Struct for Original Mesh Verticies positions.
+	private originalMeshVerts[] originalMeshData;							// Array for struct above.
+	public MeshFilter[] deformableMeshFilters;								// Deformable Meshes.
+	public LayerMask damageFilter = -1;											// LayerMask filter for not taking any damage.
+	public float randomizeVertices = 1f;											// Randomize Verticies on Collisions for more complex deforms.
+	public float damageRadius = .5f;												// Verticies in this radius will be effected on collisions.
+	private float minimumVertDistanceForDamagedMesh = .002f;		// Comparing Original Vertex Positions Between Last Vertex Positions To Decide Mesh Is Repaired Or Not.
+	public bool repairNow = false;													// Repair Now.
+	public bool repaired = true;														// Returns true if vehicle is repaired.
 
+	public float maximumDamage = .5f;				// Maximum Vert Distance For Limiting Damage. 0 Value Will Disable The Limit.
+	private float minimumCollisionForce = 5f;		// Minimum collision force.
+	public float damageMultiplier = 1f;				// Damage multiplier.
+	
+	public GameObject contactSparkle{get{return commonSettings.contactParticles;}}		// Contact Particles for collisions. It must be Particle System.
+	public int maximumContactSparkle = 5;																	//	Contact Particles will be ready to use for collisions in pool. 
+	private List<ParticleSystem> contactSparkeList = new List<ParticleSystem>();			// Array for Contact Particles.
+
+	// Used for Angular and Linear Steering Helper.
+	private Vector3 localVector;
+	private Quaternion rot = Quaternion.identity;
 	private float oldRotation;
-	[HideInInspector]public Transform velocityDirection;
-	[HideInInspector]public Transform steeringDirection;
-	[HideInInspector]public float velocityAngle;
+	[HideInInspector] public Transform velocityDirection;
+	[HideInInspector] public Transform steeringDirection;
+	public float velocityAngle;
 	private float angle;
 	private float angularVelo;
 
-	[Header("Driving Assistances")]
-	///<summary>
-	/// Must we use ABS?
-	///</summary>
-	[Tooltip("Must we use ABS?")]
+	// Driving Assistances.
 	public bool ABS = true;
-	///<summary>
-	/// ABS Treshold
-	///</summary>
-	[Tooltip("ABS Treshold")]
 	[Range(.05f, .5f)]public float ABSThreshold = .35f;
-	[Space(10)]
-	///<summary>
-	/// Must we use TCS?
-	///</summary>
-	[Tooltip("Must we use TCS?")]
 	public bool TCS = true;
-	///<summary>
-	/// TCS Treshold
-	///</summary>
-	[Tooltip("TCS Treshold")]
-	[Range(.05f, .5f)]public float TCSThreshold = .25f;
-	///<summary>
-	/// TCS Strength
-	///</summary>
-	[Tooltip("TCS Strength")]
-	[Range(0f, 1f)]public float TCSStrength = 1f;
-	[Space(10)]
-	///<summary>
-	/// Must we use ESP?
-	///</summary>
-	[Tooltip("Must we use ESP?")]
+	[Range(.05f, .5f)]public float TCSThreshold = .5f;
+	[Range(.05f, 1f)]public float TCSStrength = 1f;
 	public bool ESP = true;
-	///<summary>
-	/// ESP Treshold
-	///</summary>
-	[Tooltip("ESP Treshold")]
-	[Range(0f, .5f)]public float ESPThreshold = .25f;
-	///<summary>
-	/// ESP Strength
-	///</summary>
-	[Tooltip("ESP Strength")]
-	[Range(.1f, 1f)]public float ESPStrength = .25f;
-	[Space(10)]
-	///<summary>
-	/// Must we use Steering Helper?
-	///</summary>
-	[Tooltip("Must we use Steering Helper?")]
+	[Range(.05f, .5f)]public float ESPThreshold = .25f;
+	[Range(.05f, 1f)]public float ESPStrength = .5f;
 	public bool steeringHelper = true;
-	///<summary>
-	/// Linear verticla strength
-	///</summary>
-	[Tooltip("linear vertical strength")]
+	public bool applyCounterSteering = true;							// Applies counter steering when vehicle is drifting. It helps to keep the control fine of the vehicle.
 	[Range(0f, 1f)] public float steerHelperLinearVelStrength = .1f;
-	///<summary>
-	/// Linear Angular strength
-	///</summary>
-	[Tooltip("linear angular strength")]
 	[Range(0f, 1f)] public float steerHelperAngularVelStrength = .1f;
-	[Space(10)]	
-	///<summary>
-	/// Must we use Traction Helper?
-	///</summary>
-	[Tooltip("Must we use Traction Helper?")]
 	public bool tractionHelper = true;
-	///<summary>
-	/// Traction Helper strength
-	///</summary>
-	[Tooltip("Traction Helper strength")]
-	[Range(0f, 1f)] public float tractionHelperStrength = .1f;
-	[Space(10)]
-	///<summary>
-	/// Must we use Counter Steering?
-	///</summary>
-	[Tooltip("Must we use Counter Steering ?")]
-	public bool applyCounterSteering = true;	
 	
-	[HideInInspector]public bool ABSAct = false;
-	[HideInInspector]public bool TCSAct = false;
-	[HideInInspector]public bool ESPAct = false;
+	[Range(0f, 1f)] public float tractionHelperStrength = .1f;
 
-	[HideInInspector]public bool overSteering = false;
-	[HideInInspector]public bool underSteering = false;
+	// Is Driving Assistance is in action now?
+	[HideInInspector] public bool ABSAct = false;
+	[HideInInspector] public bool TCSAct = false;
+	[HideInInspector] public bool ESPAct = false;
 
-	internal float DriftAngle = 0f;
-	internal bool DriftingNow = false;
+	// ESP Bools.
+	[HideInInspector] public bool underSteering = false;
+	[HideInInspector] public bool overSteering = false;
 
-	[HideInInspector]public float frontSlip = 0f;
-	[HideInInspector]public float rearSlip = 0f;
+	// Drift Variables.
+	internal bool driftingNow = false;										// Currently drifting?
+	internal float driftAngle = 0f;											// If we do, what's the drift angle?
+	
+	[Range(0f, 1f)]public float counterSteeringFactor = 1f;	// Counter steering multiplier.
 
+	// Used For ESP.
+	[HideInInspector] public float frontSlip = 0f;
+	[HideInInspector] public float rearSlip = 0f;
 
-	[HideInInspector]public float turboBoost = 0f;
-	[HideInInspector]public float NoS = 100f;
+	[Header("Turbo and NOS")]
+	
+	public bool useNOS = false;
+	public bool useTurbo = false;
+	public float turboBoost = 0f;
+	public float NoS = 100f;
 	private float NoSConsumption = 25f;
 	private float NoSRegenerateTime = 10f;
 
-	[Header("Turbo and NOS (for recing game!)")]
-	///<summary>
-	/// Must we use NOS?
-	///</summary>
-	[Tooltip("Must we use NOS?")]
-	public bool useNOS = false;
-	///<summary>
-	/// Must we use Turbo?
-	///</summary>
-	[Tooltip("Must we use Turbo?")]
-	public bool useTurbo = false;
 
-	[Header("Needles")]
-	///<summary>
-	/// Speed Needle's transform
-	///</summary>
-	[Tooltip("Speed Needle's transform")]
-	public Transform speedNeedle;
-	///<summary>
-	/// Speed Needle's angle at 0 speed
-	///</summary>
-	[Tooltip("Speed Needle's angle at 0 speed")]
-	public float speedStartAngle;
-	///<summary>
-	/// Speed Needle's angle at max speed
-	///</summary>
-	[Tooltip("Speed Needle's angle at max speed")]
-	public float speedEndAngle;
-	[Space(10)]
-	///<summary>
-	/// RPM Needle's transform
-	///</summary>
-	[Tooltip("RPM Needle's transform")]
-	public Transform rpmNeedle;
-	///<summary>
-	/// RPM Needle's angle at 0 RPM
-	///</summary>
-	[Tooltip("RPM Needle's angle at 0 RPM")]	
-	public float rpmStartAngle;
-	///<summary>
-	/// RPM Needle's angle at max RPM
-	///</summary>
-	[Tooltip("RPM Needle's angle at max RPM")]
-	public float rpmEndAngle;
+	[Header("Generated")]
+	public AnimationCurve[] engineTorqueCurve;
+	public float[] targetSpeedForGear;							// Target Speed For Changing Gear.
+	public float[] maxSpeedForGear;								// Maximum Speed For Current Gear.
 
-	[Header("Generated Curves!")]
-	[Space(4f)]
-	public AnimationCurve[] engineTorqueCurve;		
-	public float[] targetSpeedForGear;		
-	public float[] maxSpeedForGear;	
 
 	void Awake (){
 
+		// Getting Rigidbody and settings.
 		rigid = GetComponent<Rigidbody>();
-		rigid.maxAngularVelocity = CommonSettings.maxAngularVelocity;
+		rigid.maxAngularVelocity = commonSettings.maxAngularVelocity;
 
+		// You can configurate wheels for best behavior, but Unity doesn't have docs about it.
 		allWheelColliders = GetComponentsInChildren<VehiclePhysicsWheelCollider>();
+//		GetComponentInChildren<WheelCollider>().ConfigureVehicleSubsteps(10f, 1, 1);
 
 		FrontLeftWheelCollider.wheelModel = FrontLeftWheelTransform;
 		FrontRightWheelCollider.wheelModel = FrontRightWheelTransform;
@@ -551,18 +403,21 @@ public class VehiclePhysics : MonoBehaviour {
 			ExtraRearWheelsCollider[i].wheelModel = ExtraRearWheelsTransform[i];
 		}
 
+		// Default Steer Angle. Using it for lerping current steer angle between default steer angle and high speed steer angle.
 		orgSteerAngle = steerAngle;
 
+		// Collecting all contact particles in same gameobject.
 		allContactParticles = new GameObject("All Contact Particles");
 		allContactParticles.transform.SetParent(transform, false);
 
+		// Creating and initializing all audio sources for this vehicle.
 		SoundsInitialize();
 
-		if (chassis) {
-			if (!chassis.GetComponent<Chassis> ())
-				chassis.AddComponent<Chassis> ();
-		}
+		// Should we use the damage?
+		if(useDamage)
+			DamageInit();
 
+		// Proper settings for selected behavior type.
 		switch(behaviorType){
 
 		case BehaviorType.Jeeps:
@@ -626,6 +481,8 @@ public class VehiclePhysics : MonoBehaviour {
 
 		}
 
+		//KillOrStartEngine();
+
 	}
 
 	void OnEnable(){
@@ -635,33 +492,40 @@ public class VehiclePhysics : MonoBehaviour {
 
 	}
 
-	/// <summary>
-	/// Creates wheel collider in one single click on the inspector!
-	/// </summary>
+
+	// Method was used for creating new WheelColliders on Editor.
 	public void CreateWheelColliders (){
 
+		// Creating a list fot all wheel models.
 		List <Transform> allWheelModels = new List<Transform>();
 		allWheelModels.Add(FrontLeftWheelTransform); allWheelModels.Add(FrontRightWheelTransform); allWheelModels.Add(RearLeftWheelTransform); allWheelModels.Add(RearRightWheelTransform);
 
+		// If we have additional rear wheels, add them too.
 		if (ExtraRearWheelsTransform.Length > 0 && ExtraRearWheelsTransform [0]) {
 			foreach (Transform t in ExtraRearWheelsTransform)
 				allWheelModels.Add (t);
 		}
 
+		// If we don't have any wheelmodels, throw an error.
 		if(allWheelModels != null && allWheelModels[0] == null){
+			Debug.LogError("You haven't choose your Wheel Models. Please select all of your Wheel Models before creating Wheel Colliders. Script needs to know their sizes and positions, aye?");
 			return;
 		}
 
+		// Holding default rotation.
 		Quaternion currentRotation = transform.rotation;
 
+		// Resetting rotation.
 		transform.rotation = Quaternion.identity;
 
+		// Creating a new gameobject called Wheel Colliders for all Wheel Colliders, and parenting it to this gameobject.
 		GameObject WheelColliders = new GameObject("Wheel Colliders");
 		WheelColliders.transform.SetParent(transform, false);
 		WheelColliders.transform.localRotation = Quaternion.identity;
 		WheelColliders.transform.localPosition = Vector3.zero;
 		WheelColliders.transform.localScale = Vector3.one;
 
+		// Creating WheelColliders.
 		foreach(Transform wheel in allWheelModels){
 			
 			GameObject wheelcollider = new GameObject(wheel.transform.name); 
@@ -693,7 +557,7 @@ public class VehiclePhysics : MonoBehaviour {
 
 			wheelcollider.GetComponent<WheelCollider>().suspensionSpring = spring;
 			wheelcollider.GetComponent<WheelCollider>().suspensionDistance = .2f;
-			wheelcollider.GetComponent<WheelCollider>().forceAppPointDistance = .1f;
+			wheelcollider.GetComponent<WheelCollider>().forceAppPointDistance = 0f;
 			wheelcollider.GetComponent<WheelCollider>().mass = 40f;
 			wheelcollider.GetComponent<WheelCollider>().wheelDampingRate = 1f;
 
@@ -738,15 +602,83 @@ public class VehiclePhysics : MonoBehaviour {
 		
 	}
 
-	/// <summary>
-	/// Initializes audio sources with audio clips, and set's their properties!
-	/// </summary>
+	// Creating all audiosources at start.
 	void SoundsInitialize (){
 
-		engineSoundOn = CreateAudioSource.NewAudioSource(gameObject, "Engine Sound On AudioSource", 5, 50, 0, engineClipOn, true, true, false);
-		engineSoundOff = CreateAudioSource.NewAudioSource(gameObject, "Engine Sound Off AudioSource", 5, 25, 0, engineClipOff, true, true, false);
-		engineSoundIdle = CreateAudioSource.NewAudioSource(gameObject, "Engine Sound Idle AudioSource", 5, 25, 0, engineClipIdle, true, true, false);
+		switch (audioType) {
 
+		case AudioType.OneSource:
+
+			engineSoundHigh = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound High AudioSource", 5, 50, 0, engineClipHigh, true, true, false);
+
+			if (autoCreateEngineOffSounds) {
+
+				engineSoundHighOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound High Off AudioSource", 5, 50, 0, engineClipHigh, true, true, false);
+
+				CreateAudioSource.NewLowPassFilter (engineSoundHighOff, 3000f);
+
+			} else {
+
+				engineSoundHighOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound High Off AudioSource", 5, 50, 0, engineClipHighOff, true, true, false);
+
+			}
+
+			break;
+
+		case AudioType.TwoSource:
+
+			engineSoundHigh = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound High AudioSource", 5, 50, 0, engineClipHigh, true, true, false);
+			engineSoundLow = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound Low AudioSource", 5, 25, 0, engineClipLow, true, true, false);
+
+			if (autoCreateEngineOffSounds) {
+
+				engineSoundHighOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound High Off AudioSource", 5, 50, 0, engineClipHigh, true, true, false);
+				engineSoundLowOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound Low Off AudioSource", 5, 25, 0, engineClipLow, true, true, false);
+
+				CreateAudioSource.NewLowPassFilter (engineSoundHighOff, 3000f);
+				CreateAudioSource.NewLowPassFilter (engineSoundLowOff, 3000f);
+
+			} else {
+
+				engineSoundHighOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound High Off AudioSource", 5, 50, 0, engineClipHighOff, true, true, false);
+				engineSoundLowOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound Low Off AudioSource", 5, 25, 0, engineClipLowOff, true, true, false);
+
+			}
+
+			break;
+
+		case AudioType.ThreeSource:
+
+			engineSoundHigh = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound High AudioSource", 5, 50, 0, engineClipHigh, true, true, false);
+			engineSoundMed = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound Medium AudioSource", 5, 50, 0, engineClipMed, true, true, false);
+			engineSoundLow = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound Low AudioSource", 5, 25, 0, engineClipLow, true, true, false);
+
+			if (autoCreateEngineOffSounds) {
+
+				engineSoundHighOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound High Off AudioSource", 5, 50, 0, engineClipHigh, true, true, false);
+				engineSoundMedOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound Medium Off AudioSource", 5, 50, 0, engineClipMed, true, true, false);
+				engineSoundLowOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound Low Off AudioSource", 5, 25, 0, engineClipLow, true, true, false);
+
+				if(engineSoundHighOff)
+					CreateAudioSource.NewLowPassFilter (engineSoundHighOff, 3000f);
+				if(engineSoundMedOff)
+					CreateAudioSource.NewLowPassFilter (engineSoundMedOff, 3000f);
+				if(engineSoundLowOff)
+					CreateAudioSource.NewLowPassFilter (engineSoundLowOff, 3000f);
+
+			} else {
+
+				engineSoundHighOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound High Off AudioSource", 5, 50, 0, engineClipHighOff, true, true, false);
+				engineSoundMedOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound Medium Off AudioSource", 5, 50, 0, engineClipMedOff, true, true, false);
+				engineSoundLowOff = CreateAudioSource.NewAudioSource (gameObject, "Engine Sound Low Off AudioSource", 5, 25, 0, engineClipLowOff, true, true, false);
+
+			}
+
+			break;
+
+		}
+
+		engineSoundIdle = CreateAudioSource.NewAudioSource(gameObject, "Engine Sound Idle AudioSource", 5, 25, 0, engineClipIdle, true, true, false);
 		reversingSound = CreateAudioSource.NewAudioSource(gameObject, "Reverse Sound AudioSource", 1, 10, 0, reversingClip, true, false, false);
 		windSound = CreateAudioSource.NewAudioSource(gameObject, "Wind Sound AudioSource", 1, 10, 0, windClip, true, true, false);
 		brakeSound = CreateAudioSource.NewAudioSource(gameObject, "Brake Sound AudioSource", 1, 10, 0, brakeClip, true, true, false);
@@ -761,27 +693,34 @@ public class VehiclePhysics : MonoBehaviour {
 		}
 		
 	}
-
-	/// <Summary>
-	/// Starts engine, or stops engine if a;ready started
-	/// </summary>		
+		
 	public void KillOrStartEngine (){
 		
-		if(engineRunning){
-			engineRunning = false;
-			fuelInput = 0f;
-		}else{
-			StartCoroutine("StartEngine");
-		}
-		
-	}
+		if(engineRunning)
+			KillEngine ();
+		else
+			StartEngine();
 
-	/// <Summary>
-	/// Starts engine
-	/// </summary>	
+	}
+	
 	public void StartEngine (){
 
-		StartCoroutine ("StartEngineDelayed");
+		StartCoroutine (StartEngineDelayed());
+
+	}
+
+	public void StartEngine (bool instantStart){
+
+		if (instantStart) {
+			
+			fuelInput = 1f;
+			engineRunning = true;
+
+		} else {
+
+			StartCoroutine (StartEngineDelayed());
+
+		}
 
 	}
 
@@ -798,21 +737,142 @@ public class VehiclePhysics : MonoBehaviour {
 
 	}
 
-	/// <Summary>
-	/// Stops engine
-	/// </summary>	
 	public void KillEngine (){
 
-		engineRunning = false;
 		fuelInput = 0f;
+		engineRunning = false;
 
 	}
 
-	/// <summary>
-	/// Rotates steering wheel based on wheel rotation
-	/// </summary>
-	void SteeringWheelRotation(){
+	// Collecting all meshes for damage.
+	void DamageInit (){
 
+		if (deformableMeshFilters.Length == 0){
+
+			MeshFilter[] allMeshFilters = GetComponentsInChildren<MeshFilter>();
+			List <MeshFilter> properMeshFilters = new List<MeshFilter>();
+
+			foreach(MeshFilter mf in allMeshFilters){
+				
+				if(!mf.transform.IsChildOf(FrontLeftWheelTransform) && !mf.transform.IsChildOf(FrontRightWheelTransform) && !mf.transform.IsChildOf(RearLeftWheelTransform) && !mf.transform.IsChildOf(RearRightWheelTransform))
+					properMeshFilters.Add(mf);
+				
+			}
+
+			deformableMeshFilters = properMeshFilters.ToArray();
+
+		}
+		
+		LoadOriginalMeshData();
+
+		// Particle System used for collision effects. Creating it at start. We will use this when we collide something.
+		if(contactSparkle){
+			
+			for(int i = 0; i < maximumContactSparkle; i++){
+				GameObject sparks = (GameObject)Instantiate(contactSparkle, transform.position, Quaternion.identity) as GameObject;
+				sparks.transform.SetParent(allContactParticles.transform);
+				contactSparkeList.Add(sparks.GetComponent<ParticleSystem>());
+				ParticleSystem.EmissionModule em = sparks.GetComponent<ParticleSystem>().emission;
+				em.enabled = false;
+			}
+			
+		}
+
+	}
+
+	// Default mesh vertices positions. Used for repairing the vehicle body.
+	void LoadOriginalMeshData(){
+
+		originalMeshData = new originalMeshVerts[deformableMeshFilters.Length];
+
+		for (int i = 0; i < deformableMeshFilters.Length; i++)
+			originalMeshData[i].meshVerts = deformableMeshFilters[i].mesh.vertices;
+
+	}
+
+	// Moving deformed vertices to their original positions while repairing.
+	void Damage(){
+
+		if (!repaired && repairNow){
+			
+			int k;
+			repaired = true;
+
+			for(k = 0; k < deformableMeshFilters.Length; k++){
+
+				Vector3[] vertices = deformableMeshFilters[k].mesh.vertices;
+
+				if(originalMeshData == null)
+					LoadOriginalMeshData();
+
+				for (int i = 0; i < vertices.Length; i++){
+
+					vertices[i] += (originalMeshData[k].meshVerts[i] - vertices[i]) * (Time.deltaTime * 2f);
+					if((originalMeshData[k].meshVerts[i] - vertices[i]).magnitude >= minimumVertDistanceForDamagedMesh)
+						repaired = false;
+
+				}
+
+				deformableMeshFilters[k].mesh.vertices = vertices;
+				deformableMeshFilters[k].mesh.RecalculateNormals();
+				deformableMeshFilters[k].mesh.RecalculateBounds();
+
+			}
+			
+			if(repaired)
+				repairNow = false;
+			
+		}
+
+	}
+
+	// Actual mesh deformation on collision.
+	void DeformMesh(Mesh mesh, Vector3[] originalMesh, Collision collision, float cos, Transform meshTransform, Quaternion rot){
+		
+		Vector3[] vertices = mesh.vertices;
+		
+		foreach (ContactPoint contact in collision.contacts){
+			
+			Vector3 point = meshTransform.InverseTransformPoint(contact.point);
+			 
+			for (int i = 0; i < vertices.Length; i++){
+
+				if ((point - vertices[i]).magnitude < damageRadius){
+					vertices[i] += rot * ((localVector * (damageRadius - (point - vertices[i]).magnitude) / damageRadius) * cos + (new Vector3(Mathf.Sin(vertices[i].y * 1000), Mathf.Sin(vertices[i].z * 1000), Mathf.Sin(vertices[i].x * 100)).normalized * (randomizeVertices / 500f)));
+					if (maximumDamage > 0 && ((vertices[i] - originalMesh[i]).magnitude) > maximumDamage){
+						vertices[i] = originalMesh[i] + (vertices[i] - originalMesh[i]).normalized * (maximumDamage);
+					}
+				}
+					
+			}
+			
+		}
+		
+		mesh.vertices = vertices;
+		mesh.RecalculateNormals();
+		mesh.RecalculateBounds();
+		;
+		
+	}
+
+	// Enabling contact particles on collision.
+	void CollisionParticles(Vector3 contactPoint){
+		
+		for(int i = 0; i < contactSparkeList.Count; i++){
+			if(contactSparkeList[i].isPlaying)
+				return;
+			contactSparkeList[i].transform.position = contactPoint;
+			ParticleSystem.EmissionModule em = contactSparkeList[i].emission;
+			em.enabled = true;
+			contactSparkeList[i].Play();
+		}
+		
+	}
+
+
+	void OtherVisuals(){
+
+		//Driver SteeringWheel Transform.
 		if (SteeringWheel) {
 
 			if (orgSteeringWheelRot.eulerAngles == Vector3.zero)
@@ -841,70 +901,73 @@ public class VehiclePhysics : MonoBehaviour {
 	void Update (){
 		
 		if(canControl){
+			
 				Inputs();
+			
 		}else {
+			
 			_gasInput = 0f;
 			brakeInput = 0f;
 			boostInput = 1f;
 			handbrakeInput = 1f;
+
 		}
 			
 		Sounds();
-		SteeringWheelRotation ();
+		ResetCar();
 
-		indicatorTimer += Time.deltaTime;		
-		_steerInput = steerInput;
+		if(useDamage)
+			Damage();
+
+		OtherVisuals ();
+
+		indicatorTimer += Time.deltaTime;
 
 		if (_gasInput >= .1f)
 			launched += _gasInput * Time.deltaTime;
 		else
 			launched -= Time.deltaTime;
 		
-		launched = Mathf.Clamp (launched, 0f, 1f);
-
-		Needles();
+		launched = Mathf.Clamp01 (launched);
 		
 	}
 
-	/// <summary>
-	/// Gets inputs from the player!
-	/// </summary>
 	void Inputs(){
 			
-			gasInput = Input.GetAxis(CommonSettings.verticalInput);
-			brakeInput = Mathf.Clamp01(-Input.GetAxis(CommonSettings.verticalInput));
-			handbrakeInput = Input.GetKey(CommonSettings.handbrakeKB) ? 1f : 0f;
-			steerInput = Input.GetAxis(CommonSettings.horizontalInput);
-			boostInput = Input.GetKey(CommonSettings.boostKB) ? 2.5f : 1f;
+			gasInput = Input.GetAxis(commonSettings.verticalInput);
+			brakeInput = Mathf.Clamp01(-Input.GetAxis(commonSettings.verticalInput));
+			handbrakeInput = Input.GetKey(commonSettings.handbrakeKB) ? 1f : 0f;
+			steerInput = Input.GetAxis(commonSettings.horizontalInput);
+			boostInput = Input.GetKey(commonSettings.boostKB) ? 2.5f : 1f;
 
-			if(Input.GetKeyDown(CommonSettings.lowBeamHeadlightsKB)){
+			if(Input.GetKeyDown(commonSettings.lowBeamHeadlightsKB)){
 				lowBeamHeadLightsOn = !lowBeamHeadLightsOn;
 			}
 
-			if(Input.GetKeyDown(CommonSettings.highBeamHeadlightsKB)){
+			if(Input.GetKeyDown(commonSettings.highBeamHeadlightsKB)){
 				highBeamHeadLightsOn = true;
-			}else if(Input.GetKeyUp(CommonSettings.highBeamHeadlightsKB)){
+			}else if(Input.GetKeyUp(commonSettings.highBeamHeadlightsKB)){
 				highBeamHeadLightsOn = false;
 			}
 
-			// if(Input.GetKeyDown(CommonSettings.startEngineKB))
-			// 	KillOrStartEngine();
+			if(Input.GetKeyDown(commonSettings.startEngineKB))
+				KillOrStartEngine();
 
-			if(Input.GetKeyDown(CommonSettings.rightIndicatorKB)){
+			if(Input.GetKeyDown(commonSettings.rightIndicatorKB)){
 				if(indicatorsOn != IndicatorsOn.Right)
 					indicatorsOn = IndicatorsOn.Right;
 				else
 					indicatorsOn = IndicatorsOn.Off;
 			}
 
-			if(Input.GetKeyDown(CommonSettings.leftIndicatorKB)){
+			if(Input.GetKeyDown(commonSettings.leftIndicatorKB)){
 				if(indicatorsOn != IndicatorsOn.Left)
 					indicatorsOn = IndicatorsOn.Left;
 				else
 					indicatorsOn = IndicatorsOn.Off;
 			}
 
-			if(Input.GetKeyDown(CommonSettings.hazardIndicatorKB)){
+			if(Input.GetKeyDown(commonSettings.hazardIndicatorKB)){
 				if(indicatorsOn != IndicatorsOn.All){
 					indicatorsOn = IndicatorsOn.Off;
 					indicatorsOn = IndicatorsOn.All;
@@ -913,58 +976,40 @@ public class VehiclePhysics : MonoBehaviour {
 				}
 			}
 
-			if (Input.GetKeyDown (CommonSettings.NGear))
+			if (Input.GetKeyDown (commonSettings.NGear))
 				NGear = true;
 
-			if (Input.GetKeyUp (CommonSettings.NGear))
+			if (Input.GetKeyUp (commonSettings.NGear))
 				NGear = false;
 
 			if(!automaticGear){
 
-				if(currentGear < totalGears - 1 && !changingGear){
-					if(Input.GetKeyDown(CommonSettings.shiftGearUp)){
-						if(direction != -1)
-							StartCoroutine("ChangingGear", currentGear + 1);
-						else
-							StartCoroutine("ChangingGear", 0);
-					}
-				}
+				if (Input.GetKeyDown (commonSettings.shiftGearUp))
+					GearShiftUp ();
 
-				if(currentGear >= 0){
-					if(Input.GetKeyDown(CommonSettings.shiftGearDown)){
-						StartCoroutine("ChangingGear", currentGear - 1);	
-					}
-				}
+				if(Input.GetKeyDown(commonSettings.shiftGearDown))
+					GearShiftDown();	
 
 			}
 
-	}
 
-	/// <summary>
-	/// Rotates needles based on speed and RPM
-	/// </summary>
-	void Needles(){
-		if(speedNeedle){
-			var rot = speedNeedle.localEulerAngles;
-			rot.z = speedStartAngle + ((speed/maxspeed) * (speedEndAngle - speedStartAngle));
-			speedNeedle.localEulerAngles = rot;
-		}
-
-		if(rpmNeedle){
-			var rot = rpmNeedle.localEulerAngles;
-			rot.z = rpmStartAngle + (engineRPM/maxEngineRPM * (rpmEndAngle - rpmStartAngle));
-			rpmNeedle.localEulerAngles = rot;			
-		}
 	}
 	
 	void FixedUpdate (){
 
-		//TorqueCurve();
+		if(rigid.velocity.magnitude < .01f && Mathf.Abs(_steerInput) < .01f && Mathf.Abs(_gasInput) < .01f && Mathf.Abs(rigid.angularVelocity.magnitude) < .01f)
+			isSleeping = true;
+		else
+			isSleeping = false;
+
 		Engine();
+		EngineSounds ();
 
 		if (canControl) {
+			
 			GearBox ();
 			Clutch ();
+
 		}
 
 		AntiRollBars();
@@ -973,6 +1018,12 @@ public class VehiclePhysics : MonoBehaviour {
 		Turbo();
 		NOS();
 
+		if(useFuelConsumption)
+			Fuel();
+
+		if (useEngineHeat)
+			EngineHeat ();
+
 		if(steeringHelper)
 			SteerHelper();
 		
@@ -980,37 +1031,26 @@ public class VehiclePhysics : MonoBehaviour {
 			TractionHelper();
 
 		if(ESP)
-			ESPCheck(rigid.angularVelocity.y, FrontLeftWheelCollider.wheelCollider.steerAngle);
+			ESPCheck(FrontLeftWheelCollider.wheelCollider.steerAngle);
 
 		if(behaviorType == BehaviorType.SportsMuscle){
 			
-			if (RearLeftWheelCollider.wheelCollider.isGrounded) {
-				//rigid.angularVelocity = new Vector3(rigid.angularVelocity.x, rigid.angularVelocity.y + (direction * steerInput / 30f) + ((((steerInput * _gasInput)) * Mathf.Lerp(0f, 1f, 1f / Mathf.Clamp(speed - 30f, 0f, Mathf.Infinity))) / 30f), rigid.angularVelocity.z);
-				rigid.AddRelativeTorque (Vector3.up * (((steerInput * _gasInput) * 1f)), ForceMode.Acceleration); 
-			}
-
-//			if(RearLeftWheelCollider.isGrounded)
-//				rigid.AddRelativeTorque (Vector3.up * (((steerInput * _gasInput) * 10000f)), ForceMode.Force); 
+			if (RearLeftWheelCollider.wheelCollider.isGrounded)
+				rigid.AddRelativeTorque (Vector3.up * (((steerInput * _gasInput) * direction)) / 1f, ForceMode.Acceleration);
 			 
 		}
 			
 		rigid.centerOfMass = transform.InverseTransformPoint(COM.transform.position);
 
 	}
-
-	/// <summary>
-	/// Calculates RPM, speed, steer angle, and determines can we go reverse or not.
-	/// </summary>	
+	
 	void Engine (){
 		
+		//Speed.
 		speed = rigid.velocity.magnitude * 3.6f;
 
+		//Steer Limit.
 		steerAngle = Mathf.Lerp(orgSteerAngle, highspeedsteerAngle, (speed / highspeedsteerAngleAtspeed));
-
-		if(rigid.velocity.magnitude < .01f && Mathf.Abs(steerInput) < .01f && Mathf.Abs(_gasInput) < .01f && Mathf.Abs(rigid.angularVelocity.magnitude) < .01f)
-			sleepingRigid = true;
-		else
-			sleepingRigid = false;
 
 		float wheelRPM = _wheelTypeChoise == WheelType.FWD ? (FrontLeftWheelCollider.wheelRPMToSpeed + FrontRightWheelCollider.wheelRPMToSpeed) : (RearLeftWheelCollider.wheelRPMToSpeed + RearRightWheelCollider.wheelRPMToSpeed);
 		
@@ -1020,39 +1060,33 @@ public class VehiclePhysics : MonoBehaviour {
 				(((_gasInput) * clutchInput) + idleInput)))
 		                                             , engineInertia * 100f), 0f, maxEngineRPM * 1.1f);
 		
-		rawEngineRPM *= fuelInput;
-
+		rawEngineRPM *= _fuelInput;
 		engineRPM = Mathf.Lerp(engineRPM, rawEngineRPM, Mathf.Lerp(Time.fixedDeltaTime * 5f, Time.fixedDeltaTime * 50f, rawEngineRPM / maxEngineRPM));
 		
-		if(_brakeInput < .1f && speed < 5)
-			canGoReverseNow = true;
-		else if(_brakeInput > 0 && transform.InverseTransformDirection(rigid.velocity).z > 1f)
-			canGoReverseNow = false;
 		
+			
+			if(/*_brakeInput < .5f &&*/ speed < 5)
+				canGoReverseNow = true;
+			else if(_brakeInput > 0 && transform.InverseTransformDirection(rigid.velocity).z > 1f)
+				canGoReverseNow = false;
+			
 		
+
 	}
 
-	/// <summary>
-	/// Handles wind and brake sounds
-	/// </summary>
 	void Sounds(){
 
-		windSound.volume = Mathf.Lerp (0f, CommonSettings.maxWindSoundVolume, speed / 300f);
+		windSound.volume = Mathf.Lerp (0f, commonSettings.maxWindSoundVolume, speed / 300f);
 		windSound.pitch = UnityEngine.Random.Range(.9f, 1f);
 		
 		if(direction == 1)
-			brakeSound.volume = Mathf.Lerp (0f, CommonSettings.maxBrakeSoundVolume, Mathf.Clamp01((FrontLeftWheelCollider.wheelCollider.brakeTorque + FrontRightWheelCollider.wheelCollider.brakeTorque) / (brakeTorque * 2f)) * Mathf.Lerp(0f, 1f, FrontLeftWheelCollider.wheelCollider.rpm / 50f));
+			brakeSound.volume = Mathf.Lerp (0f, commonSettings.maxBrakeSoundVolume, Mathf.Clamp01((FrontLeftWheelCollider.wheelCollider.brakeTorque + FrontRightWheelCollider.wheelCollider.brakeTorque) / (brakeTorque * 2f)) * Mathf.Lerp(0f, 1f, FrontLeftWheelCollider.wheelCollider.rpm / 50f));
 		else
 			brakeSound.volume = 0f;
 
 	}
 
-	/// <summary>
-    /// Checks for ESP, and determines over steering and understeering
-    /// </summary>
-	/// <param name="velocity">Angular velocity of the vehicle along y axis</param>
-	/// <param name="steering">Steering angle of the wheel collider</param>
-	void ESPCheck(float velocity, float steering){
+	void ESPCheck(float steering){
 
 		WheelHit frontHit1;
 		FrontLeftWheelCollider.wheelCollider.GetGroundHit(out frontHit1);
@@ -1070,82 +1104,121 @@ public class VehiclePhysics : MonoBehaviour {
 
 		rearSlip = rearHit1.sidewaysSlip + rearHit2.sidewaysSlip;
 
-		if(Mathf.Abs(frontSlip) < ESPThreshold || Math.Abs(rearSlip) < ESPThreshold)
-			return;
-
 		if(Mathf.Abs(frontSlip) >= ESPThreshold)
-			overSteering = true;
-		else
-			overSteering = false;
-
-		if(Mathf.Abs(rearSlip) >= ESPThreshold)
 			underSteering = true;
 		else
 			underSteering = false;
 
-		if(underSteering || overSteering)
+		if(Mathf.Abs(rearSlip) >= ESPThreshold)
+			overSteering = true;
+		else
+			overSteering = false;
+
+		if(overSteering || underSteering)
 			ESPAct = true;
 		else
-			ESPAct = false;			
+			ESPAct = false;
+			
 	}
 
-	/// <summary>
-    /// Handles engine sound
-    /// </summary>
-	/// <param name="input">Torque output of the engine</param>
-	public void ApplyEngineSound(float input){
+	public void EngineSounds(){
 
-		if(!engineRunning){
+		float lowRPM = 0f;
+		float medRPM = 0f;
+		float highRPM = 0f;
 
-			engineSoundOn.pitch = Mathf.Lerp ( engineSoundOn.pitch, 0, Time.fixedDeltaTime * 50f);
-			engineSoundOff.pitch = Mathf.Lerp ( engineSoundOff.pitch, 0, Time.fixedDeltaTime * 50f);
-			engineSoundIdle.pitch = Mathf.Lerp ( engineSoundOff.pitch, 0, Time.fixedDeltaTime * 50f);
+		if(engineRPM < ((maxEngineRPM) / 2f))
+			lowRPM = Mathf.Lerp(0f, 1f, engineRPM / ((maxEngineRPM) / 2f));
+		else
+			lowRPM = Mathf.Lerp(1f, .25f, engineRPM / maxEngineRPM);
 
-			if(engineSoundOn.pitch <= .1f && engineSoundOff.pitch <= .1f && engineSoundIdle.pitch <= .1f){
-				engineSoundOn.Stop();
-				engineSoundOff.Stop();
-				engineSoundIdle.Stop();
-				return;
-			}
+		if(engineRPM < ((maxEngineRPM) / 2f))
+			medRPM = Mathf.Lerp(-.5f, 1f, engineRPM / ((maxEngineRPM) / 2f));
+		else
+			medRPM = Mathf.Lerp(1f, .5f, engineRPM / maxEngineRPM);
 
-		}else{
-				
-			if(!engineSoundOn.isPlaying)
-				engineSoundOn.Play();
-			if(!engineSoundOff.isPlaying)
-				engineSoundOff.Play();
-			if(!engineSoundIdle.isPlaying)
-				engineSoundIdle.Play();
+		highRPM = Mathf.Lerp(-1f, 1f, engineRPM / maxEngineRPM);
 
-		}
+		lowRPM = Mathf.Clamp01 (lowRPM) * maxEngineSoundVolume;
+		medRPM = Mathf.Clamp01 (medRPM) * maxEngineSoundVolume;
+		highRPM = Mathf.Clamp01 (highRPM) * maxEngineSoundVolume;
 
-		if(engineSoundOn){
+		float volumeLevel = Mathf.Clamp (_gasInput, 0f, 1f);
+		float pitchLevel = Mathf.Lerp (engineSoundHigh.pitch, Mathf.Lerp (minEngineSoundPitch, maxEngineSoundPitch, engineRPM / 7000f), Time.fixedDeltaTime * 50f);
 
-			engineSoundOn.volume = Mathf.Clamp(_gasInput, minEngineSoundVolume, maxEngineSoundVolume);
-			engineSoundOn.pitch = Mathf.Lerp ( engineSoundOn.pitch, Mathf.Lerp (minEngineSoundPitch, maxEngineSoundPitch, engineRPM / 7000f), Time.fixedDeltaTime * 50f);
-					
-		}
-		
-		if(engineSoundOff){
+		switch (audioType) {
 
-			engineSoundOff.volume = Mathf.Clamp((1 - _gasInput) - engineSoundIdle.volume, minEngineSoundVolume, maxEngineSoundVolume);
-			engineSoundOff.pitch = Mathf.Lerp ( engineSoundOff.pitch, Mathf.Lerp (minEngineSoundPitch, maxEngineSoundPitch, (engineRPM) / (7000f)), Time.fixedDeltaTime * 50f);
+		case VehiclePhysics.AudioType.OneSource:
+
+			engineSoundHigh.volume = volumeLevel * maxEngineSoundVolume;
+			engineSoundHigh.pitch = pitchLevel;
+
+			engineSoundHighOff.volume = (1f - volumeLevel) * maxEngineSoundVolume;
+			engineSoundHighOff.pitch = pitchLevel;
+
+			if(!engineSoundHigh.isPlaying)
+				engineSoundHigh.Play();
+
+			break;
+
+		case VehiclePhysics.AudioType.TwoSource:
+			
+			engineSoundHigh.volume = highRPM * volumeLevel;
+			engineSoundHigh.pitch = pitchLevel;
+			engineSoundLow.volume = lowRPM * volumeLevel;
+			engineSoundLow.pitch = pitchLevel;
+
+			engineSoundHighOff.volume = highRPM * (1f - volumeLevel);
+			engineSoundHighOff.pitch = pitchLevel;
+			engineSoundLowOff.volume = lowRPM * (1f - volumeLevel);
+			engineSoundLowOff.pitch = pitchLevel;
+
+			if(!engineSoundLow.isPlaying)
+				engineSoundLow.Play();
+			if(!engineSoundHigh.isPlaying)
+				engineSoundHigh.Play();
+
+			break;
+
+		case VehiclePhysics.AudioType.ThreeSource:
+
+			engineSoundHigh.volume = highRPM * volumeLevel;
+			engineSoundHigh.pitch = pitchLevel;
+			engineSoundMed.volume = medRPM * volumeLevel;
+			engineSoundMed.pitch = pitchLevel;
+			engineSoundLow.volume = lowRPM * volumeLevel;
+			engineSoundLow.pitch = pitchLevel;
+
+			engineSoundHighOff.volume = highRPM * (1f - volumeLevel);
+			engineSoundHighOff.pitch = pitchLevel;
+			engineSoundMedOff.volume = medRPM * (1f - volumeLevel);
+			engineSoundMedOff.pitch = pitchLevel;
+			engineSoundLowOff.volume = lowRPM * (1f - volumeLevel);
+			engineSoundLowOff.pitch = pitchLevel;
+
+			if(!engineSoundLow.isPlaying)
+				engineSoundLow.Play();
+			if(!engineSoundMed.isPlaying)
+				engineSoundMed.Play();
+			if(!engineSoundHigh.isPlaying)
+				engineSoundHigh.Play();
+			
+			break;
 
 		}
 
 		if(engineSoundIdle){
 
-			engineSoundIdle.volume = Mathf.Lerp(maxEngineSoundVolume, 0f, engineRPM / (maxEngineRPM / 2f));
-			engineSoundIdle.pitch = Mathf.Lerp ( engineSoundIdle.pitch, Mathf.Lerp (minEngineSoundPitch, maxEngineSoundPitch, (engineRPM) / (7000f)), Time.fixedDeltaTime * 50f);
+			engineSoundIdle.volume = Mathf.Lerp(engineRunning ? 1f : 0f, 0f, engineRPM / maxEngineRPM);
+			engineSoundIdle.pitch = pitchLevel;
 
 		}
 
 	}
-
-	/// <summary>
-    /// Applies Anti Roll forces for the wheel colliders
-    /// </summary>	
+	
 	void AntiRollBars (){
+
+		#region Horizontal
 
 		WheelHit FrontWheelHit;
 		
@@ -1191,6 +1264,10 @@ public class VehiclePhysics : MonoBehaviour {
 		if (groundedRR)
 			rigid.AddForceAtPosition(RearRightWheelCollider.transform.up * antiRollForceRearHorizontal, RearRightWheelCollider.transform.position);
 		
+		#endregion
+
+		#region Vertical
+
 		float antiRollForceFrontVertical= (travelFL - travelRL) * antiRollVertical;
 
 		if (groundedFL)
@@ -1205,11 +1282,10 @@ public class VehiclePhysics : MonoBehaviour {
 		if (groundedRR)
 			rigid.AddForceAtPosition(RearRightWheelCollider.transform.up * antiRollForceRearVertical, RearRightWheelCollider.transform.position); 
 
+		#endregion
+
 	}
 
-	/// <summary>
-    /// Helps to steer the car better, by adjusting the steering angle towards velocity direction!
-    /// </summary>
 	void SteerHelper(){
 
 		if (!steeringDirection || !velocityDirection) {
@@ -1261,10 +1337,10 @@ public class VehiclePhysics : MonoBehaviour {
 
 		float angle2 = Quaternion.Angle (velocityDirection.localRotation, steeringDirection.localRotation) * (normalizer);
 
-		rigid.AddRelativeTorque (Vector3.up * ((angle2 * (Mathf.Clamp(transform.InverseTransformDirection(rigid.velocity).z, -10f, 10f) / 500f)) * steerHelperAngularVelStrength), ForceMode.VelocityChange);
+		rigid.AddRelativeTorque (Vector3.up * ((angle2 * (Mathf.Clamp(transform.InverseTransformDirection(rigid.velocity).z, -10f, 10f) / 600f)) * steerHelperAngularVelStrength), ForceMode.VelocityChange);
 
 		if (Mathf.Abs(oldRotation - transform.eulerAngles.y) < 10f){
-			
+
 			float turnadjust = (transform.eulerAngles.y - oldRotation) * (steerHelperLinearVelStrength / 2f);
 			Quaternion velRotation = Quaternion.AngleAxis(turnadjust, Vector3.up);
 			rigid.velocity = (velRotation * rigid.velocity);
@@ -1275,12 +1351,9 @@ public class VehiclePhysics : MonoBehaviour {
 
 	}
 
-	/// <summary>
-    /// Helps to gain stability over different surfaces
-    /// </summary>
 	void TractionHelper(){
 
-		Vector3 velocity =rigid.velocity;
+		Vector3 velocity = rigid.velocity;
 		velocity -= transform.up * Vector3.Dot(velocity, transform.up);
 		velocity.Normalize();
 
@@ -1302,9 +1375,6 @@ public class VehiclePhysics : MonoBehaviour {
 
 	}
 
-	/// <summary>
-    /// Determines the amount of clutch pressed
-    /// </summary>
 	void Clutch(){
 
 		if(engineRunning)
@@ -1319,7 +1389,7 @@ public class VehiclePhysics : MonoBehaviour {
 				if (launched >= .25f)
 					clutchInput = Mathf.Lerp (clutchInput, (Mathf.Lerp (1f, (Mathf.Lerp (clutchInertia, 0f, ((RearLeftWheelCollider.wheelRPMToSpeed + RearRightWheelCollider.wheelRPMToSpeed) / 2f) / targetSpeedForGear [0])), Mathf.Abs (_gasInput))), Time.fixedDeltaTime * 5f);
 				else
-					clutchInput = Mathf.Lerp (clutchInput, 1f, Time.fixedDeltaTime * 5f);
+					clutchInput = Mathf.Lerp (clutchInput, 1f / speed, Time.fixedDeltaTime * 5f);
 				
 			} else {
 				
@@ -1346,27 +1416,25 @@ public class VehiclePhysics : MonoBehaviour {
 
 	}
 
-
-	/// <summary>
-	/// Determines the correct gear and changes accordingly
-	/// </summary>
 	void GearBox (){
 
-		if(brakeInput > .5f  && transform.InverseTransformDirection(rigid.velocity).z < 1f && canGoReverseNow && automaticGear && !semiAutomaticGear && !changingGear && direction != -1)
-			StartCoroutine("ChangingGear", -1);
-		else if(brakeInput < .1f && transform.InverseTransformDirection(rigid.velocity).z > -1f && direction == -1 && !changingGear && automaticGear && !semiAutomaticGear)
-			StartCoroutine("ChangingGear", 0);
-
-
+		
+			
+			if(brakeInput > .9f  && transform.InverseTransformDirection(rigid.velocity).z < 1f && canGoReverseNow && automaticGear && !semiAutomaticGear && !changingGear && direction != -1)
+				StartCoroutine(ChangeGear(-1));
+			else if(brakeInput < .1f && transform.InverseTransformDirection(rigid.velocity).z > -1f && direction == -1 && !changingGear && automaticGear && !semiAutomaticGear)
+				StartCoroutine(ChangeGear(0));
+			
+		
 
 		if(automaticGear){
 
 			if(currentGear < totalGears - 1 && !changingGear){
-				if(speed >= (targetSpeedForGear[currentGear]) && FrontLeftWheelCollider.wheelCollider.rpm > 0){
+				if(speed >= (targetSpeedForGear[currentGear] * .9f) && FrontLeftWheelCollider.wheelCollider.rpm > 0){
 					if(!semiAutomaticGear)
-						StartCoroutine("ChangingGear", currentGear + 1);
+						StartCoroutine(ChangeGear(currentGear + 1));
 					else if(semiAutomaticGear && direction != -1)
-						StartCoroutine("ChangingGear", currentGear + 1);
+						StartCoroutine(ChangeGear(currentGear + 1));
 				}
 			}
 			
@@ -1374,8 +1442,8 @@ public class VehiclePhysics : MonoBehaviour {
 
 				if(!changingGear){
 
-					if(speed < (targetSpeedForGear[currentGear - 1] * .8f) && direction != -1){
-						StartCoroutine("ChangingGear", currentGear - 1);
+					if(speed < (targetSpeedForGear[currentGear - 1] * .7f) && direction != -1){
+						StartCoroutine(ChangeGear(currentGear - 1));
 					}
 
 				}
@@ -1388,13 +1456,15 @@ public class VehiclePhysics : MonoBehaviour {
 			
 			if(!reversingSound.isPlaying)
 				reversingSound.Play();
-			reversingSound.volume = Mathf.Lerp(0f, 1f, speed / 60f);
+			
+			reversingSound.volume = Mathf.Lerp(0f, 1f, speed / targetSpeedForGear[0]);
 			reversingSound.pitch = reversingSound.volume;
 
 		}else{
 			
 			if(reversingSound.isPlaying)
 				reversingSound.Stop();
+			
 			reversingSound.volume = 0f;
 			reversingSound.pitch = 0f;
 
@@ -1402,46 +1472,75 @@ public class VehiclePhysics : MonoBehaviour {
 		
 	}
 	
-	internal IEnumerator ChangingGear(int gear){
+	public IEnumerator ChangeGear(int gear){
 
 		changingGear = true;
 
 		if(gearShiftingClips.Length > 0){
-			gearShiftingSound = CreateAudioSource.NewAudioSource(gameObject, "Gear Shifting AudioSource", 0f, .5f, CommonSettings.maxGearShiftingSoundVolume, gearShiftingClips[UnityEngine.Random.Range(0, gearShiftingClips.Length)], false, true, true);
+			
+			gearShiftingSound = CreateAudioSource.NewAudioSource(gameObject, "Gear Shifting AudioSource", 0f, .5f, commonSettings.maxGearShiftingSoundVolume, gearShiftingClips[UnityEngine.Random.Range(0, gearShiftingClips.Length)], false, true, true);
+
 			if(!gearShiftingSound.isPlaying)
 				gearShiftingSound.Play();
+			
 		}
 		
 		yield return new WaitForSeconds(gearShiftingDelay);
 
 		if(gear == -1){
+			
 			currentGear = 0;
-			direction = -1;
+
+			if(!NGear)
+				direction = -1;
+			else
+				direction = 0;
+
 		}else{
+			
 			currentGear = gear;
-			direction = 1;
+
+			if(!NGear)
+				direction = 1;
+			else
+				direction = 0;
+
 		}
 
 		changingGear = false;
 
 	}
 
-	/// <summary>
-	/// LImits the RPM of engine
-	/// </summary>
-	void RevLimiter(){
+	public void GearShiftUp(){
 
-		if((useRevLimiter && engineRPM >= maxEngineRPM * 1.05f))
+		if(currentGear < totalGears - 1 && !changingGear){
+
+			if(direction != -1)
+				StartCoroutine(ChangeGear(currentGear + 1));
+			else
+				StartCoroutine(ChangeGear(0));
+
+		}
+
+	}
+
+	public void GearShiftDown(){
+
+		if(currentGear >= 0)
+			StartCoroutine(ChangeGear(currentGear - 1));	
+
+	}
+
+	private void RevLimiter(){
+
+		if((useRevLimiter && engineRPM >= maxEngineRPM))
 			cutGas = true;
-		else if(engineRPM < maxEngineRPM)
+		else if(engineRPM < (maxEngineRPM * .95f))
 			cutGas = false;
 		
 	}
 
-	/// <summary>
-	/// A function to add NOS
-	/// </summary>
-	void NOS(){
+	private void NOS(){
 
 		if(!useNOS)
 			return;
@@ -1453,93 +1552,171 @@ public class VehiclePhysics : MonoBehaviour {
 			blowSound = CreateAudioSource.NewAudioSource(gameObject, "NOS Blow", 1, 10, 1, null, false, false, false);
 
 		if(boostInput > 1.5f && _gasInput >= .8f && NoS > 5){
+			
 			NoS -= NoSConsumption * Time.fixedDeltaTime;
 			NoSRegenerateTime = 0f;
+
 			if(!NOSSound.isPlaying)
 				NOSSound.Play();
+			
 		}else{
+			
 			if(NoS < 100 && NoSRegenerateTime > 3)
 				NoS += (NoSConsumption / 1.5f) * Time.fixedDeltaTime;
+			
 			NoSRegenerateTime += Time.fixedDeltaTime;
+
 			if(NOSSound.isPlaying){
+				
 				NOSSound.Stop();
-				blowSound.clip = CommonSettings.blowoutClip[UnityEngine.Random.Range(0, CommonSettings.blowoutClip.Length)];
+				blowSound.clip = commonSettings.blowoutClip[UnityEngine.Random.Range(0, commonSettings.blowoutClip.Length)];
 				blowSound.Play();
+
 			}
+
 		}
 
 	}
 
-
-	/// <summary>
-	/// A function to add turbe
-	/// </summary>
-	void Turbo(){
+	private void Turbo(){
 
 		if(!useTurbo)
 			return;
 
 		if (!turboSound) {
+			
 			turboSound = CreateAudioSource.NewAudioSource (gameObject, "Turbo Sound AudioSource", .1f, .5f, 0, turboClip, true, true, false);
 			CreateAudioSource.NewHighPassFilter (turboSound, 10000f, 10);
+
 		}
 
 		turboBoost = Mathf.Lerp(turboBoost, Mathf.Clamp(Mathf.Pow(_gasInput, 10) * 30f + Mathf.Pow(engineRPM / maxEngineRPM, 10) * 30f, 0f, 30f), Time.fixedDeltaTime * 10f);
 
 		if(turboBoost >= 25f){
+			
 			if(turboBoost < (turboSound.volume * 30f)){
+				
 				if(!blowSound.isPlaying){
-					blowSound.clip = CommonSettings.blowoutClip[UnityEngine.Random.Range(0, CommonSettings.blowoutClip.Length)];
+					
+					blowSound.clip = commonSettings.blowoutClip[UnityEngine.Random.Range(0, commonSettings.blowoutClip.Length)];
 					blowSound.Play();
+
 				}
+
 			}
+
 		}
 
 		turboSound.volume = Mathf.Lerp(turboSound.volume, turboBoost / 30f, Time.fixedDeltaTime * 5f);
 		turboSound.pitch = Mathf.Lerp(Mathf.Clamp(turboSound.pitch, 2f, 3f), (turboBoost / 30f) * 2f, Time.fixedDeltaTime * 5f);
 
+	}
+
+	private void Fuel(){
+
+		fuelTank -= ((engineRPM / 10000f) * fuelConsumptionRate) * Time.fixedDeltaTime;
+		fuelTank = Mathf.Clamp (fuelTank, 0f, fuelTankCapacity);
 
 	}
 
-	/// <summary>
-	/// Determines the drift angle
-	/// </summary>
-	void DriftVariables(){
+	private void EngineHeat(){
+
+		engineHeat += ((engineRPM / 10000f) * engineHeatRate) * Time.fixedDeltaTime;
+
+		if (engineHeat > engineCoolingWaterThreshold)
+			engineHeat -= engineCoolRate * Time.fixedDeltaTime;
+
+		engineHeat -= (engineCoolRate / 10f) * Time.fixedDeltaTime;
+
+		engineHeat = Mathf.Clamp (engineHeat, 15f, 120f);
+
+	}
+
+	private void DriftVariables(){
 		
 		WheelHit hit;
 		RearRightWheelCollider.wheelCollider.GetGroundHit(out hit);
-		
-		if(speed > 1f && DriftingNow)
-			DriftAngle = hit.sidewaysSlip * .75f;
-		else
-			DriftAngle = 0f;
-		
+
 		if(Mathf.Abs(hit.sidewaysSlip) > .25f)
-			DriftingNow = true;
+			driftingNow = true;
 		else
-			DriftingNow = false;
+			driftingNow = false;
+		
+		if(speed > 10f)
+			driftAngle = hit.sidewaysSlip * .75f;
+		else
+			driftAngle = 0f;
 		
 	}
 	
+	private void ResetCar (){
+		
+		if(speed < 5 && !rigid.isKinematic){
+			
+			if(transform.eulerAngles.z < 300 && transform.eulerAngles.z > 60){
+				resetTime += Time.deltaTime;
+				if(resetTime > 3){
+					transform.rotation = Quaternion.Euler (0f, transform.eulerAngles.y, 0f);
+					transform.position = new Vector3(transform.position.x, transform.position.y + 3, transform.position.z);
+					resetTime = 0f;
+				}
+			}
+			
+		}
+		
+	}
 	
 	void OnCollisionEnter (Collision collision){
 		
-		if (collision.contacts.Length < 1 || collision.relativeVelocity.magnitude < 5f)
+		if (collision.contacts.Length < 1 || collision.relativeVelocity.magnitude < minimumCollisionForce)
 			return;
 
-			if(crashClips.Length > 0){
-				if (collision.contacts[0].thisCollider.gameObject.transform != transform.parent){
-					crashSound = CreateAudioSource.NewAudioSource(gameObject, "Crash Sound AudioSource", 5, 20, CommonSettings.maxCrashSoundVolume, crashClips[UnityEngine.Random.Range(0, crashClips.Length)], false, true, true);
-				if(!crashSound.isPlaying)
-					crashSound.Play();
+		if(useDamage){
+
+			if (((1 << collision.gameObject.layer) & damageFilter) != 0) {
+				
+				CollisionParticles (collision.contacts [0].point);
+			
+				Vector3 colRelVel = collision.relativeVelocity;
+				colRelVel *= 1f - Mathf.Abs (Vector3.Dot (transform.up, collision.contacts [0].normal));
+			
+				float cos = Mathf.Abs (Vector3.Dot (collision.contacts [0].normal, colRelVel.normalized));
+
+				if (colRelVel.magnitude * cos >= minimumCollisionForce) {
+				
+					repaired = false;
+				
+					localVector = transform.InverseTransformDirection (colRelVel) * (damageMultiplier / 50f);
+
+					if (originalMeshData == null)
+						LoadOriginalMeshData ();
+				
+					for (int i = 0; i < deformableMeshFilters.Length; i++)
+						DeformMesh (deformableMeshFilters [i].mesh, originalMeshData [i].meshVerts, collision, cos, deformableMeshFilters [i].transform, rot);
+				
 				}
-			}	
+
+				if(crashClips.Length > 0){
+
+					if (collision.contacts[0].thisCollider.gameObject.transform != transform.parent){
+
+						crashSound = CreateAudioSource.NewAudioSource(gameObject, "Crash Sound AudioSource", 5, 20, commonSettings.maxCrashSoundVolume, crashClips[UnityEngine.Random.Range(0, crashClips.Length)], false, true, true);
+
+						if(!crashSound.isPlaying)
+							crashSound.Play();
+
+					}
+
+				}
+
+			}
+
+		}
+
 	}
 
-
 	void OnDrawGizmos(){
-
-		#if Unity_Editor
+#if UNITY_EDITOR
 		if(Application.isPlaying){
 
 			WheelHit hit;
@@ -1557,14 +1734,10 @@ public class VehiclePhysics : MonoBehaviour {
 			}
 
 		}
-		#endif
+#endif
 	}
-
-	/// <summary>
-    /// Makes Torque curves based on spped, rpm, and torque!
-	/// Generates target speed for gears and max speed for gears!
-    /// </summary>		
-	public void TorqueCurve (){
+		
+	public void TorqueCurves (){
 
 		if(maxSpeedForGear == null)
 			maxSpeedForGear = new float[totalGears];
@@ -1581,48 +1754,59 @@ public class VehiclePhysics : MonoBehaviour {
 		for (int j = 0; j < totalGears; j++) 
 			maxSpeedForGear [j] = Mathf.Lerp (0f, maxspeed * 1.1f, (float)(j + 1) / (float)(totalGears));
 
-		
+		if (autoGenerateTargetSpeedsForChangingGear) {
 				
-		for (int k = 0; k < totalGears - 1; k++) 
-			targetSpeedForGear [k] = Mathf.Lerp (0, maxspeed * Mathf.Lerp(0f, 1f, gearShiftingThreshold), ((float)(k + 1) / (float)(totalGears)));
+			for (int k = 0; k < totalGears - 1; k++) 
+				targetSpeedForGear [k] = Mathf.Lerp (0, maxspeed * Mathf.Lerp(0f, 1f, gearShiftingThreshold), ((float)(k + 1) / (float)(totalGears)));
 
-		
-		if (orgMaxSpeed != maxspeed || orgGearShiftingThreshold != gearShiftingThreshold) {
+		}
 
-			if (totalGears < 1) {
-				totalGears = 1;
-				return;
-			}
+		if (autoGenerateGearCurves) {
 
-			engineTorqueCurve = new AnimationCurve[totalGears];
+			if (orgMaxSpeed != maxspeed || orgGearShiftingThreshold != gearShiftingThreshold) {
 
-			currentGear = 0;
+				if (totalGears < 1) {
+					
+					Debug.LogError ("You are trying to set your vehicle gear to 0 or below! Why you trying to do this???");
+					totalGears = 1;
+					return;
 
-			for (int i = 0; i < engineTorqueCurve.Length; i++) {
-				engineTorqueCurve [i] = new AnimationCurve (new Keyframe (0, 1));
-			}
-
-			for (int i = 0; i < totalGears; i++) {
-
-				if (i != 0) {
-					engineTorqueCurve [i].MoveKey (0, new Keyframe (0, Mathf.Lerp (1f, .05f, (float)(i + 1) / (float)totalGears)));
-					engineTorqueCurve [i].AddKey (Mathf.Lerp (0, maxspeed * .75f, ((float)(i) / (float)(totalGears))), Mathf.Lerp (1f, .5f, ((float)(i) / (float)(totalGears))));
-					engineTorqueCurve [i].AddKey (Mathf.Lerp (0, maxspeed * 1.25f, ((float)(i + 1) / (float)(totalGears))), .05f);
-					engineTorqueCurve [i].AddKey (Mathf.Lerp (0, maxspeed, ((float)(i + 1) / (float)(totalGears))) * 2f, -3f);
-					engineTorqueCurve [i].postWrapMode = WrapMode.Clamp;
-				} else {
-					engineTorqueCurve [i].MoveKey (0, new Keyframe (0, 2f));
-					engineTorqueCurve [i].AddKey (maxSpeedForGear [i] / 5f, 2.5f);
-					engineTorqueCurve [i].AddKey (maxSpeedForGear [i], 0f);
-					engineTorqueCurve [i].postWrapMode = WrapMode.Clamp;
 				}
 
-			orgMaxSpeed = maxspeed;
-			orgGearShiftingThreshold = gearShiftingThreshold;
+				engineTorqueCurve = new AnimationCurve[totalGears];
+
+				currentGear = 0;
+
+				for (int i = 0; i < engineTorqueCurve.Length; i++) 
+					engineTorqueCurve [i] = new AnimationCurve (new Keyframe (0, 1));
+
+				for (int i = 0; i < totalGears; i++) {
+
+					if (i != 0) {
+						
+						engineTorqueCurve [i].MoveKey (0, new Keyframe (0, Mathf.Lerp (1f, .05f, (float)(i + 1) / (float)totalGears)));
+						engineTorqueCurve [i].AddKey (Mathf.Lerp (0, maxspeed * .5f, ((float)(i) / (float)(totalGears))), Mathf.Lerp (1f, .5f, ((float)(i) / (float)(totalGears))));
+						engineTorqueCurve [i].AddKey (Mathf.Lerp (0, maxspeed * 1f, ((float)(i + 1) / (float)(totalGears))), .15f);
+						engineTorqueCurve [i].AddKey (Mathf.Lerp (0, maxspeed, ((float)(i + 1) / (float)(totalGears))) * 2f, -3f);
+						engineTorqueCurve [i].postWrapMode = WrapMode.Clamp;
+
+					} else {
+						
+						engineTorqueCurve [i].MoveKey (0, new Keyframe (0, 2f));
+						engineTorqueCurve [i].AddKey (maxSpeedForGear [i] / 5f, 2.5f);
+						engineTorqueCurve [i].AddKey (maxSpeedForGear [i], 0f);
+						engineTorqueCurve [i].postWrapMode = WrapMode.Clamp;
+
+					}
+
+				orgMaxSpeed = maxspeed;
+				orgGearShiftingThreshold = gearShiftingThreshold;
+
+				}
 
 			}
 
 		}
 
-	}
+	}	
 } 

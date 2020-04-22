@@ -76,6 +76,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wheelModel: {fileID: 0}
   camber: 0
+  compression: 0
 --- !u!1 &2895012292940672137
 GameObject:
   m_ObjectHideFlags: 0
@@ -152,6 +153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wheelModel: {fileID: 0}
   camber: 0
+  compression: 0
 --- !u!1 &2895012293140305090
 GameObject:
   m_ObjectHideFlags: 0
@@ -407,6 +409,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wheelModel: {fileID: 0}
   camber: 0
+  compression: 0
 --- !u!1 &2895012294337280620
 GameObject:
   m_ObjectHideFlags: 0
@@ -483,6 +486,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wheelModel: {fileID: 0}
   camber: 0
+  compression: 0
 --- !u!1 &6192489549954692259
 GameObject:
   m_ObjectHideFlags: 0
@@ -1067,7 +1071,6 @@ GameObject:
   - component: {fileID: 6195565957842008557}
   - component: {fileID: 6192708082130723621}
   - component: {fileID: 6192708082130723622}
-  - component: {fileID: 6192708082130723620}
   - component: {fileID: 114497762773797218}
   - component: {fileID: 114090387739729192}
   - component: {fileID: 114027494657568386}
@@ -1124,7 +1127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c25271813931d814680ab7c84ef90710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  behaviorType: 3
+  behaviorType: 5
   _wheelTypeChoise: 1
   biasedWheelTorque: 100
   FrontLeftWheelTransform: {fileID: 6195527384663592515}
@@ -1138,13 +1141,6 @@ MonoBehaviour:
   RearRightWheelCollider: {fileID: 2895012294337280619}
   ExtraRearWheelsCollider: []
   applyEngineTorqueToExtraRearWheelColliders: 1
-  canControl: 0
-  engineRunning: 1
-  automaticGear: 1
-  semiAutomaticGear: 0
-  useRevLimiter: 1
-  useClutchMarginAtFirstGear: 1
-  useExhaustFlame: 1
   SteeringWheel: {fileID: 0}
   steeringWheelRotateAround: 0
   steeringWheelAngleMultiplier: 3
@@ -1152,19 +1148,37 @@ MonoBehaviour:
   highspeedsteerAngle: 15
   highspeedsteerAngleAtspeed: 100
   COM: {fileID: 2895012293999014114}
+  canControl: 0
+  engineRunning: 1
+  automaticGear: 1
+  useRevLimiter: 1
+  useExhaustFlame: 1
+  useClutchMarginAtFirstGear: 1
+  autoGenerateGearCurves: 1
+  autoGenerateTargetSpeedsForChangingGear: 1
   engineTorque: 2000
   brakeTorque: 2000
-  maxEngineRPM: 7000
   minEngineRPM: 1000
+  maxEngineRPM: 7000
   engineInertia: 1
+  maxspeed: 220
   antiRollFrontHorizontal: 5000
   antiRollRearHorizontal: 5000
   antiRollVertical: 0
-  maxspeed: 220
+  downForce: 25
   speed: 0
   orgMaxSpeed: 220
-  totalGears: 6
+  useFuelConsumption: 0
+  fuelTankCapacity: 62
+  fuelTank: 62
+  fuelConsumptionRate: 0.1
+  useEngineHeat: 0
+  engineHeat: 15
+  engineCoolingWaterThreshold: 60
+  engineHeatRate: 1
+  engineCoolRate: 1
   currentGear: 0
+  totalGears: 6
   gearShiftingDelay: 0.35
   gearShiftingThreshold: 0.85
   clutchInertia: 0.25
@@ -1172,10 +1186,16 @@ MonoBehaviour:
   NGear: 0
   direction: 1
   launched: 0
+  audioType: 0
+  autoCreateEngineOffSounds: 1
   engineStartClip: {fileID: 8300000, guid: 8d3ddfbc69660b342b48f88b496dedee, type: 3}
-  engineClipOn: {fileID: 8300000, guid: d6fad8e44d8100741817291b9ab6f54d, type: 3}
-  engineClipOff: {fileID: 8300000, guid: a871290734dd92e49b5a4f0dfbd88fff, type: 3}
+  engineClipHigh: {fileID: 8300000, guid: d6fad8e44d8100741817291b9ab6f54d, type: 3}
+  engineClipMed: {fileID: 8300000, guid: 8d54bbb89b22c5042a50266087305ace, type: 3}
+  engineClipLow: {fileID: 8300000, guid: 0be27ed4b1038d34c89404c87695a31f, type: 3}
   engineClipIdle: {fileID: 0}
+  engineClipHighOff: {fileID: 8300000, guid: a871290734dd92e49b5a4f0dfbd88fff, type: 3}
+  engineClipMedOff: {fileID: 8300000, guid: eede193765875a64a9768f1b65bc0362, type: 3}
+  engineClipLowOff: {fileID: 8300000, guid: e5f3683f3c59d3547927277445038478, type: 3}
   minEngineSoundPitch: 0.75
   maxEngineSoundPitch: 1.75
   minEngineSoundVolume: 0.05
@@ -1188,11 +1208,25 @@ MonoBehaviour:
   boostInput: 1
   cutGas: 0
   idleInput: 0
+  fuelInput: 0
   chassis: {fileID: 2895012293140305090}
+  chassisVerticalLean: 4
+  chassisHorizontalLean: 4
   lowBeamHeadLightsOn: 0
   highBeamHeadLightsOn: 0
   indicatorsOn: 0
   indicatorTimer: 0
+  useDamage: 1
+  deformableMeshFilters: []
+  damageFilter:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  randomizeVertices: 1
+  damageRadius: 0.5
+  repairNow: 0
+  repaired: 1
+  maximumDamage: 0.5
+  damageMultiplier: 1
   maximumContactSparkle: 5
   velocityDirection: {fileID: 0}
   steeringDirection: {fileID: 0}
@@ -1206,28 +1240,23 @@ MonoBehaviour:
   ESPThreshold: 0.25
   ESPStrength: 0.25
   steeringHelper: 1
+  applyCounterSteering: 1
   steerHelperLinearVelStrength: 0.1
   steerHelperAngularVelStrength: 0.1
   tractionHelper: 1
   tractionHelperStrength: 0.1
-  applyCounterSteering: 1
   ABSAct: 0
   TCSAct: 0
   ESPAct: 0
-  overSteering: 0
   underSteering: 0
+  overSteering: 0
+  counterSteeringFactor: 1
   frontSlip: 0
   rearSlip: 0
-  turboBoost: 0
-  NoS: 100
   useNOS: 0
   useTurbo: 0
-  speedNeedle: {fileID: 0}
-  speedStartAngle: 0
-  speedEndAngle: 0
-  rpmNeedle: {fileID: 0}
-  rpmStartAngle: 0
-  rpmEndAngle: 0
+  turboBoost: 0
+  NoS: 100
   engineTorqueCurve:
   - serializedVersion: 2
     m_Curve:
@@ -1479,42 +1508,6 @@ MonoBehaviour:
   - 161.33334
   - 201.66666
   - 242
---- !u!114 &6192708082130723620
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6192708082130723623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b6d06ffaea238a43b5ebb249e0a6cb0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  meshFilters:
-  - {fileID: 6161200155977617983}
-  - {fileID: 6161736916067189609}
-  - {fileID: 6164816502055360123}
-  - {fileID: 6161799080871524749}
-  - {fileID: 6161781047725299095}
-  - {fileID: 6161893447288415029}
-  - {fileID: 6161879530779753743}
-  - {fileID: 6162017528425319545}
-  - {fileID: 6161831178858895689}
-  colliders:
-  - {fileID: 6194299113365362659}
-  - {fileID: 6193541939132549668}
-  - {fileID: 6192629187346702422}
-  - {fileID: 6192943820208011664}
-  - {fileID: 6193431241368159262}
-  - {fileID: 6193514891364241976}
-  - {fileID: 6193398790214682892}
-  - {fileID: 6192853917808054760}
-  - {fileID: 6192752807182338736}
-  ImpactDamage: 3
-  radiusDeformate: 0.7
-  maxDeformation: 0.16
-  minVelocity: 5
 --- !u!114 &114497762773797218
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1560,9 +1553,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9a6f576a8cf4814f86924e3f2cb693b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
-  scores: 0
-  display: {fileID: 0}
 --- !u!1 &6192752807182338737
 GameObject:
   m_ObjectHideFlags: 0

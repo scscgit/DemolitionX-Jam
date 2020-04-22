@@ -1,36 +1,39 @@
 ﻿using UnityEngine;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Based on Unity's WheelCollider. Modifies few curves, settings in order to get stable and realistic physics.
+/// </summary>
 [RequireComponent (typeof(WheelCollider))]
-
-///<summary>
-///A class that helps to stabilize the wheel
-///Ads skidmarks, changes the values of wheel friction curve for realism!
-///</summary>
 public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
-	private CommonSettings CommonSettingsInstance;
-	private CommonSettings CommonSettings {
+
+	private CommonSettings commonSettingsInstance;
+	private CommonSettings commonSettings {
 		get {
-			if (CommonSettingsInstance == null) {
-				CommonSettingsInstance = CommonSettings.Instance;
+			if (commonSettingsInstance == null) {
+				commonSettingsInstance = CommonSettings.Instance;
 			}
-			return CommonSettingsInstance;
+			return commonSettingsInstance;
 		}
 	}
 
-	private GroundMaterials RCCGroundMaterialsInstance;
-	private GroundMaterials RCCGroundMaterials {
+
+	// Getting an Instance of Ground Materials.
+	#region GroundMaterials Instance
+
+	private GroundMaterials groundMaterialsInstance;
+	private GroundMaterials groundMaterials {
 		get {
-			if (RCCGroundMaterialsInstance == null) {
-				RCCGroundMaterialsInstance = GroundMaterials.Instance;
+			if (groundMaterialsInstance == null) {
+				groundMaterialsInstance = GroundMaterials.Instance;
 			}
-			return RCCGroundMaterialsInstance;
+			return groundMaterialsInstance;
 		}
 	}
 
+	#endregion
 
 	private WheelCollider _wheelCollider;
 	public WheelCollider wheelCollider{
@@ -38,46 +41,39 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 			if(_wheelCollider == null)
 				_wheelCollider = GetComponent<WheelCollider>();
 			return _wheelCollider;
-		}set{
-			_wheelCollider = value;
 		}
 	}
 	
 	private VehiclePhysics carController;
 	private Rigidbody rigid;
 
-	private List <VehiclePhysicsWheelCollider> allWheelColliders = new List<VehiclePhysicsWheelCollider>() ;		
-	public Transform wheelModel;		
+	private List <VehiclePhysicsWheelCollider> allWheelColliders = new List<VehiclePhysicsWheelCollider>() ;		// All other wheelcolliders attached to this vehicle.
+	public Transform wheelModel;		// Wheel model.
 
-	private float wheelRotation = 0f;	
+	private float wheelRotation = 0f;		// Wheel model rotation based on WheelCollider rpm. 
+	public float camber = 0f;					// Camber angle.
 
-	///<summary>
-	///Camber for the wheel
-	///</summary>
-	public float camber = 0f;		
+	internal float wheelRPMToSpeed = 0f;		// Wheel RPM to Speed.
 
-	internal float wheelRPMToSpeed = 0f;		
+	private GroundMaterials physicsMaterials{get{return groundMaterials;}}		// Instance of Configurable Ground Materials.
+	private GroundMaterials.GroundMaterialFrictions[] physicsFrictions{get{return groundMaterials.frictions;}}
 
-	private GroundMaterials physicsMaterials{get{return RCCGroundMaterials;}}		
-	private GroundMaterials.GroundMaterialFrictions[] physicsFrictions{get{return RCCGroundMaterials.frictions;}}
-
-	private SkidmarksManager skidmarks;		
-	private float startSlipValue = .25f;		
+	private SkidmarksManager skidmarks;		// Main Skidmarks Manager class.
+	private float startSlipValue = .25f;		// Draw skidmarks when forward or sideways slip is bigger than this value.
 	private int lastSkidmark = -1;
 
-	private float wheelSlipAmountForward = 0f;		
-	private float wheelSlipAmountSideways = 0f;		
-	internal float totalSlip = 0f;		
+	private float wheelSlipAmountForward = 0f;		// Forward slip.
+	private float wheelSlipAmountSideways = 0f;	// Sideways slip.
+	internal float totalSlip = 0f;								// Total amount of forward and sideways slips.
 
-	private float orgForwardStiffness = 1f;		
-	private float orgSidewaysStiffness = 1f;		
-
+	//WheelFriction Curves and Stiffness.
 	public WheelFrictionCurve forwardFrictionCurve;
 	public WheelFrictionCurve sidewaysFrictionCurve;
 
-	private AudioSource audioSource;	
-	private AudioClip audioClip;		
+	private AudioSource audioSource;		// Audiosource for tire skid SFX.
+	private AudioClip audioClip;					// Audioclip for tire skid SFX.
 
+	// List for all particle systems.
 	internal List<ParticleSystem> allWheelParticles = new List<ParticleSystem>();
 	internal ParticleSystem.EmissionModule emission;
 
@@ -88,21 +84,32 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
 	private float minSidewaysStiffness = .75f;
 	private float maxSidewaysStiffness = 1f;
+
+	TerrainData mTerrainData;
+	int alphamapWidth;
+	int alphamapHeight;
+
+	float[,,] mSplatmapData;
+	float mNumTextures;
+
+	public float compression;
 	
-	void Awake (){
+	void Start (){
 		
 		carController = GetComponentInParent<VehiclePhysics>();
 		rigid = carController.GetComponent<Rigidbody> ();
+
+		// Getting all WheelColliders attached to this vehicle (Except this).
+		allWheelColliders = carController.GetComponentsInChildren<VehiclePhysicsWheelCollider>().ToList();
+//		allWheelColliders.Remove(this);
+		GetTerrainData ();
 		
-		if (FindObjectOfType (typeof(SkidmarksManager))) 
-			skidmarks = FindObjectOfType (typeof(SkidmarksManager)) as SkidmarksManager;
-			
 
-		wheelCollider.mass = rigid.mass / 15f;
-
+		// Getting friction curves.
 		forwardFrictionCurve = wheelCollider.forwardFriction;
 		sidewaysFrictionCurve = wheelCollider.sidewaysFriction;
 
+		// Proper settings for selected behavior type.
 		switch(carController.behaviorType){
 
 		case VehiclePhysics.BehaviorType.Jeeps:
@@ -141,54 +148,48 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
 		}
 
-		orgForwardStiffness = forwardFrictionCurve.stiffness;
-		orgSidewaysStiffness = sidewaysFrictionCurve.stiffness;
-
+		// Assigning new frictons if one of the behavior preset selected above.
 		wheelCollider.forwardFriction = forwardFrictionCurve;
 		wheelCollider.sidewaysFriction = sidewaysFrictionCurve;
 
-		if(CommonSettings.useSharedAudioSources){
+		// Creating audiosource for skid SFX.
+		if(commonSettings.useSharedAudioSources){
+			
 			if(!carController.transform.Find("All Audio Sources/Skid Sound AudioSource"))
-				audioSource = CreateAudioSource.NewAudioSource(carController.gameObject, "Skid Sound AudioSource", 5, 50, 0, audioClip, true, true, false);
+				audioSource = CreateAudioSource.NewAudioSource(carController.gameObject, "Skid Sound AudioSource", 5f, 50f, 0f, audioClip, true, true, false);
 			else
 				audioSource = carController.transform.Find("All Audio Sources/Skid Sound AudioSource").GetComponent<AudioSource>();
-		}else{
-			audioSource = CreateAudioSource.NewAudioSource(carController.gameObject, "Skid Sound AudioSource", 5, 50, 0, audioClip, true, true, false);
-			audioSource.transform.position = transform.position;
-		}
-
-		
-		for (int i = 0; i < RCCGroundMaterials.frictions.Length; i++) {
-
-			GameObject ps = (GameObject)Instantiate (RCCGroundMaterials.frictions [i].groundParticles, transform.position, transform.rotation) as GameObject;
-			emission = ps.GetComponent<ParticleSystem> ().emission;
-			emission.enabled = false;
-			ps.transform.SetParent (transform, false);
-			ps.transform.localPosition = Vector3.zero;
-			ps.transform.localRotation = Quaternion.identity;
-			allWheelParticles.Add (ps.GetComponent<ParticleSystem> ());
-
-		}
 			
-	}
+		}else{
+			
+			audioSource = CreateAudioSource.NewAudioSource(carController.gameObject, "Skid Sound AudioSource", 5f, 50f, 0f, audioClip, true, true, false);
+			audioSource.transform.position = transform.position;
 
-	void Start(){
+		}
 
-		allWheelColliders = carController.allWheelColliders.ToList();
-		allWheelColliders.Remove(this);
+		// Creating all ground particles, and adding them to list.
+		if (!commonSettings.dontUseAnyParticleEffects) {
 
-	}
+			for (int i = 0; i < groundMaterials.frictions.Length; i++) {
 
-	private WheelFrictionCurve SetFrictionCurves(WheelFrictionCurve curve, float extremumSlip, float extremumValue, float asymptoteSlip, float asymptoteValue){
+				GameObject ps = (GameObject)Instantiate (groundMaterials.frictions [i].groundParticles, transform.position, transform.rotation) as GameObject;
+				emission = ps.GetComponent<ParticleSystem> ().emission;
+				emission.enabled = false;
+				ps.transform.SetParent (transform, false);
+				ps.transform.localPosition = Vector3.zero;
+				ps.transform.localRotation = Quaternion.identity;
+				allWheelParticles.Add (ps.GetComponent<ParticleSystem> ());
 
-		WheelFrictionCurve newCurve = curve;
+			}
 
-		newCurve.extremumSlip = extremumSlip;
-		newCurve.extremumValue = extremumValue;
-		newCurve.asymptoteSlip = asymptoteSlip;
-		newCurve.asymptoteValue = asymptoteValue;
+		}
 
-		return newCurve;
+		GameObject newPivot = new GameObject ("Pivot_" + wheelModel.transform.name);
+		newPivot.transform.position = GetBounds.GetBoundsCenter (wheelModel.transform);
+		newPivot.transform.rotation = transform.rotation;
+		newPivot.transform.SetParent (wheelModel.transform.parent, true);
+		wheelModel.SetParent (newPivot.transform, true);
+		wheelModel = newPivot.transform;
 
 	}
 
@@ -197,171 +198,204 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 		if (!carController.enabled)
 			return;
 
-		if(!carController.sleepingRigid){
-			
-			WheelAlign();
-			WheelCamber();
+		if (carController.isSleeping)
+			return;
 
-		}
+		// Only runs when vehicle is active. Raycasts are used for WheelAlign().
+		WheelAlign ();
+
 	}
 	
-	void  FixedUpdate (){
+	void FixedUpdate (){
 
 		if (!carController.enabled)
 			return;
 
+		if (carController.isSleeping)
+			return;
+
 		wheelRPMToSpeed = (((wheelCollider.rpm * wheelCollider.radius) / 2.9f)) * rigid.transform.lossyScale.y;
 
-		switch(carController._wheelTypeChoise){
+		#region Motor Torque, TCS.
+
+		//Applying WheelCollider Motor Torques Depends On Wheel Type Choice.
+		switch (carController._wheelTypeChoise) {
 
 		case VehiclePhysics.WheelType.FWD:
-			if(this == carController.FrontLeftWheelCollider || this == carController.FrontRightWheelCollider)
-				ApplyMotorTorque(carController.engineTorque);
+			if (this == carController.FrontLeftWheelCollider || this == carController.FrontRightWheelCollider)
+				ApplyMotorTorque (carController.engineTorque);
 			break;
 		case VehiclePhysics.WheelType.RWD:
-			if(this == carController.RearLeftWheelCollider || this == carController.RearRightWheelCollider)
-				ApplyMotorTorque(carController.engineTorque);
+			if (this == carController.RearLeftWheelCollider || this == carController.RearRightWheelCollider)
+				ApplyMotorTorque (carController.engineTorque);
 			break;
 		case VehiclePhysics.WheelType.AWD:
-			ApplyMotorTorque(carController.engineTorque / 2f);
+			ApplyMotorTorque (carController.engineTorque);
 			break;
 		case VehiclePhysics.WheelType.BIASED:
-			if(this == carController.FrontLeftWheelCollider || this == carController.FrontRightWheelCollider)
-				ApplyMotorTorque((carController.engineTorque * (100 - carController.biasedWheelTorque)) / 100f);
-			if(this == carController.RearLeftWheelCollider || this == carController.RearRightWheelCollider)
-				ApplyMotorTorque((carController.engineTorque * carController.biasedWheelTorque) / 100f);
+			if (this == carController.FrontLeftWheelCollider || this == carController.FrontRightWheelCollider)
+				ApplyMotorTorque (((carController.engineTorque * (100 - carController.biasedWheelTorque)) / 100f));
+			if (this == carController.RearLeftWheelCollider || this == carController.RearRightWheelCollider)
+				ApplyMotorTorque (((carController.engineTorque * carController.biasedWheelTorque) / 100f));
 			break;
 
 		}
 
-		if(carController.ExtraRearWheelsCollider.Length > 0 && carController.applyEngineTorqueToExtraRearWheelColliders){
+		if (carController.ExtraRearWheelsCollider.Length > 0 && carController.applyEngineTorqueToExtraRearWheelColliders) {
 
-			for(int i = 0; i < carController.ExtraRearWheelsCollider.Length; i++){
+			for (int i = 0; i < carController.ExtraRearWheelsCollider.Length; i++) {
 
-				if(this == carController.ExtraRearWheelsCollider[i])
-					ApplyMotorTorque(carController.engineTorque);
+				if (this == carController.ExtraRearWheelsCollider [i])
+					ApplyMotorTorque (carController.engineTorque);
 
 			}
 
 		}
 
+		#endregion
 
-		if (this == carController.FrontLeftWheelCollider || this == carController.FrontRightWheelCollider) {
+		#region Steering.
+
+		// Apply Steering if this wheel is one of the front wheels.
+		if (this == carController.FrontLeftWheelCollider || this == carController.FrontRightWheelCollider)
 			ApplySteering ();
-		}
 
+		#endregion
+
+		#region Braking, ABS.
 
 		// Apply Handbrake if this wheel is one of the rear wheels.
-		if(carController.handbrakeInput > .1f){
+		if (carController.handbrakeInput > .5f) {
 
-			if(this == carController.RearLeftWheelCollider || this == carController.RearRightWheelCollider)
-				ApplyBrakeTorque((carController.brakeTorque * 1.5f) * carController.handbrakeInput);
+			if (this == carController.RearLeftWheelCollider || this == carController.RearRightWheelCollider)
+				ApplyBrakeTorque ((carController.brakeTorque * 1f) * carController.handbrakeInput);
 
-		}else{
+		} else {
 
 			// Apply Braking to all wheels.
-			if(this == carController.FrontLeftWheelCollider || this == carController.FrontRightWheelCollider)
-				ApplyBrakeTorque(carController.brakeTorque * (Mathf.Clamp(carController._brakeInput, 0, 1)));
+			if (this == carController.FrontLeftWheelCollider || this == carController.FrontRightWheelCollider)
+				ApplyBrakeTorque (carController.brakeTorque * (Mathf.Clamp (carController._brakeInput, 0f, 1f)));
 			else
-				ApplyBrakeTorque(carController.brakeTorque * (Mathf.Clamp(carController._brakeInput, 0, 1) / 2f));
+				ApplyBrakeTorque (carController.brakeTorque * (Mathf.Clamp (carController._brakeInput, 0f, 1f) / 2f));
 
 		}
 
-		// ESP System. All wheels have individual brakes. In case of loosing control of the car, corresponding wheel will brake for gaining the control again.
+		#endregion
+
+		#region ESP.
+
+		// ESP System. All wheels have individual brakes. In case of loosing control of the vehicle, corresponding wheel will brake for gaining the control again.
 		if (carController.ESP) {
 
-			if(carController.underSteering){
-				
-				if(this == carController.RearLeftWheelCollider)
-					ApplyBrakeTorque((carController.brakeTorque * carController.ESPStrength) * Mathf.Clamp(-carController.frontSlip, 0f, Mathf.Infinity));
-				
-				if(this == carController.RearRightWheelCollider)
-					ApplyBrakeTorque((carController.brakeTorque * carController.ESPStrength) * Mathf.Clamp(carController.frontSlip, 0f, Mathf.Infinity));
-				
-			}
+			if (carController.handbrakeInput < .5f) {
 
-			if(carController.overSteering){
+				if (carController.underSteering) {
 
-				if(this == carController.FrontLeftWheelCollider)
-					ApplyBrakeTorque((carController.brakeTorque * carController.ESPStrength) * Mathf.Clamp(-carController.rearSlip, 0f, Mathf.Infinity));
+					if (this == carController.FrontLeftWheelCollider)
+						ApplyBrakeTorque ((carController.brakeTorque * carController.ESPStrength) * Mathf.Clamp (-carController.rearSlip, 0f, Mathf.Infinity));
 
-				if(this == carController.FrontRightWheelCollider)
-					ApplyBrakeTorque((carController.brakeTorque * carController.ESPStrength) * Mathf.Clamp(carController.rearSlip, 0f, Mathf.Infinity));
+					if (this == carController.FrontRightWheelCollider)
+						ApplyBrakeTorque ((carController.brakeTorque * carController.ESPStrength) * Mathf.Clamp (carController.rearSlip, 0f, Mathf.Infinity));
+
+				}
+
+				if (carController.overSteering) {
+
+					if (this == carController.RearLeftWheelCollider)
+						ApplyBrakeTorque ((carController.brakeTorque * carController.ESPStrength) * Mathf.Clamp (-carController.frontSlip, 0f, Mathf.Infinity));
+
+					if (this == carController.RearRightWheelCollider)
+						ApplyBrakeTorque ((carController.brakeTorque * carController.ESPStrength) * Mathf.Clamp (carController.frontSlip, 0f, Mathf.Infinity));
+
+				}
 
 			}
 
 		}
 
-		SkidMarks();
-		Frictions();
-		Audio();
+		#endregion
+
+		if (!carController.isSleeping){
+			
+			Frictions ();
+			SkidMarks ();
+			Audio ();
+
+		}
 
 	}
 
+	// Aligning wheel model position and rotation.
 	public void WheelAlign (){
 
+		// Return if no wheel model selected.
 		if(!wheelModel){
+			
 			Debug.LogError(transform.name + " wheel of the " + carController.transform.name + " is missing wheel model. This wheel is disabled");
 			enabled = false;
 			return;
+
 		}
 
-		RaycastHit hit;
-		WheelHit CorrespondingGroundHit;
+		WheelHit GroundHit;
+		bool grounded = wheelCollider.GetGroundHit(out GroundHit );
 
-		Vector3 ColliderCenterPoint = wheelCollider.transform.TransformPoint(wheelCollider.center);
-		wheelCollider.GetGroundHit(out CorrespondingGroundHit);
+		float newCompression = compression;
 
-		if(Physics.Raycast(ColliderCenterPoint, -wheelCollider.transform.up, out hit, (wheelCollider.suspensionDistance + wheelCollider.radius) * transform.localScale.y) && !hit.transform.IsChildOf(carController.transform) && !hit.collider.isTrigger){
-			wheelModel.transform.position = hit.point + (wheelCollider.transform.up * wheelCollider.radius) * transform.localScale.y;
-			float extension = (-wheelCollider.transform.InverseTransformPoint(CorrespondingGroundHit.point).y - wheelCollider.radius) / wheelCollider.suspensionDistance;
-			Debug.DrawLine(CorrespondingGroundHit.point, CorrespondingGroundHit.point + wheelCollider.transform.up * (CorrespondingGroundHit.force / rigid.mass), extension <= 0.0 ? Color.magenta : Color.white);
-			Debug.DrawLine(CorrespondingGroundHit.point, CorrespondingGroundHit.point - wheelCollider.transform.forward * CorrespondingGroundHit.forwardSlip * 2f, Color.green);
-			Debug.DrawLine(CorrespondingGroundHit.point, CorrespondingGroundHit.point - wheelCollider.transform.right * CorrespondingGroundHit.sidewaysSlip * 2f, Color.red);
-		}else{
-			wheelModel.transform.position = ColliderCenterPoint - (wheelCollider.transform.up * wheelCollider.suspensionDistance) * transform.localScale.y;
-		}
-
-		wheelRotation += wheelCollider.rpm * 6 * Time.deltaTime;
-
-		wheelModel.transform.rotation = wheelCollider.transform.rotation * Quaternion.Euler(wheelRotation, wheelCollider.steerAngle, wheelCollider.transform.rotation.z);
-
-	}
-
-	public void WheelCamber (){
-
-		Vector3 wheelLocalEuler;
-
-		if(wheelCollider.transform.localPosition.x < 0)
-			wheelLocalEuler = new Vector3(wheelCollider.transform.localEulerAngles.x, wheelCollider.transform.localEulerAngles.y, (-camber));
+		if (grounded)
+			newCompression = 1f - ((Vector3.Dot(transform.position - GroundHit.point, transform.up) - (wheelCollider.radius * transform.lossyScale.y)) / wheelCollider.suspensionDistance);
 		else
-			wheelLocalEuler = new Vector3(wheelCollider.transform.localEulerAngles.x, wheelCollider.transform.localEulerAngles.y, (camber));
+			newCompression = wheelCollider.suspensionDistance;
 
-		Quaternion wheelCamber = Quaternion.Euler(wheelLocalEuler);
-		wheelCollider.transform.localRotation = wheelCamber;
+		compression = Mathf.Lerp (compression, newCompression, Time.deltaTime * 50f);
+
+		// Set the position of the wheel model.
+		wheelModel.position = transform.position;
+		wheelModel.position += (transform.up * (compression - 1.0f) * wheelCollider.suspensionDistance);
+
+		// X axis rotation of the wheel.
+		wheelRotation += wheelCollider.rpm * 6f * Time.deltaTime;
+		wheelModel.rotation = transform.rotation * Quaternion.Euler(wheelRotation, wheelCollider.steerAngle, transform.rotation.z);
+
+		// Z axis rotation of the wheel for camber.
+		if(transform.localPosition.x > 0f)
+			transform.localRotation = Quaternion.identity * Quaternion.AngleAxis((camber), Vector3.forward);
+		else
+			transform.localRotation = Quaternion.identity * Quaternion.AngleAxis((-camber), Vector3.forward);
+
+		// Gizmos for wheel forces and slips.
+		float extension = (-wheelCollider.transform.InverseTransformPoint(GroundHit.point).y - (wheelCollider.radius * transform.lossyScale.y)) / wheelCollider.suspensionDistance;
+		Debug.DrawLine(GroundHit.point, GroundHit.point + transform.up * (GroundHit.force / rigid.mass), extension <= 0.0 ? Color.magenta : Color.white);
+		Debug.DrawLine(GroundHit.point, GroundHit.point - transform.forward * GroundHit.forwardSlip * 2f, Color.green);
+		Debug.DrawLine(GroundHit.point, GroundHit.point - transform.right * GroundHit.sidewaysSlip * 2f, Color.red);
 
 	}
 
+	// Creating skidmarks.
 	void SkidMarks(){
 
+		// First, we are getting groundhit data.
 		WheelHit GroundHit;
 		wheelCollider.GetGroundHit(out GroundHit);
 
-		wheelSlipAmountSideways = Mathf.Abs(GroundHit.sidewaysSlip);
+		// Forward, sideways, and total slips.
 		wheelSlipAmountForward = Mathf.Abs(GroundHit.forwardSlip);
-		totalSlip = wheelSlipAmountSideways + (wheelSlipAmountForward / 2f);
+		wheelSlipAmountSideways = Mathf.Abs(GroundHit.sidewaysSlip);
 
+		totalSlip = Mathf.Lerp(totalSlip, (wheelSlipAmountSideways + wheelSlipAmountForward), Time.fixedDeltaTime * 3f) / 1f;
+
+		// If scene has skidmarks manager...
 		if(skidmarks){
 
-			if (wheelSlipAmountSideways > startSlipValue || wheelSlipAmountForward > startSlipValue * 2f){
+			// If slips are bigger than target value...
+			if (wheelSlipAmountSideways + wheelSlipAmountForward > startSlipValue){
 
 				Vector3 skidPoint = GroundHit.point + 2f * (rigid.velocity) * Time.deltaTime;
 
-				if(rigid.velocity.magnitude > 1f){
-					lastSkidmark = skidmarks.AddSkidMark(skidPoint, GroundHit.normal, (wheelSlipAmountSideways / 2f) + (wheelSlipAmountForward / 2f), lastSkidmark);
-				}else{
+				if(rigid.velocity.magnitude > 1f)
+					lastSkidmark = skidmarks.AddSkidMark(skidPoint, GroundHit.normal, totalSlip, lastSkidmark);
+				else
 					lastSkidmark = -1;
-				}
 
 			}else{
 				
@@ -373,157 +407,112 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
 	}
 
+	// Setting ground frictions to wheel frictions.
 	void Frictions(){
 
-		WheelHit GroundHit;
-		wheelCollider.GetGroundHit(out GroundHit);
+		int groundIndex = GetGroundMaterialIndex ();
 
-		bool contacted = false;
+		WheelHit hit;
+		wheelCollider.GetGroundHit (out hit);
 
-		for (int i = 0; i < physicsFrictions.Length; i++) {
+		float hbInput = carController.handbrakeInput;
 
-			if(GroundHit.point != Vector3.zero && GroundHit.collider.sharedMaterial == physicsFrictions[i].groundMaterial){
+		if ((this == carController.RearLeftWheelCollider || this == carController.RearRightWheelCollider) && hbInput > .75f)
+			hbInput = .75f;
+		else
+			hbInput = 1;
 
-				contacted = true;
+		// Setting wheel stiffness to ground physic material stiffness.
+		forwardFrictionCurve.stiffness = physicsFrictions[groundIndex].forwardStiffness;
+		sidewaysFrictionCurve.stiffness = (physicsFrictions[groundIndex].sidewaysStiffness * hbInput * tractionHelpedSidewaysStiffness);
 
-				forwardFrictionCurve.stiffness = physicsFrictions[i].forwardStiffness;
-				sidewaysFrictionCurve.stiffness = (physicsFrictions[i].sidewaysStiffness * tractionHelpedSidewaysStiffness);
+		// If drift mode is selected, apply specific frictions.
+		if(carController.behaviorType == VehiclePhysics.BehaviorType.SportsMuscle)
+			Drift();
 
-				if(carController.behaviorType == VehiclePhysics.BehaviorType.SportsMuscle){
-					SportsMuscle();
-				}
+		// Setting new friction curves to wheels.
+		wheelCollider.forwardFriction = forwardFrictionCurve;
+		wheelCollider.sidewaysFriction = sidewaysFrictionCurve;
 
-				wheelCollider.forwardFriction = forwardFrictionCurve;
-				wheelCollider.sidewaysFriction = sidewaysFrictionCurve;
+		// Also damp too.
+		wheelCollider.wheelDampingRate = physicsFrictions[groundIndex].damp;
 
-				wheelCollider.wheelDampingRate = physicsFrictions[i].damp;
+		// Set audioclip to ground physic material sound.
+		audioClip = physicsFrictions[groundIndex].groundSound;
 
-				emission = allWheelParticles[i].emission;
-				audioClip = physicsFrictions[i].groundSound;				
-					
-				if (wheelSlipAmountSideways > physicsFrictions [i].slip || wheelSlipAmountForward > physicsFrictions [i].slip) {
-					emission.enabled = true;
-				} else {
-					emission.enabled = false;
-				}
+		// If wheel slip is bigger than ground physic material slip, enable particles. Otherwise, disable particles.
+		if (!commonSettings.dontUseAnyParticleEffects) {
 
-				
+			for (int i = 0; i < allWheelParticles.Count; i++) {
 
-			}
+				if (totalSlip > physicsFrictions [groundIndex].slip) {
 
-		}
+					if (i != groundIndex) {
 
-		
-		if(!contacted && physicsMaterials.useTerrainSplatMapForGroundFrictions){
+						ParticleSystem.EmissionModule em;
 
-			for (int k = 0; k < physicsMaterials.terrainSplatMapIndex.Length; k++) {
+						em = allWheelParticles [i].emission;
+						em.enabled = false;
 
-				if(GroundHit.point != Vector3.zero && GroundHit.collider.sharedMaterial == physicsMaterials.terrainPhysicMaterial){
+					} else {
 
-					if(TerrainSurface.GetTextureMix(transform.position) != null && TerrainSurface.GetTextureMix(transform.position)[k] > .5f){
+						ParticleSystem.EmissionModule em;
 
-						contacted = true;
+						em = allWheelParticles [i].emission;
+						em.enabled = true;
 
-						forwardFrictionCurve.stiffness = physicsFrictions[physicsMaterials.terrainSplatMapIndex[k]].forwardStiffness;
-						sidewaysFrictionCurve.stiffness = (physicsFrictions[physicsMaterials.terrainSplatMapIndex[k]].sidewaysStiffness * tractionHelpedSidewaysStiffness);
-
-						if(carController.behaviorType == VehiclePhysics.BehaviorType.SportsMuscle){
-							SportsMuscle();
-						}
-
-						wheelCollider.forwardFriction = forwardFrictionCurve;
-						wheelCollider.sidewaysFriction = sidewaysFrictionCurve;
-
-						wheelCollider.wheelDampingRate = physicsFrictions[physicsMaterials.terrainSplatMapIndex[k]].damp;
-						
-						emission = allWheelParticles[physicsMaterials.terrainSplatMapIndex[k]].emission;
-
-						audioClip = physicsFrictions[physicsMaterials.terrainSplatMapIndex[k]].groundSound;
-
-						
-						if (wheelSlipAmountSideways > physicsFrictions [physicsMaterials.terrainSplatMapIndex [k]].slip || wheelSlipAmountForward > physicsFrictions [physicsMaterials.terrainSplatMapIndex [k]].slip) {
-							emission.enabled = true;
-						} else {
-							emission.enabled = false;
-						}
-							 
 					}
 
+				} else {
+
+					ParticleSystem.EmissionModule em;
+
+					em = allWheelParticles [i].emission;
+					em.enabled = false;
+
 				}
-				
+
 			}
 
 		}
 
-		
-		if(!contacted){
-
-			forwardFrictionCurve.stiffness = orgForwardStiffness;
-			sidewaysFrictionCurve.stiffness = orgSidewaysStiffness * tractionHelpedSidewaysStiffness;
-
-			if(carController.behaviorType == VehiclePhysics.BehaviorType.SportsMuscle){
-				SportsMuscle();
-			}
-
-			wheelCollider.forwardFriction = forwardFrictionCurve;
-			wheelCollider.sidewaysFriction = sidewaysFrictionCurve;
-
-			wheelCollider.wheelDampingRate = physicsFrictions[0].damp;
-			
-			emission = allWheelParticles[0].emission;
-
-			audioClip = physicsFrictions[0].groundSound;
-
-				
-			if (wheelSlipAmountSideways > physicsFrictions [0].slip || wheelSlipAmountForward > physicsFrictions [0].slip) {
-				emission.enabled = true;
-			} else {
-				emission.enabled = false;
-			}
-
-		}
-
-
-		for (int i = 0; i < allWheelParticles.Count; i++) {
-
-			if (wheelSlipAmountSideways > startSlipValue || wheelSlipAmountForward > startSlipValue) {
-				
-			} else {
-				emission = allWheelParticles [i].emission;
-				emission.enabled = false;
-			}
-			
-		}
 	}
 
-	void SportsMuscle(){
+	void Drift(){
 		
-		Vector3 relativeVelocity = transform.InverseTransformDirection(rigid.velocity);
-		float sqrVel = ((relativeVelocity.x * relativeVelocity.x)) / 100f;
+		WheelHit hit;
+		wheelCollider.GetGroundHit (out hit);
 
+		Vector3 relativeVelocity = transform.InverseTransformDirection(rigid.velocity);
+
+		float sqrVel = (relativeVelocity.x * relativeVelocity.x) / 10f;
+		sqrVel += (Mathf.Abs(hit.forwardSlip * hit.forwardSlip) * .5f);
+
+		// Forward
 		if(wheelCollider == carController.FrontLeftWheelCollider.wheelCollider || wheelCollider == carController.FrontRightWheelCollider.wheelCollider){
 			forwardFrictionCurve.extremumValue = Mathf.Clamp(1f - sqrVel, .1f, maxForwardStiffness);
 			forwardFrictionCurve.asymptoteValue = Mathf.Clamp(.75f - (sqrVel / 2f), .1f, minForwardStiffness);
 		}else{
-			forwardFrictionCurve.extremumValue = Mathf.Clamp(1f - sqrVel, .75f, maxForwardStiffness);
-			forwardFrictionCurve.asymptoteValue = Mathf.Clamp(.75f - (sqrVel / 2f), .75f,  minForwardStiffness);
+			forwardFrictionCurve.extremumValue = Mathf.Clamp(1f - sqrVel, 1f, maxForwardStiffness);
+			forwardFrictionCurve.asymptoteValue = Mathf.Clamp(.75f - (sqrVel / 2f), 1.2f, minForwardStiffness);
 		}
 
+		// Sideways
 		if(wheelCollider == carController.FrontLeftWheelCollider.wheelCollider || wheelCollider == carController.FrontRightWheelCollider.wheelCollider){
 			sidewaysFrictionCurve.extremumValue = Mathf.Clamp(1f - sqrVel / 1f, .5f, maxSidewaysStiffness);
 			sidewaysFrictionCurve.asymptoteValue = Mathf.Clamp(.75f - (sqrVel / 2f), .5f, minSidewaysStiffness);
 		}else{
-			sidewaysFrictionCurve.extremumValue = Mathf.Clamp(1f - sqrVel, .45f, maxSidewaysStiffness);
-			sidewaysFrictionCurve.asymptoteValue = Mathf.Clamp(.75f - (sqrVel / 2f), .45f, minSidewaysStiffness);
+			sidewaysFrictionCurve.extremumValue = Mathf.Clamp(1f - sqrVel, .5f, maxSidewaysStiffness);
+			sidewaysFrictionCurve.asymptoteValue = Mathf.Clamp(.75f - (sqrVel / 2f), .5f, minSidewaysStiffness);
 		}
 
 	}
 
 	void Audio(){
 
-		if(CommonSettings.useSharedAudioSources && isSkidding())
+		if(commonSettings.useSharedAudioSources && isSkidding())
 			return;
-
+		
 		if(totalSlip > startSlipValue){
 
 			if(audioSource.clip != audioClip)
@@ -533,15 +522,19 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 				audioSource.Play();
 
 			if(rigid.velocity.magnitude > 1f){
-				audioSource.volume = Mathf.Lerp(audioSource.volume, Mathf.Lerp(0f, 1f, totalSlip - startSlipValue), Time.deltaTime * 5f);
+				
+				audioSource.volume = Mathf.Lerp(0f, 1f, totalSlip - 0);
 				audioSource.pitch = Mathf.Lerp(1f, .8f, audioSource.volume);
+
 			}else{
-				audioSource.volume = Mathf.Lerp(audioSource.volume, 0f, Time.deltaTime * 5f);
+				
+				audioSource.volume = 0f;
+
 			}
 			
 		}else{
 			
-			audioSource.volume = Mathf.Lerp(audioSource.volume, 0f, Time.deltaTime * 5f);
+			audioSource.volume = 0f;
 
 			if(audioSource.volume <= .05f && audioSource.isPlaying)
 				audioSource.Stop();
@@ -554,7 +547,7 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
 		for (int i = 0; i < allWheelColliders.Count; i++) {
 
-			if(allWheelColliders[i].totalSlip > totalSlip)
+			if(allWheelColliders[i].totalSlip > startSlipValue)
 				return true;
 
 		}
@@ -563,11 +556,6 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
 	}
 
-
-	///<summary>
-	///Applies the motor torque for the wheels
-	///</summary>
-	///<param name="torque">Torque that engine supplies</param>
 	void ApplyMotorTorque(float torque){
 
 		if(carController.TCS){
@@ -576,15 +564,23 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 			wheelCollider.GetGroundHit(out hit);
 
 			if(Mathf.Abs(wheelCollider.rpm) >= 100){
-				if(hit.forwardSlip > .25f){
+				
+				if(hit.forwardSlip > startSlipValue){
+					
 					carController.TCSAct = true;
 					torque -= Mathf.Clamp(torque * (hit.forwardSlip) * carController.TCSStrength, 0f, carController.engineTorque);
+
 				}else{
+					
 					carController.TCSAct = false;
 					torque += Mathf.Clamp(torque * (hit.forwardSlip) * carController.TCSStrength, -carController.engineTorque, 0f);
+
 				}
+
 			}else{
+				
 				carController.TCSAct = false;
+
 			}
 
 		}
@@ -594,23 +590,14 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
 		wheelCollider.motorTorque = ((torque * (1 - carController.clutchInput) * carController._boostInput) * carController._gasInput) * (carController.engineTorqueCurve[carController.currentGear].Evaluate(wheelRPMToSpeed * carController.direction) * carController.direction);
 
-		carController.ApplyEngineSound(wheelCollider.motorTorque);
-
 	}
 
 	public void ApplySteering(){
 
-		if(carController.applyCounterSteering && carController.currentGear != 0)
-			wheelCollider.steerAngle = Mathf.Clamp((carController.steerAngle * (carController._steerInput + carController.DriftAngle)), -carController.steerAngle, carController.steerAngle);
-		else
-			wheelCollider.steerAngle = Mathf.Clamp((carController.steerAngle * carController._steerInput), -carController.steerAngle, carController.steerAngle);
+		wheelCollider.steerAngle = Mathf.Clamp(carController.steerAngle * carController._steerInput, -carController.steerAngle, carController.steerAngle);
 
 	}
 
-	///<summary>
-	///Applies the brake torque for the wheels
-	///</summary>
-	///<param name="brake">Brake torque that is required</param>
 	void ApplyBrakeTorque(float brake){
 
 		if(carController.ABS && carController.handbrakeInput <= .1f){
@@ -637,6 +624,90 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 			return true;
 
 		return false;
+
+	}
+
+	void GetTerrainData(){
+
+		if (!Terrain.activeTerrain)
+			return;
+		
+		mTerrainData = Terrain.activeTerrain.terrainData;
+		alphamapWidth = mTerrainData.alphamapWidth;
+		alphamapHeight = mTerrainData.alphamapHeight;
+
+		mSplatmapData = mTerrainData.GetAlphamaps(0, 0, alphamapWidth, alphamapHeight);
+		mNumTextures = mSplatmapData.Length / (alphamapWidth * alphamapHeight);
+
+	}
+
+	private Vector3 ConvertToSplatMapCoordinate(Vector3 playerPos){
+		
+		Vector3 vecRet = new Vector3();
+		Terrain ter = Terrain.activeTerrain;
+		Vector3 terPosition = ter.transform.position;
+		vecRet.x = ((playerPos.x - terPosition.x) / ter.terrainData.size.x) * ter.terrainData.alphamapWidth;
+		vecRet.z = ((playerPos.z - terPosition.z) / ter.terrainData.size.z) * ter.terrainData.alphamapHeight;
+		return vecRet;
+
+	}
+
+	int GetGroundMaterialIndex(){
+
+		// Contacted any physic material in Configurable Ground Materials yet?
+		bool contacted = false;
+
+		// First, we are getting groundhit data.
+		WheelHit GroundHit;
+		wheelCollider.GetGroundHit(out GroundHit);
+
+		if (GroundHit.point == Vector3.zero)
+			return 0;
+
+		int ret = 0;
+		
+		for (int i = 0; i < physicsFrictions.Length; i++) {
+
+			if (GroundHit.collider.sharedMaterial == physicsFrictions [i].groundMaterial) {
+				
+				contacted = true;
+				ret = i;
+
+			}
+
+		}
+
+		// If ground pyhsic material is not one of the ground material in Configurable Ground Materials, check if we are on terrain collider...
+		if(!contacted && physicsMaterials.useTerrainSplatMapForGroundFrictions && GroundHit.collider.sharedMaterial == groundMaterials.terrainPhysicMaterial){
+
+			Vector3 playerPos = transform.position;
+			Vector3 TerrainCord = ConvertToSplatMapCoordinate(playerPos);
+			float comp = 0f;
+
+			for (int i = 0; i < mNumTextures; i++){
+				
+				if (comp < mSplatmapData[(int)TerrainCord.z, (int)TerrainCord.x, i])
+					ret = i;
+				
+			}
+
+		}
+
+		return ret;
+
+	}
+
+	// Setting a new friction to WheelCollider.
+	public WheelFrictionCurve SetFrictionCurves(WheelFrictionCurve curve, float extremumSlip, float extremumValue, float asymptoteSlip, float asymptoteValue){
+
+		WheelFrictionCurve newCurve = curve;
+
+		newCurve.extremumSlip = extremumSlip;
+		newCurve.extremumValue = extremumValue;
+		newCurve.asymptoteSlip = asymptoteSlip;
+		newCurve.asymptoteValue = asymptoteValue;
+
+		return newCurve;
 
 	}
 

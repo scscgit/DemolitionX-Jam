@@ -64,6 +64,9 @@ public class CommonSettings : ScriptableObject {
 	public AudioClip[] exhaustFlameClips;
 	public bool useSharedAudioSources = true;
 
+	[Header("Optimization")]
+	public bool dontUseAnyParticleEffects = false;
+
 	[Range(0f, 1f)]public float maxGearShiftingSoundVolume = .25f;
 	[Range(0f, 1f)]public float maxCrashSoundVolume = 1f;
 	[Range(0f, 1f)]public float maxWindSoundVolume = .1f;

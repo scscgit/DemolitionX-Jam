@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 
 [CustomEditor(typeof(VehiclePhysics)), CanEditMultipleObjects]
 public class VehiclePhysicsEditor : Editor {
@@ -94,7 +92,7 @@ public class VehiclePhysicsEditor : Editor {
 			}
 
 			if(GUILayout.Button("Make Troque Curves")){			
-				carScript.TorqueCurve();
+				carScript.TorqueCurves();
 		}
 
 		EditorGUILayout.HelpBox("The wheel colliders will get auto assigned, when you make them!!", MessageType.None);
