@@ -76,6 +76,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wheelModel: {fileID: 0}
   camber: 0
+  compression: 0
 --- !u!1 &6052318273008069976
 GameObject:
   m_ObjectHideFlags: 0
@@ -307,6 +308,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wheelModel: {fileID: 0}
   camber: 0
+  compression: 0
 --- !u!1 &6052318274158702345
 GameObject:
   m_ObjectHideFlags: 0
@@ -383,6 +385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wheelModel: {fileID: 0}
   camber: 0
+  compression: 0
 --- !u!1 &6052318274348830055
 GameObject:
   m_ObjectHideFlags: 0
@@ -618,6 +621,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wheelModel: {fileID: 0}
   camber: 0
+  compression: 0
 --- !u!1 &8661405590168194137
 GameObject:
   m_ObjectHideFlags: 0
@@ -1215,12 +1219,22 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8661405591729687192}
-  - component: {fileID: 919151268853817323}
   - component: {fileID: 8661405591729687189}
   - component: {fileID: 8661405591729687188}
   - component: {fileID: 114494543944100526}
   - component: {fileID: 114928445585656634}
   - component: {fileID: 114140597257332658}
+  - component: {fileID: 5235678700553570353}
+  - component: {fileID: 8537109366378688773}
+  - component: {fileID: 4143216478321507569}
+  - component: {fileID: 5195097291421503529}
+  - component: {fileID: 8085424848457259916}
+  - component: {fileID: 2591782238176220409}
+  - component: {fileID: 6943958572821411636}
+  - component: {fileID: 1803425499842141418}
+  - component: {fileID: 7459673852395940811}
+  - component: {fileID: 2386175921006371102}
+  - component: {fileID: 6400474847716720404}
   m_Layer: 0
   m_Name: Classic16
   m_TagString: Untagged
@@ -1245,40 +1259,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &919151268853817323
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8661405591729687195}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b6d06ffaea238a43b5ebb249e0a6cb0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  meshFilters:
-  - {fileID: 8661405592054819022}
-  - {fileID: 8661405592054819018}
-  - {fileID: 8661405592054819016}
-  - {fileID: 8661405592054819014}
-  - {fileID: 8661405592054819008}
-  - {fileID: 8661405592054819036}
-  - {fileID: 6052318273011429720}
-  - {fileID: 6052318274544214247}
-  colliders:
-  - {fileID: 8661405592057918669}
-  - {fileID: 8661405592057918665}
-  - {fileID: 8661405592057918663}
-  - {fileID: 8661405592057918661}
-  - {fileID: 8661405592057918687}
-  - {fileID: 8661405592057918683}
-  - {fileID: 6052318273008069977}
-  - {fileID: 6052318274545515746}
-  ImpactDamage: 3
-  radiusDeformate: 0.7
-  maxDeformation: 0.16
-  minVelocity: 5
 --- !u!54 &8661405591729687189
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1321,13 +1301,6 @@ MonoBehaviour:
   RearRightWheelCollider: {fileID: 6052318273857965533}
   ExtraRearWheelsCollider: []
   applyEngineTorqueToExtraRearWheelColliders: 1
-  canControl: 0
-  engineRunning: 1
-  automaticGear: 1
-  semiAutomaticGear: 0
-  useRevLimiter: 1
-  useClutchMarginAtFirstGear: 1
-  useExhaustFlame: 1
   SteeringWheel: {fileID: 0}
   steeringWheelRotateAround: 0
   steeringWheelAngleMultiplier: 3
@@ -1335,19 +1308,37 @@ MonoBehaviour:
   highspeedsteerAngle: 15
   highspeedsteerAngleAtspeed: 100
   COM: {fileID: 6052318273283727983}
+  canControl: 0
+  engineRunning: 1
+  automaticGear: 1
+  useRevLimiter: 1
+  useExhaustFlame: 1
+  useClutchMarginAtFirstGear: 1
+  autoGenerateGearCurves: 1
+  autoGenerateTargetSpeedsForChangingGear: 1
   engineTorque: 2000
   brakeTorque: 2000
-  maxEngineRPM: 7000
   minEngineRPM: 1000
+  maxEngineRPM: 7000
   engineInertia: 1
+  maxspeed: 220
   antiRollFrontHorizontal: 5000
   antiRollRearHorizontal: 5000
   antiRollVertical: 0
-  maxspeed: 220
+  downForce: 25
   speed: 0
   orgMaxSpeed: 220
-  totalGears: 6
+  useFuelConsumption: 0
+  fuelTankCapacity: 62
+  fuelTank: 62
+  fuelConsumptionRate: 0.1
+  useEngineHeat: 0
+  engineHeat: 15
+  engineCoolingWaterThreshold: 60
+  engineHeatRate: 1
+  engineCoolRate: 1
   currentGear: 0
+  totalGears: 6
   gearShiftingDelay: 0.35
   gearShiftingThreshold: 0.85
   clutchInertia: 0.25
@@ -1355,10 +1346,16 @@ MonoBehaviour:
   NGear: 0
   direction: 1
   launched: 0
+  audioType: 0
+  autoCreateEngineOffSounds: 1
   engineStartClip: {fileID: 8300000, guid: 8d3ddfbc69660b342b48f88b496dedee, type: 3}
-  engineClipOn: {fileID: 8300000, guid: d6fad8e44d8100741817291b9ab6f54d, type: 3}
-  engineClipOff: {fileID: 8300000, guid: a871290734dd92e49b5a4f0dfbd88fff, type: 3}
+  engineClipHigh: {fileID: 0}
+  engineClipMed: {fileID: 0}
+  engineClipLow: {fileID: 0}
   engineClipIdle: {fileID: 0}
+  engineClipHighOff: {fileID: 0}
+  engineClipMedOff: {fileID: 0}
+  engineClipLowOff: {fileID: 0}
   minEngineSoundPitch: 0.75
   maxEngineSoundPitch: 1.75
   minEngineSoundVolume: 0.05
@@ -1371,11 +1368,25 @@ MonoBehaviour:
   boostInput: 1
   cutGas: 0
   idleInput: 0
+  fuelInput: 0
   chassis: {fileID: 0}
+  chassisVerticalLean: 4
+  chassisHorizontalLean: 4
   lowBeamHeadLightsOn: 0
   highBeamHeadLightsOn: 0
   indicatorsOn: 0
   indicatorTimer: 0
+  useDamage: 1
+  deformableMeshFilters: []
+  damageFilter:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  randomizeVertices: 1
+  damageRadius: 0.5
+  repairNow: 0
+  repaired: 1
+  maximumDamage: 0.5
+  damageMultiplier: 1
   maximumContactSparkle: 5
   velocityDirection: {fileID: 0}
   steeringDirection: {fileID: 0}
@@ -1389,28 +1400,23 @@ MonoBehaviour:
   ESPThreshold: 0.25
   ESPStrength: 0.25
   steeringHelper: 1
+  applyCounterSteering: 1
   steerHelperLinearVelStrength: 0.1
   steerHelperAngularVelStrength: 0.1
   tractionHelper: 1
   tractionHelperStrength: 0.1
-  applyCounterSteering: 1
   ABSAct: 0
   TCSAct: 0
   ESPAct: 0
-  overSteering: 0
   underSteering: 0
+  overSteering: 0
+  counterSteeringFactor: 1
   frontSlip: 0
   rearSlip: 0
-  turboBoost: 0
-  NoS: 100
   useNOS: 0
   useTurbo: 0
-  speedNeedle: {fileID: 0}
-  speedStartAngle: 0
-  speedEndAngle: 0
-  rpmNeedle: {fileID: 0}
-  rpmStartAngle: 0
-  rpmEndAngle: 0
+  turboBoost: 0
+  NoS: 100
   engineTorqueCurve:
   - serializedVersion: 2
     m_Curve:
@@ -1707,6 +1713,215 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9a6f576a8cf4814f86924e3f2cb693b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5235678700553570353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 8661405590693768031}
+--- !u!114 &8537109366378688773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 8661405591737802147}
+--- !u!114 &4143216478321507569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 8661405590204922322}
+--- !u!114 &5195097291421503529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 8661405590167834751}
+--- !u!114 &8085424848457259916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 8661405592058210536}
+--- !u!114 &2591782238176220409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 8661405592058210534}
+--- !u!114 &6943958572821411636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 8661405592058210532}
+--- !u!114 &1803425499842141418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 8661405592058210558}
+--- !u!114 &7459673852395940811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 8661405592058210554}
+--- !u!114 &2386175921006371102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 6052318273008562552}
+--- !u!114 &6400474847716720404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8661405591729687195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 734b48bea0b204338958ee3d885e11f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localRotationSensitivity: 0.01
+  localScaleSensitivity: 0.01
+  target: {fileID: 6052318274545541319}
 --- !u!1 &8661405591737631105
 GameObject:
   m_ObjectHideFlags: 0
