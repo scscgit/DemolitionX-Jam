@@ -1,4 +1,5 @@
 using Mirror;
+using Mirror.Websocket;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -141,6 +142,11 @@ namespace Game.Scripts.Network
         public void WhenDisconnected()
         {
             onDisconnected.Invoke();
+        }
+
+        public void SetSecured(bool secured)
+        {
+            _manager.GetComponent<WebsocketTransport>().Secure = secured;
         }
     }
 }

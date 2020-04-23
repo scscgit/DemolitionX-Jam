@@ -70,8 +70,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   port: 7778
-  Secure: 0
-  CertificatePath: 
+  Secure: 1
+  CertificatePath: certificate.pfx
   CertificatePassword: 
   NoDelay: 1
 --- !u!114 &4136253233753687427
