@@ -1,5 +1,6 @@
 using System;
 using Game.Scripts.UI;
+using Game.Scripts.Util;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -28,6 +29,7 @@ namespace Game.Scripts.Network
         private HoveringDetails _hoveringDetails;
 
         [SyncVar] private GameObject _car;
+        private int _carIndex;
 
         public void Start()
         {
@@ -60,12 +62,22 @@ namespace Game.Scripts.Network
             SceneManager.LoadScene("CarSelection", LoadSceneMode.Additive);
         }
 
+        public void RespawnCar()
+        {
+            Destroy(_car);
+            // Just to be sure for the future
+            _car = null;
+            SelectedCar(_carIndex);
+        }
+
         public void SelectedCar(int carIndex)
         {
             if (isServer)
             {
+                _carIndex = carIndex;
                 var car = Instantiate(cars[carIndex], transform);
-                NetworkServer.Spawn(car);
+                // Spawning without parent is necessary when a respawn occurs, so that stacked cars don't collide
+                car.ExecuteWithoutParent(o => NetworkServer.Spawn(o));
                 _car = car;
                 playerName = MainMenu.PlayerName;
                 RpcOnSpawnedCar(car);
@@ -79,6 +91,7 @@ namespace Game.Scripts.Network
         [Command]
         public void CmdSelectedCar(int carIndex, GameObject player, string setPlayerName)
         {
+            _carIndex = carIndex;
             var car = Instantiate(cars[carIndex], transform);
             NetworkServer.Spawn(car, player);
             _car = car;

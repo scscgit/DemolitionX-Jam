@@ -9,6 +9,8 @@ public class Timer : NetworkBehaviour
     public Text timerText;
     public Animator a;
     public Text resultsText;
+    public Environment environment;
+
     public float mins = 3;
     public float sec;
     public float breakSec = 10;
@@ -42,8 +44,7 @@ public class Timer : NetworkBehaviour
                 if (paused)
                 {
                     time = sec + (mins * 60);
-                    paused = false;
-                    resultsText.enabled = false;
+                    RestartGame();
                     RpcSetTime(sec + (mins * 60), false);
                     _lastSyncedTime = sec + (mins * 60);
                 }
@@ -84,8 +85,7 @@ public class Timer : NetworkBehaviour
         {
             if (paused)
             {
-                resultsText.enabled = false;
-                paused = false;
+                RestartGame();
             }
 
             paused = false;
@@ -121,5 +121,20 @@ with score:
         }
 
         resultsText.enabled = true;
+    }
+
+    private void RestartGame()
+    {
+        resultsText.enabled = false;
+        paused = false;
+        if (isServer)
+        {
+            environment.RespawnAll();
+            var players = FindObjectsOfType<GameNetworkPlayer>();
+            foreach (var player in players)
+            {
+                player.RespawnCar();
+            }
+        }
     }
 }
