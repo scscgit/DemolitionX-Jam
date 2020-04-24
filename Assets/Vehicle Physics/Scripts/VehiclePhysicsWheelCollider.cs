@@ -8,6 +8,7 @@ using System.Collections.Generic;
 [RequireComponent (typeof(WheelCollider))]
 public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
+	private float _lastLocalZ;
 
 	private CommonSettings commonSettingsInstance;
 	private CommonSettings commonSettings {
@@ -355,7 +356,7 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 		wheelModel.position += (transform.up * (compression - 1.0f) * wheelCollider.suspensionDistance);
 
 		// X axis rotation of the wheel.
-		wheelRotation += wheelCollider.rpm * 6f * Time.deltaTime;
+		wheelRotation +=  WheelRpm() * 6f * Time.deltaTime;
 		wheelModel.rotation = transform.rotation * Quaternion.Euler(wheelRotation, wheelCollider.steerAngle, transform.rotation.z);
 
 		// Z axis rotation of the wheel for camber.
@@ -370,6 +371,20 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 		Debug.DrawLine(GroundHit.point, GroundHit.point - transform.forward * GroundHit.forwardSlip * 2f, Color.green);
 		Debug.DrawLine(GroundHit.point, GroundHit.point - transform.right * GroundHit.sidewaysSlip * 2f, Color.red);
 
+	}
+
+	private float WheelRpm()
+	{
+		if (carController.canControl)
+		{
+			return wheelCollider.rpm;
+		}
+		// Fake RPM
+		//var carVelocity = transform.InverseTransformDirection(rigid.velocity).z; // Mirror doesn't sync velocity :(
+		var currentLocalZ = transform.InverseTransformDirection(carController.transform.position).z;
+		var carVelocity = (currentLocalZ - _lastLocalZ) / Time.deltaTime;
+		_lastLocalZ = currentLocalZ;
+		return carVelocity >= 0 ? carVelocity * 500f / 16f : carVelocity > -1 ? carVelocity / 300 : -300;
 	}
 
 	// Creating skidmarks.
