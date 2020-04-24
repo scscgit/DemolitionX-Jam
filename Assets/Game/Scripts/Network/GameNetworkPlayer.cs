@@ -124,6 +124,7 @@ namespace Game.Scripts.Network
                 vehicleCamera.playerCar = car.transform;
                 car.transform.parent = transform;
                 car.GetComponent<VehiclePhysics>().canControl = true;
+                car.GetComponent<VehiclePhysics>().StartEngine();
                 // playerName SyncVar isn't set until the next frame, but if this is a callback, we know the name
                 playerName = MainMenu.PlayerName;
                 // Always rotate HoveringDetails towards the current player

@@ -197,16 +197,16 @@ public class VehiclePhysics : MonoBehaviour {
 	// Main Gameobjects for keep the Hierarchy clean and organized.
 	private GameObject allContactParticles;
 	
-	// Inputs.
-	[HideInInspector]public float gasInput = 0f;
-	[HideInInspector]public float brakeInput = 0f;
-	[HideInInspector]public float steerInput = 0f;
-	[HideInInspector]public float clutchInput = 0f;
-	[HideInInspector]public float handbrakeInput = 0f;
-	[HideInInspector]public float boostInput = 1f;
-	[HideInInspector]public bool cutGas = false;
-	[HideInInspector]public float idleInput = 0f;
-	[HideInInspector]public float fuelInput = 0f;
+	[Header("Inputs")]
+	public float gasInput = 0f;
+	public float brakeInput = 0f;
+	public float steerInput = 0f;
+	public float clutchInput = 0f;
+	public float handbrakeInput = 0f;
+	public float boostInput = 1f;
+	public bool cutGas = false;
+	public float idleInput = 0f;
+	public float fuelInput = 0f;
 
 	//public bool permanentGas = false;
 
@@ -332,7 +332,7 @@ public class VehiclePhysics : MonoBehaviour {
 	private float angle;
 	private float angularVelo;
 
-	// Driving Assistances.
+	[Header("Driving Assistances")]
 	public bool ABS = true;
 	[Range(.05f, .5f)]public float ABSThreshold = .35f;
 	public bool TCS = true;
@@ -481,7 +481,7 @@ public class VehiclePhysics : MonoBehaviour {
 
 		}
 
-		//KillOrStartEngine();
+		//KillEngine();
 
 	}
 
@@ -489,6 +489,9 @@ public class VehiclePhysics : MonoBehaviour {
 
 		currentGear = 0;
 		changingGear = false;
+		isSleeping = false;
+
+		//StartEngine();
 
 	}
 

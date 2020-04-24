@@ -1127,7 +1127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c25271813931d814680ab7c84ef90710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  behaviorType: 5
+  behaviorType: 3
   _wheelTypeChoise: 1
   biasedWheelTorque: 100
   FrontLeftWheelTransform: {fileID: 6195527384663592515}
