@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -185,6 +185,7 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 		}
 
 		GameObject newPivot = new GameObject ("Pivot_" + wheelModel.transform.name);
+        carController.gameObject.AddComponent<Mirror.NetworkTransformChild>().target = newPivot.transform;
 		newPivot.transform.position = GetBounds.GetBoundsCenter (wheelModel.transform);
 		newPivot.transform.rotation = transform.rotation;
 		newPivot.transform.SetParent (wheelModel.transform.parent, true);
