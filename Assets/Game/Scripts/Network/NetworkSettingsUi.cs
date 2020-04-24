@@ -1,3 +1,4 @@
+using System.IO;
 using Mirror;
 using Mirror.Websocket;
 using UnityEngine;
@@ -13,16 +14,24 @@ namespace Game.Scripts.Network
     {
         public const string RealServer = "demolitionx.scscdev.eu";
 
+        public InputField addressInput;
+        public Toggle securedToggle;
         public Text disconnectButtonText;
 
         public UnityEvent onConnected;
         public UnityEvent onDisconnected;
 
         private NetworkManager _manager;
+        private WebsocketTransport _transport;
 
         private void Awake()
         {
             _manager = FindObjectOfType<NetworkManager>();
+            _transport = _manager.GetComponent<WebsocketTransport>();
+
+            // Load the previously set values
+            securedToggle.isOn = _transport.Secure;
+            addressInput.text = RealServer.Equals(_manager.networkAddress) ? "" : _manager.networkAddress;
         }
 
         public void OnChangeAddress(string serverAddress)
@@ -44,7 +53,15 @@ namespace Game.Scripts.Network
                 Debug.LogError("WebGL cannot be server");
             }
 
-            _manager.StartServer();
+            try
+            {
+                _manager.StartServer();
+            }
+            catch (FileNotFoundException)
+            {
+                securedToggle.isOn = false;
+            }
+
             WhenConnected();
         }
 
@@ -55,7 +72,15 @@ namespace Game.Scripts.Network
                 Debug.LogError("WebGL cannot be server");
             }
 
-            _manager.StartHost();
+            try
+            {
+                _manager.StartHost();
+            }
+            catch (FileNotFoundException)
+            {
+                securedToggle.isOn = false;
+            }
+
             WhenConnected();
         }
 
