@@ -32,8 +32,7 @@ public class Explosivebarrel : NetworkBehaviour
             {
                 foreach (var hit in hits)
                 {
-                    if (hit.collider.gameObject)
-                        RpcAddForce(hit.collider.gameObject);
+                    RpcAddForce(hit.transform.gameObject);
                     if (hit.rigidbody)
                         hit.rigidbody.AddExplosionForce(hit.rigidbody.mass * force, transform.position, radius);
                 }
@@ -53,5 +52,6 @@ public class Explosivebarrel : NetworkBehaviour
             rigidbody = go.GetComponentInChildren<Rigidbody>();
         if (rigidbody)
             rigidbody.AddExplosionForce(rigidbody.mass * force, transform.position, radius);
+        Debug.Log(rigidbody.name);
     }
 }
