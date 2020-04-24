@@ -27,7 +27,6 @@ namespace Game.Scripts.UI
         {
             if (!VehicleCamera) // || !_playerName
             {
-                Debug.Log("HoveringDetails doesn't have any camera assigned");
                 return;
             }
 

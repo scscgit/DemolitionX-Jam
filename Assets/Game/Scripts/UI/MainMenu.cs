@@ -157,20 +157,6 @@ namespace Game.Scripts.UI
             playerInput.text = playerName;
         }
 
-        [Obsolete]
-        public void CarSelectionOffline()
-        {
-            try
-            {
-                SceneManager.LoadScene("Game/Scenes/CarSelection");
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-                //SceneManager.LoadScene(1);
-            }
-        }
-
         public void ExitGame()
         {
             Application.Quit();

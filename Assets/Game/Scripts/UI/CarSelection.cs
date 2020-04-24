@@ -6,8 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class CarSelection : MonoBehaviour
 {
-    public const string ScenePassingData = "ScenePassingData_CarSelection";
-
     [Range(0, 100)] public float rotationSpeed = 1.7f;
     [Range(10, 180)] public float wobblingIntensity = 30f;
     public GameObject rotatingCars;

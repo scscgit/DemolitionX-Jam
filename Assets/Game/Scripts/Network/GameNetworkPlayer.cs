@@ -32,6 +32,9 @@ namespace Game.Scripts.Network
         public void Start()
         {
             _arenaUi = GameObject.Find("ArenaUI").GetComponent<ArenaUi>();
+            // If this is the local player, then the Start means he has just has just connected, so he will pick a car
+            // If the car was already spawned by other player before connecting, add the relevant additions
+            // If the car wasn't spawned yet, then wait for the RPC callback
             if (isLocalPlayer)
             {
                 _spectatorCamera = GameObject.Find("SpectatorCamera").GetComponent<Camera>()
@@ -40,35 +43,7 @@ namespace Game.Scripts.Network
             }
             else if (!ReferenceEquals(_car, null))
             {
-                // If the car was already spawned, add the relevant additions
-                // If it wasn't, then wait for the RPC callback
-                ConfigureHoveringDetails(_car);
-            }
-        }
-
-        private void Update()
-        {
-            if (_car)
-            {
-                if (!_car.transform.parent || _car.transform.parent != transform)
-                    _car.transform.parent = transform;
-            }
-        }
-
-        public void AddPlayer()
-        {
-            if (NetworkClient.isConnected && !ClientScene.ready)
-            {
-                ClientScene.Ready(NetworkClient.connection);
-
-                if (ClientScene.localPlayer == null)
-                {
-                    ClientScene.AddPlayer();
-                }
-            }
-            else
-            {
-                Debug.LogError("Probably cannot add a network player client - not connected yet");
+                ConfigureSpawnedCar(_car);
             }
         }
 
@@ -93,10 +68,12 @@ namespace Game.Scripts.Network
                 NetworkServer.Spawn(car);
                 _car = car;
                 playerName = MainMenu.PlayerName;
-                RpcSetup(car);
+                RpcOnSpawnedCar(car);
             }
             else
+            {
                 CmdSelectedCar(carIndex, gameObject, MainMenu.PlayerName);
+            }
         }
 
         [Command]
@@ -105,18 +82,17 @@ namespace Game.Scripts.Network
             var car = Instantiate(cars[carIndex], transform);
             NetworkServer.Spawn(car, player);
             _car = car;
-            // Also set the player name before creating the HoveringDetails
+            // Also sync the player name before creating the HoveringDetails
             playerName = setPlayerName;
             health = StartHealth;
-            RpcSetup(car);
+            RpcOnSpawnedCar(car);
         }
 
         [ClientRpc]
-        public void RpcSetup(GameObject car)
+        public void RpcOnSpawnedCar(GameObject car)
         {
+            // The _car will be synced in the following cycle, so we have to use param car instead
             health = StartHealth;
-
-            // The _car will be set in the following cycle, so we have to use param car instead
             if (isLocalPlayer)
             {
                 _arenaUi.EnableUi(this);
@@ -125,45 +101,36 @@ namespace Game.Scripts.Network
                 car.transform.parent = transform;
                 car.GetComponent<VehiclePhysics>().canControl = true;
                 car.GetComponent<VehiclePhysics>().StartEngine();
-                // playerName SyncVar isn't set until the next frame, but if this is a callback, we know the name
+                // playerName SyncVar isn't set until the next frame, but if this is a local callback, we know the name
                 playerName = MainMenu.PlayerName;
                 // Always rotate HoveringDetails towards the current player
                 HoveringDetails.VehicleCamera = vehicleCamera.transform;
             }
 
-            ConfigureHoveringDetails(car);
+            ConfigureSpawnedCar(car);
         }
 
-        private void ConfigureHoveringDetails(GameObject carObject)
+        private void ConfigureSpawnedCar(GameObject car)
         {
-            _hoveringDetails = Instantiate(hoveringPrefab, carObject.transform).GetComponent<HoveringDetails>();
+            car.transform.parent = transform;
+            _hoveringDetails = Instantiate(hoveringPrefab, car.transform).GetComponent<HoveringDetails>();
             _hoveringDetails.Player = this;
             _hoveringDetails.DisplayScore(score);
             _hoveringDetails.DisplayHealth(health);
-            var healthAndScores = carObject.GetComponent<HealthAndScores>();
+            var healthAndScores = car.GetComponent<HealthAndScores>();
             healthAndScores.Player = this;
         }
 
-        [Command]
-        public void CmdSetScore(int setScore)
+        public void SetScore(int setScore)
         {
             score = setScore;
             RpcDisplayScore(setScore);
-            if (!ReferenceEquals(_hoveringDetails, null))
-            {
-                _hoveringDetails.DisplayScore(setScore);
-            }
         }
 
-        [Command]
-        public void CmdSetHealth(float setHealth)
+        public void SetHealth(float setHealth)
         {
             health = setHealth;
             RpcDisplayHealth(setHealth);
-            if (!ReferenceEquals(_hoveringDetails, null))
-            {
-                _hoveringDetails.DisplayHealth(setHealth);
-            }
         }
 
         [ClientRpc]

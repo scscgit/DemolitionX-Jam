@@ -3,6 +3,7 @@ using Mirror;
 using Mirror.Websocket;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Game.Scripts.Network
@@ -114,6 +115,9 @@ namespace Game.Scripts.Network
             else
             {
                 Debug.LogError("Disconnect didn't match any conditions");
+                // Possibly after a hot-swap, which pretty much "breaks" the NetworkManager instance
+                Destroy(manager.gameObject);
+                SceneManager.LoadScene("Game/Scenes/MainMenu");
             }
         }
 

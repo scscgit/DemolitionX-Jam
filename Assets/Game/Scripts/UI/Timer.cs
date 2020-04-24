@@ -13,16 +13,17 @@ public class Timer : NetworkBehaviour
     public float sec;
     public float breakSec = 10;
     public float time;
+    [Range(0.01f, 5f)] public float timeSyncInterval = 0.5f;
+    private float _lastSyncedTime;
     private bool paused;
 
-    // Start is called before the first frame update
     void Awake()
     {
         resultsText.enabled = false;
-        time = (sec + (mins * 60));
+        time = sec + mins * 60;
+        _lastSyncedTime = time;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (isServer)
@@ -30,7 +31,11 @@ public class Timer : NetworkBehaviour
             if (time - Time.deltaTime > 0)
             {
                 time -= Time.deltaTime;
-                RpcSetTime(time, paused);
+                if (Mathf.Abs(time - _lastSyncedTime) > timeSyncInterval)
+                {
+                    RpcSetTime(time, paused);
+                    _lastSyncedTime = time;
+                }
             }
             else
             {
@@ -40,6 +45,7 @@ public class Timer : NetworkBehaviour
                     paused = false;
                     resultsText.enabled = false;
                     RpcSetTime(sec + (mins * 60), false);
+                    _lastSyncedTime = sec + (mins * 60);
                 }
                 else
                 {
@@ -47,6 +53,8 @@ public class Timer : NetworkBehaviour
                     ResultScreen();
                     RpcSetTime(breakSec, true);
                 }
+
+                _lastSyncedTime = breakSec;
             }
         }
 
@@ -93,8 +101,8 @@ public class Timer : NetworkBehaviour
         {
             foreach (var player in players)
             {
-                player.CmdSetScore(0);
-                player.CmdSetHealth(100);
+                player.SetScore(0);
+                player.SetHealth(100);
             }
         }
 

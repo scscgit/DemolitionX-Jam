@@ -39,8 +39,6 @@ namespace Mirror.Websocket
             // configure
             client.NoDelay = NoDelay;
             server.NoDelay = NoDelay;
-
-            Debug.Log("Websocket transport initialized!");
         }
 
         public override bool Available()

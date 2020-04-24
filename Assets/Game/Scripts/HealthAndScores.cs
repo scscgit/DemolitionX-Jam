@@ -1,8 +1,13 @@
 ﻿using Game.Scripts.Network;
+using Game.Scripts.Util;
+using Mirror;
 using UnityEngine;
 
-public class HealthAndScores : MonoBehaviour
+public class HealthAndScores : NetworkBehaviour
 {
+    public const float EnvironmentDamageModifier = 1 / 20f;
+    public const float ImpactDamageModifier = 1 / 10000f;
+
     public GameNetworkPlayer Player { get; set; }
 
     private Rigidbody _rigidbody;
@@ -12,35 +17,33 @@ public class HealthAndScores : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
     }
 
+    [ServerCallback]
     private void OnCollisionEnter(Collision other)
     {
-        float v = _rigidbody.velocity.magnitude;
-        if (!other.gameObject.GetComponent<Rigidbody>())
+        var velocity = _rigidbody.velocity.magnitude;
+        var otherRigidbody = other.gameObject.GetComponent<Rigidbody>();
+        if (!otherRigidbody)
         {
-            Player.CmdSetHealth(Player.health - v / 20f);
+            Player.SetHealth(Player.health - velocity * EnvironmentDamageModifier);
+            Debug.Log($"{Player.playerName} randomly collided for damage of {velocity * EnvironmentDamageModifier}");
         }
-
-
-        if (other.gameObject.GetComponent<Rigidbody>())
+        else
         {
-            float impactMag = Mathf.Abs(other.gameObject.GetComponent<Rigidbody>().velocity.magnitude *
-                other.gameObject.GetComponent<Rigidbody>().mass - v * _rigidbody.mass);
-            if (v > other.gameObject.GetComponent<Rigidbody>().velocity.magnitude)
+            var otherVelocity = otherRigidbody.velocity.magnitude;
+            var otherPlayer = other.transform.FindComponentIncludingParents<HealthAndScores>().Player;
+            Debug.Log(
+                $"Collision by {Player.playerName} @ {velocity} with {otherPlayer.playerName}'s {other.gameObject.name}");
+            var impactMagnitude = Mathf.Abs(otherVelocity * otherRigidbody.mass - velocity * _rigidbody.mass);
+            // The one who was slower gets damaged
+            if (velocity > otherVelocity)
             {
-                var otherHealthAndScores = other.gameObject.GetComponent<HealthAndScores>();
-                if (otherHealthAndScores)
-                {
-                    otherHealthAndScores.Player.CmdSetHealth(otherHealthAndScores.Player.health - impactMag / 10000f);
-                    Player.CmdSetScore(Player.score + Mathf.RoundToInt(impactMag));
-                }
-                else
-                {
-                    Player.CmdSetHealth(Player.health - 1);
-                }
+                otherPlayer.SetHealth(otherPlayer.health - impactMagnitude * ImpactDamageModifier);
+                Player.SetScore(Player.score + Mathf.RoundToInt(impactMagnitude));
             }
             else
             {
-                Player.CmdSetHealth(Player.health - impactMag / 10000f);
+                Player.SetHealth(Player.health - impactMagnitude * ImpactDamageModifier);
+                // TODO: should we give score to the other one?
             }
         }
     }
