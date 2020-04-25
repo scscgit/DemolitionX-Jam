@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class HealthAndScores : NetworkBehaviour
 {
-    public const float EnvironmentDamageModifier = 1 / 20f;
-    public const float ImpactDamageModifier = 1 / 10000f;
+    public const float EnvironmentDamageModifier = 1 / 2f;
+    public const float ImpactDamageModifier = 1 / 1000f;
 
     public GameNetworkPlayer Player { get; set; }
 
@@ -21,30 +21,54 @@ public class HealthAndScores : NetworkBehaviour
     private void OnCollisionEnter(Collision other)
     {
         var velocity = _rigidbody.velocity.magnitude;
+        var hp = velocity * EnvironmentDamageModifier;
+        if (hp < 1)
+        {
+            // Do at least 1 damage
+            hp = 1;
+        }
+
         var otherRigidbody = other.gameObject.GetComponent<Rigidbody>();
         if (!otherRigidbody)
         {
-            Player.SetHealth(Player.health - velocity * EnvironmentDamageModifier);
-            Debug.Log($"{Player.playerName} randomly collided for damage of {velocity * EnvironmentDamageModifier}");
+            Player.SetHealth(Player.health - hp);
+            Player.RpcDisplayObjectHitEvent("environment", hp);
+            return;
+        }
+
+        var otherVelocity = otherRigidbody.velocity.magnitude;
+        var otherHealthAndScores = other.transform.FindComponentIncludingParents<HealthAndScores>();
+        if (!otherHealthAndScores)
+        {
+            Player.SetHealth(Player.health - hp);
+            Player.RpcDisplayObjectHitEvent("object", hp);
+            return;
+        }
+
+        var otherPlayer = otherHealthAndScores.Player;
+        var impactMagnitude = Mathf.Abs(otherVelocity * otherRigidbody.mass - velocity * _rigidbody.mass);
+        hp = impactMagnitude * ImpactDamageModifier;
+        if (hp < 1)
+        {
+            // Do at least 1 damage
+            hp = 1;
+        }
+
+        // Collision with {otherPlayer.playerName}'s {other.gameObject.name}
+        // The one who was slower gets damaged
+        if (velocity > otherVelocity)
+        {
+            Player.RpcDisplayPlayerHitEvent(otherPlayer.playerName, hp);
+            otherPlayer.SetHealth(otherPlayer.health - hp);
+            Player.SetScore(Player.score + Mathf.RoundToInt(impactMagnitude));
         }
         else
         {
-            var otherVelocity = otherRigidbody.velocity.magnitude;
-            var otherPlayer = other.transform.FindComponentIncludingParents<HealthAndScores>().Player;
             Debug.Log(
-                $"Collision by {Player.playerName} @ {velocity} with {otherPlayer.playerName}'s {other.gameObject.name}");
-            var impactMagnitude = Mathf.Abs(otherVelocity * otherRigidbody.mass - velocity * _rigidbody.mass);
-            // The one who was slower gets damaged
-            if (velocity > otherVelocity)
-            {
-                otherPlayer.SetHealth(otherPlayer.health - impactMagnitude * ImpactDamageModifier);
-                Player.SetScore(Player.score + Mathf.RoundToInt(impactMagnitude));
-            }
-            else
-            {
-                Player.SetHealth(Player.health - impactMagnitude * ImpactDamageModifier);
-                // TODO: should we give score to the other one?
-            }
+                $"Reverse collision by {Player.playerName} (@{velocity} vs. {otherVelocity}) with {otherPlayer.playerName}'s {other.gameObject.name}");
+            //otherPlayer.RpcDisplayPlayerHitEvent("(only damage) " + Player.playerName, hp);
+            //Player.SetHealth(Player.health - hp);
+            // TODO: should we give score to the other one?
         }
     }
 }

@@ -62,34 +62,40 @@ namespace Game.Scripts.Network
             SceneManager.LoadScene("CarSelection", LoadSceneMode.Additive);
         }
 
-        public void RespawnCar()
+        public void RespawnCarByNewRound()
         {
+            if (!_car)
+            {
+                // Most likely still under the CarSelection screen
+                return;
+            }
+
             Destroy(_car);
             // Just to be sure for the future
             _car = null;
-            SelectedCar(_carIndex);
+            SelectedCar(_carIndex, true);
         }
 
-        public void SelectedCar(int carIndex)
+        public void SelectedCar(int carIndex, bool byNewRound = false)
         {
             if (isServer)
             {
                 _carIndex = carIndex;
                 var car = Instantiate(cars[carIndex], transform);
                 // Spawning without parent is necessary when a respawn occurs, so that stacked cars don't collide
-                car.ExecuteWithoutParent(o => NetworkServer.Spawn(o,gameObject));
+                car.ExecuteWithoutParent(o => NetworkServer.Spawn(o, gameObject));
                 _car = car;
                 playerName = MainMenu.PlayerName;
-                RpcOnSpawnedCar(car);
+                RpcOnSpawnedCar(car, byNewRound);
             }
             else
             {
-                CmdSelectedCar(carIndex, gameObject, MainMenu.PlayerName);
+                CmdSelectedCar(carIndex, gameObject, MainMenu.PlayerName, byNewRound);
             }
         }
 
         [Command]
-        public void CmdSelectedCar(int carIndex, GameObject player, string setPlayerName)
+        public void CmdSelectedCar(int carIndex, GameObject player, string setPlayerName, bool byNewRound)
         {
             _carIndex = carIndex;
             var car = Instantiate(cars[carIndex], transform);
@@ -98,11 +104,11 @@ namespace Game.Scripts.Network
             // Also sync the player name before creating the HoveringDetails
             playerName = setPlayerName;
             health = StartHealth;
-            RpcOnSpawnedCar(car);
+            RpcOnSpawnedCar(car, byNewRound);
         }
 
         [ClientRpc]
-        public void RpcOnSpawnedCar(GameObject car)
+        public void RpcOnSpawnedCar(GameObject car, bool byNewRound)
         {
             // The _car will be synced in the following cycle, so we have to use param car instead
             health = StartHealth;
@@ -121,6 +127,11 @@ namespace Game.Scripts.Network
             }
 
             ConfigureSpawnedCar(car);
+
+            if (!byNewRound)
+            {
+                RpcDisplayPositiveEvent($"Spawned car {car.name}", false);
+            }
         }
 
         private void ConfigureSpawnedCar(GameObject car)
@@ -162,6 +173,24 @@ namespace Game.Scripts.Network
             {
                 _hoveringDetails.DisplayHealth(displayHealth);
             }
+        }
+
+        [ClientRpc]
+        public void RpcDisplayPlayerHitEvent(string player2, float hp)
+        {
+            _arenaUi.DisplayPlayerHitEvent(playerName, player2, hp);
+        }
+
+        [ClientRpc]
+        public void RpcDisplayObjectHitEvent(string target, float hp)
+        {
+            _arenaUi.DisplayObjectHitEvent(playerName, target, hp);
+        }
+
+        [ClientRpc]
+        public void RpcDisplayPositiveEvent(string positiveMessage, bool announcement)
+        {
+            _arenaUi.DisplayPositiveEvent(!announcement ? $"{playerName}: {positiveMessage}" : positiveMessage);
         }
     }
 }

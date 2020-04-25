@@ -9080,9 +9080,9 @@ MonoBehaviour:
   a: {fileID: 2694950768761766287}
   resultsText: {fileID: 160664402}
   environment: {fileID: 8390637881892462202}
-  mins: 3
-  sec: 0
-  breakSec: 10
+  mins: 1
+  sec: 30
+  breakSec: 15
   time: 0
   timeSyncInterval: 0.5
 --- !u!114 &1892059811
@@ -10707,8 +10707,24 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 160664402, guid: d287ce72346920b418921199d00b9366, type: 3}
-      propertyPath: m_Enabled
+    - target: {fileID: 1838352081436861098, guid: d287ce72346920b418921199d00b9366,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 260.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1838352081436861098, guid: d287ce72346920b418921199d00b9366,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1838352081436861098, guid: d287ce72346920b418921199d00b9366,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1838352081436861098, guid: d287ce72346920b418921199d00b9366,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2694950769598793914, guid: d287ce72346920b418921199d00b9366,
@@ -10770,6 +10786,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ArenaUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 5733842127623674023, guid: d287ce72346920b418921199d00b9366,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 260.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5733842127623674023, guid: d287ce72346920b418921199d00b9366,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5733842127623674023, guid: d287ce72346920b418921199d00b9366,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5733842127623674023, guid: d287ce72346920b418921199d00b9366,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d287ce72346920b418921199d00b9366, type: 3}

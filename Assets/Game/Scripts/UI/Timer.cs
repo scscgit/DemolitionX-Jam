@@ -97,14 +97,6 @@ public class Timer : NetworkBehaviour
     {
         paused = true;
         var players = FindObjectsOfType<GameNetworkPlayer>();
-        if (isServer)
-        {
-            foreach (var player in players)
-            {
-                player.SetScore(0);
-                player.SetHealth(100);
-            }
-        }
 
         if (players.Length == 0)
         {
@@ -131,9 +123,17 @@ with score:
         {
             environment.RespawnAll();
             var players = FindObjectsOfType<GameNetworkPlayer>();
+            var onlyOnce = true;
             foreach (var player in players)
             {
-                player.RespawnCar();
+                player.SetScore(0);
+                player.SetHealth(100);
+                player.RespawnCarByNewRound();
+                if (onlyOnce)
+                {
+                    player.RpcDisplayPositiveEvent("New round started", true);
+                    onlyOnce = false;
+                }
             }
         }
     }

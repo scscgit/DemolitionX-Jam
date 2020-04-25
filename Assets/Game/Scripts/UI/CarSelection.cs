@@ -81,6 +81,9 @@ public class CarSelection : MonoBehaviour
 
     public void EnterGame()
     {
+        // TODO: remove the component altogether once we display all errors and statuses ourselves
+        FindObjectOfType<NetworkManager>().GetComponent<NetworkManagerHUD>().showGUI = false;
+
         SceneManager.UnloadSceneAsync("Game/Scenes/CarSelection");
         _game.SelectedCar(_carIndex);
     }

@@ -18,6 +18,7 @@ namespace Game.Scripts.Network
         public InputField addressInput;
         public Toggle securedToggle;
         public Text disconnectButtonText;
+        public Text securedMissingText;
 
         public UnityEvent onConnected;
         public UnityEvent onDisconnected;
@@ -60,6 +61,7 @@ namespace Game.Scripts.Network
             }
             catch (FileNotFoundException)
             {
+                securedMissingText.gameObject.SetActive(true);
                 securedToggle.isOn = false;
             }
 
@@ -79,6 +81,7 @@ namespace Game.Scripts.Network
             }
             catch (FileNotFoundException)
             {
+                securedMissingText.gameObject.SetActive(true);
                 securedToggle.isOn = false;
             }
 
