@@ -77,7 +77,7 @@ namespace Game.Scripts.Network
                 _carIndex = carIndex;
                 var car = Instantiate(cars[carIndex], transform);
                 // Spawning without parent is necessary when a respawn occurs, so that stacked cars don't collide
-                car.ExecuteWithoutParent(o => NetworkServer.Spawn(o));
+                car.ExecuteWithoutParent(o => NetworkServer.Spawn(o,gameObject));
                 _car = car;
                 playerName = MainMenu.PlayerName;
                 RpcOnSpawnedCar(car);
