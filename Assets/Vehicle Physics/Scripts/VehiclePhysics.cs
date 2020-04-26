@@ -301,22 +301,62 @@ public class VehiclePhysics : MonoBehaviour {
 	public enum IndicatorsOn{Off, Right, Left, All}
 	public float indicatorTimer = 0f;			// Used timer for indicator on / off sequence.
 
+	class meshVerts
+    {
+        public Vector3[] verts;//Current mesh vertices
+        public Vector3[] initialVerts;//Original mesh vertices
+    }
+
 	// Damage.
 	[Header("Deform System")]
 	public bool useDamage = true;													// Use Damage.
-	struct originalMeshVerts{public Vector3[] meshVerts;}				// Struct for Original Mesh Verticies positions.
-	private originalMeshVerts[] originalMeshData;							// Array for struct above.
-	public MeshFilter[] deformableMeshFilters;								// Deformable Meshes.
-	public LayerMask damageFilter = -1;											// LayerMask filter for not taking any damage.
-	public float randomizeVertices = 1f;											// Randomize Verticies on Collisions for more complex deforms.
-	public float damageRadius = .5f;												// Verticies in this radius will be effected on collisions.
-	private float minimumVertDistanceForDamagedMesh = .002f;		// Comparing Original Vertex Positions Between Last Vertex Positions To Decide Mesh Is Repaired Or Not.
-	public bool repairNow = false;													// Repair Now.
-	public bool repaired = true;														// Returns true if vehicle is repaired.
+	Transform tr;
+    Rigidbody rb;
 
-	public float maximumDamage = .5f;				// Maximum Vert Distance For Limiting Damage. 0 Value Will Disable The Limit.
-	private float minimumCollisionForce = 5f;		// Minimum collision force.
-	public float damageMultiplier = 1f;				// Damage multiplier.
+    [Range(0, 1)]
+    public float strength;
+    public float damageFactor = 1;
+    public float maxCollisionMagnitude = 100;
+
+    [Tooltip("Maximum collision points to use when deforming, has large effect on performance")]
+    public int maxCollisionPoints = 2;
+
+    [Tooltip("Collisions underneath this local y-position will be ignored")]
+    public float collisionIgnoreHeight;
+
+    [Tooltip("If true, grounded wheels will not be damaged, but can still be displaced")]
+    public bool ignoreGroundedWheels;
+
+    [Tooltip("Minimum time in seconds between collisions")]
+    public float collisionTimeGap = 0.1f;
+    float hitTime;
+
+    [Tooltip("Whether the edges of adjacent deforming parts should match")]
+    public bool seamlessDeform;
+
+    [Tooltip("Add some perlin noise to deformation")]
+    public bool usePerlinNoise = true;
+
+    [Tooltip("Recalculate normals of deformed meshes")]
+    public bool calculateNormals = true;
+
+    [Tooltip("Meshes that are deformed")]
+    public MeshFilter[] deformMeshes;
+    bool[] damagedMeshes;
+    Mesh[] tempMeshes;
+    meshVerts[] meshVertices;
+
+    [Tooltip("Mesh colliders that are deformed (Poor performance, must be convex)")]
+    public MeshCollider[] deformColliders;
+    bool[] damagedCols;
+    Mesh[] tempCols;
+    meshVerts[] colVertices;
+
+    [Tooltip("Parts that are displaced")]
+    public Transform[] displaceParts;
+    Vector3[] initialPartPositions;
+
+    ContactPoint nullContact = new ContactPoint();
 	
 	public GameObject contactSparkle{get{return commonSettings.contactParticles;}}		// Contact Particles for collisions. It must be Particle System.
 	public int maximumContactSparkle = 5;																	//	Contact Particles will be ready to use for collisions in pool. 
@@ -748,27 +788,11 @@ public class VehiclePhysics : MonoBehaviour {
 	}
 
 	// Collecting all meshes for damage.
-	void DamageInit (){
+	void DamageInit ()
+	{
+		tr = transform;
+        rb = GetComponent<Rigidbody>();
 
-		if (deformableMeshFilters.Length == 0){
-
-			MeshFilter[] allMeshFilters = GetComponentsInChildren<MeshFilter>();
-			List <MeshFilter> properMeshFilters = new List<MeshFilter>();
-
-			foreach(MeshFilter mf in allMeshFilters){
-				
-				if(!mf.transform.IsChildOf(FrontLeftWheelTransform) && !mf.transform.IsChildOf(FrontRightWheelTransform) && !mf.transform.IsChildOf(RearLeftWheelTransform) && !mf.transform.IsChildOf(RearRightWheelTransform))
-					properMeshFilters.Add(mf);
-				
-			}
-
-			deformableMeshFilters = properMeshFilters.ToArray();
-
-		}
-		
-		LoadOriginalMeshData();
-
-		// Particle System used for collision effects. Creating it at start. We will use this when we collide something.
 		if(contactSparkle){
 			
 			for(int i = 0; i < maximumContactSparkle; i++){
@@ -780,83 +804,47 @@ public class VehiclePhysics : MonoBehaviour {
 			}
 			
 		}
+            //vp = GetComponent<VehicleParent>();
 
+            //Tell VehicleParent not to play crashing sounds because this script takes care of it
+            //vp.playCrashSounds = false;
+            //vp.playCrashSparks = false;
+
+            //Set up mesh data
+        tempMeshes = new Mesh[deformMeshes.Length];
+        damagedMeshes = new bool[deformMeshes.Length];
+        meshVertices = new meshVerts[deformMeshes.Length];
+        for (int i = 0; i < deformMeshes.Length; i++)
+        {
+            tempMeshes[i] = deformMeshes[i].mesh;
+            meshVertices[i] = new meshVerts();
+            meshVertices[i].verts = deformMeshes[i].mesh.vertices;
+            meshVertices[i].initialVerts = deformMeshes[i].mesh.vertices;
+            damagedMeshes[i] = false;
+        }
+
+            //Set up mesh collider data
+        tempCols = new Mesh[deformColliders.Length];
+        damagedCols = new bool[deformColliders.Length];
+        colVertices = new meshVerts[deformColliders.Length];
+        for (int i = 0; i < deformColliders.Length; i++)
+        {
+            tempCols[i] = (Mesh)Instantiate(deformColliders[i].sharedMesh);
+            colVertices[i] = new meshVerts();
+            colVertices[i].verts = deformColliders[i].sharedMesh.vertices;
+            colVertices[i].initialVerts = deformColliders[i].sharedMesh.vertices;
+            damagedCols[i] = false;
+        }
+
+            //Set initial positions for displaced parts
+        initialPartPositions = new Vector3[displaceParts.Length];
+        for (int i = 0; i < displaceParts.Length; i++)
+        {
+            initialPartPositions[i] = displaceParts[i].localPosition;
+        }
 	}
 
-	// Default mesh vertices positions. Used for repairing the vehicle body.
-	void LoadOriginalMeshData(){
 
-		originalMeshData = new originalMeshVerts[deformableMeshFilters.Length];
-
-		for (int i = 0; i < deformableMeshFilters.Length; i++)
-			originalMeshData[i].meshVerts = deformableMeshFilters[i].mesh.vertices;
-
-	}
-
-	// Moving deformed vertices to their original positions while repairing.
-	void Damage(){
-
-		if (!repaired && repairNow){
-			
-			int k;
-			repaired = true;
-
-			for(k = 0; k < deformableMeshFilters.Length; k++){
-
-				Vector3[] vertices = deformableMeshFilters[k].mesh.vertices;
-
-				if(originalMeshData == null)
-					LoadOriginalMeshData();
-
-				for (int i = 0; i < vertices.Length; i++){
-
-					vertices[i] += (originalMeshData[k].meshVerts[i] - vertices[i]) * (Time.deltaTime * 2f);
-					if((originalMeshData[k].meshVerts[i] - vertices[i]).magnitude >= minimumVertDistanceForDamagedMesh)
-						repaired = false;
-
-				}
-
-				deformableMeshFilters[k].mesh.vertices = vertices;
-				deformableMeshFilters[k].mesh.RecalculateNormals();
-				deformableMeshFilters[k].mesh.RecalculateBounds();
-
-			}
-			
-			if(repaired)
-				repairNow = false;
-			
-		}
-
-	}
-
-	// Actual mesh deformation on collision.
-	void DeformMesh(Mesh mesh, Vector3[] originalMesh, Collision collision, float cos, Transform meshTransform, Quaternion rot){
-		
-		Vector3[] vertices = mesh.vertices;
-		
-		foreach (ContactPoint contact in collision.contacts){
-			
-			Vector3 point = meshTransform.InverseTransformPoint(contact.point);
-			 
-			for (int i = 0; i < vertices.Length; i++){
-
-				if ((point - vertices[i]).magnitude < damageRadius){
-					vertices[i] += rot * ((localVector * (damageRadius - (point - vertices[i]).magnitude) / damageRadius) * cos + (new Vector3(Mathf.Sin(vertices[i].y * 1000), Mathf.Sin(vertices[i].z * 1000), Mathf.Sin(vertices[i].x * 100)).normalized * (randomizeVertices / 500f)));
-					if (maximumDamage > 0 && ((vertices[i] - originalMesh[i]).magnitude) > maximumDamage){
-						vertices[i] = originalMesh[i] + (vertices[i] - originalMesh[i]).normalized * (maximumDamage);
-					}
-				}
-					
-			}
-			
-		}
-		
-		mesh.vertices = vertices;
-		mesh.RecalculateNormals();
-		mesh.RecalculateBounds();
-		;
-		
-	}
 
 	// Enabling contact particles on collision.
 	void CollisionParticles(Vector3 contactPoint){
@@ -918,9 +906,6 @@ public class VehiclePhysics : MonoBehaviour {
 			
 		Sounds();
 		ResetCar();
-
-		if(useDamage)
-			Damage();
 
 		OtherVisuals ();
 
@@ -1004,6 +989,11 @@ public class VehiclePhysics : MonoBehaviour {
 			isSleeping = true;
 		else
 			isSleeping = false;
+
+		//Decrease timer for collisionTimeGap
+        hitTime = Mathf.Max(0, hitTime - Time.fixedDeltaTime);
+        //Make sure damageFactor is not negative
+        damageFactor = Mathf.Max(0, damageFactor);
 
 		Engine();
 		EngineSounds ();
@@ -1669,54 +1659,330 @@ public class VehiclePhysics : MonoBehaviour {
 		
 	}
 	
-	void OnCollisionEnter (Collision collision){
+	void OnCollisionEnter (Collision col)
+	{
 		
-		if (collision.contacts.Length < 1 || collision.relativeVelocity.magnitude < minimumCollisionForce)
+		if (col.contacts.Length < 1)
 			return;
 
-		if(useDamage){
+		if(useDamage)
+		{
 
-			if (((1 << collision.gameObject.layer) & damageFilter) != 0) {
-				
-				CollisionParticles (collision.contacts [0].point);
-			
-				Vector3 colRelVel = collision.relativeVelocity;
-				colRelVel *= 1f - Mathf.Abs (Vector3.Dot (transform.up, collision.contacts [0].normal));
-			
-				float cos = Mathf.Abs (Vector3.Dot (collision.contacts [0].normal, colRelVel.normalized));
+			if (hitTime == 0 && col.relativeVelocity.sqrMagnitude * damageFactor > 1 && strength < 1)
+            {
+                Vector3 normalizedVel = col.relativeVelocity.normalized;
+                int colsChecked = 0;
+                //bool soundPlayed = false;
+                //bool sparkPlayed = false;
+                hitTime = collisionTimeGap;
 
-				if (colRelVel.magnitude * cos >= minimumCollisionForce) {
-				
-					repaired = false;
-				
-					localVector = transform.InverseTransformDirection (colRelVel) * (damageMultiplier / 50f);
+                foreach (ContactPoint curCol in col.contacts)
+                {
+                    if (tr.InverseTransformPoint(curCol.point).y > collisionIgnoreHeight && (1 << col.gameObject.layer) != 0)
+                    {
+                        colsChecked++;
 
-					if (originalMeshData == null)
-						LoadOriginalMeshData ();
-				
-					for (int i = 0; i < deformableMeshFilters.Length; i++)
-						DeformMesh (deformableMeshFilters [i].mesh, originalMeshData [i].meshVerts, collision, cos, deformableMeshFilters [i].transform, rot);
-				
-				}
+						CollisionParticles (col.contacts [0].point);
+	
+				        if(crashClips.Length > 0)
+					    {
 
-				if(crashClips.Length > 0){
+					        if (col.contacts[0].thisCollider.gameObject.transform != transform.parent)
+					        {
 
-					if (collision.contacts[0].thisCollider.gameObject.transform != transform.parent){
+						        crashSound = CreateAudioSource.NewAudioSource(gameObject, "Crash Sound AudioSource", 5, 20, commonSettings.maxCrashSoundVolume, crashClips[UnityEngine.Random.Range(0, crashClips.Length)], false, true, true);
 
-						crashSound = CreateAudioSource.NewAudioSource(gameObject, "Crash Sound AudioSource", 5, 20, commonSettings.maxCrashSoundVolume, crashClips[UnityEngine.Random.Range(0, crashClips.Length)], false, true, true);
+						        if(!crashSound.isPlaying)
+							       crashSound.Play();
 
-						if(!crashSound.isPlaying)
-							crashSound.Play();
-
+					        }
+						}
 					}
+                    
 
-				}
+                    DamageApplication(curCol.point, col.relativeVelocity, maxCollisionMagnitude, curCol.normal, curCol, true);
+                    
 
-			}
+                    //Stop checking collision points when limit reached
+                    if (colsChecked >= maxCollisionPoints)
+                    {
+                        break;
+                    }
+                }
+
+                FinalizeDamage();
+            }
 
 		}
 
 	}
+
+	void DamageApplication(Vector3 damagePoint, Vector3 damageForce, float damageForceLimit, Vector3 surfaceNormal, ContactPoint colPoint, bool useContactPoint)
+        {
+            float colMag = Mathf.Min(damageForce.magnitude, maxCollisionMagnitude) * (1 - strength) * damageFactor;//Magnitude of collision
+            float clampedColMag = Mathf.Pow(Mathf.Sqrt(colMag) * 0.5f, 1.5f);//Clamped magnitude of collision
+            Vector3 clampedVel = Vector3.ClampMagnitude(damageForce, damageForceLimit);//Clamped velocity of collision
+            Vector3 normalizedVel = damageForce.normalized;
+            float surfaceDot;//Dot production of collision velocity and surface normal
+            float massFactor = 1;//Multiplier for damage based on mass of other rigidbody
+            //Transform curDamagePart;
+            //float damagePartFactor;
+            MeshFilter curDamageMesh;
+            Transform curDisplacePart;
+            Transform seamKeeper = null;//Transform for maintaining seams on shattered parts
+            Vector3 seamLocalPoint;
+            Vector3 vertProjection;
+            Vector3 translation;
+            Vector3 clampedTranslation;
+            Vector3 localPos;
+            float vertDist;
+            float distClamp;
+            DetachablePart detachedPart;
+            //Suspension damagedSus;
+
+            //Get mass factor for multiplying damage
+            if (useContactPoint)
+            {
+                damagePoint = colPoint.point;
+                surfaceNormal = colPoint.normal;
+
+                if (colPoint.otherCollider.attachedRigidbody)
+                {
+                    massFactor = Mathf.Clamp01(colPoint.otherCollider.attachedRigidbody.mass / rb.mass);
+                }
+            }
+
+            surfaceDot = Mathf.Clamp01(Vector3.Dot(surfaceNormal, normalizedVel)) * (Vector3.Dot((tr.position - damagePoint).normalized, normalizedVel) + 1) * 0.5f;
+
+            //Damage damageable parts
+            /*or (int i = 0; i < damageParts.Length; i++)
+            {
+                curDamagePart = damageParts[i];
+                damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.01f, (clampedColMag * 0.001f) / Mathf.Pow(Vector3.Distance(curDamagePart.position, damagePoint), clampedColMag));
+
+                //Damage motors
+                Motor damagedMotor = curDamagePart.GetComponent<Motor>();
+                if (damagedMotor)
+                {
+                    damagedMotor.health -= damagePartFactor * (1 - damagedMotor.strength);
+                }
+
+                //Damage transmissions
+                Transmission damagedTransmission = curDamagePart.GetComponent<Transmission>();
+                if (damagedTransmission)
+                {
+                    damagedTransmission.health -= damagePartFactor * (1 - damagedTransmission.strength);
+                }
+            }*/
+
+            //Deform meshes
+            for (int i = 0; i < deformMeshes.Length; i++)
+            {
+                curDamageMesh = deformMeshes[i];
+                localPos = curDamageMesh.transform.InverseTransformPoint(damagePoint);
+                translation = curDamageMesh.transform.InverseTransformDirection(clampedVel);
+                clampedTranslation = Vector3.ClampMagnitude(translation, clampedColMag);
+
+                //Shatter parts that can shatter
+                /*shatterPart shattered = curDamageMesh.GetComponent<ShatterPart>();
+                if (shattered)
+                {
+                    seamKeeper = shattered.seamKeeper;
+                    if (Vector3.Distance(curDamageMesh.transform.position, damagePoint) < colMag * surfaceDot * 0.1f * massFactor && colMag * surfaceDot * massFactor > shattered.breakForce)
+                    {
+                        shattered.Shatter();
+                    }
+                }*/
+
+                //Actual deformation
+                if (translation.sqrMagnitude > 0 && strength < 1)
+                {
+                    for (int j = 0; j < meshVertices[i].verts.Length; j++)
+                    {
+                        vertDist = Vector3.Distance(meshVertices[i].verts[j], localPos);
+                        distClamp = (clampedColMag * 0.001f) / Mathf.Pow(vertDist, clampedColMag);
+
+                        if (distClamp > 0.001f)
+                        {
+                            damagedMeshes[i] = true;
+                            if (seamKeeper == null || seamlessDeform)
+                            {
+                                vertProjection = seamlessDeform ? Vector3.zero : Vector3.Project(normalizedVel, meshVertices[i].verts[j]);
+                                meshVertices[i].verts[j] += (clampedTranslation - vertProjection * (usePerlinNoise ? 1 + Mathf.PerlinNoise(meshVertices[i].verts[j].x * 100, meshVertices[i].verts[j].y * 100) : 1)) * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
+                            }
+                            else
+                            {
+                                seamLocalPoint = seamKeeper.InverseTransformPoint(curDamageMesh.transform.TransformPoint(meshVertices[i].verts[j]));
+                                meshVertices[i].verts[j] += (clampedTranslation - Vector3.Project(normalizedVel, seamLocalPoint) * (usePerlinNoise ? 1 + Mathf.PerlinNoise(seamLocalPoint.x * 100, seamLocalPoint.y * 100) : 1)) * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
+                            }
+                        }
+                    }
+                }
+            }
+
+            seamKeeper = null;
+
+            //Deform mesh colliders
+            for (int i = 0; i < deformColliders.Length; i++)
+            {
+                localPos = deformColliders[i].transform.InverseTransformPoint(damagePoint);
+                translation = deformColliders[i].transform.InverseTransformDirection(clampedVel);
+                clampedTranslation = Vector3.ClampMagnitude(translation, clampedColMag);
+
+                if (translation.sqrMagnitude > 0 && strength < 1)
+                {
+                    for (int j = 0; j < colVertices[i].verts.Length; j++)
+                    {
+                        vertDist = Vector3.Distance(colVertices[i].verts[j], localPos);
+                        distClamp = (clampedColMag * 0.001f) / Mathf.Pow(vertDist, clampedColMag);
+
+                        if (distClamp > 0.001f)
+                        {
+                            damagedCols[i] = true;
+                            colVertices[i].verts[j] += clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
+                        }
+                    }
+                }
+            }
+
+
+            //Displace parts
+            for (int i = 0; i < displaceParts.Length; i++)
+            {
+                curDisplacePart = displaceParts[i];
+                translation = clampedVel;
+                clampedTranslation = Vector3.ClampMagnitude(translation, clampedColMag);
+
+                if (translation.sqrMagnitude > 0 && strength < 1)
+                {
+                    vertDist = Vector3.Distance(curDisplacePart.position, damagePoint);
+                    distClamp = (clampedColMag * 0.001f) / Mathf.Pow(vertDist, clampedColMag);
+
+                    if (distClamp > 0.001f)
+                    {
+                        curDisplacePart.position += clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
+
+                        //Detach detachable parts
+                        if (curDisplacePart.GetComponent<DetachablePart>())
+                        {
+                            detachedPart = curDisplacePart.GetComponent<DetachablePart>();
+
+                            if (colMag * surfaceDot * massFactor > detachedPart.looseForce && detachedPart.looseForce >= 0)
+                            {
+                                detachedPart.initialPos = curDisplacePart.localPosition;
+                                detachedPart.Detach(true);
+                            }
+                            else if (colMag * surfaceDot * massFactor > detachedPart.breakForce)
+                            {
+                                detachedPart.Detach(false);
+                            }
+                        }
+                        //Maybe the parent of this part is what actually detaches, useful for displacing compound colliders that represent single detachable objects
+                        else if (curDisplacePart.parent.GetComponent<DetachablePart>())
+                        {
+                            detachedPart = curDisplacePart.parent.GetComponent<DetachablePart>();
+
+                            if (!detachedPart.detached)
+                            {
+                                if (colMag * surfaceDot * massFactor > detachedPart.looseForce && detachedPart.looseForce >= 0)
+                                {
+                                    detachedPart.initialPos = curDisplacePart.parent.localPosition;
+                                    detachedPart.Detach(true);
+                                }
+                                else if (colMag * surfaceDot * massFactor > detachedPart.breakForce)
+                                {
+                                    detachedPart.Detach(false);
+                                }
+                            }
+                            else if (detachedPart.hinge)
+                            {
+                                detachedPart.displacedAnchor += curDisplacePart.parent.InverseTransformDirection(clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor);
+                            }
+                        }
+
+                        //Damage suspensions and wheels
+                        /*damagedSus = curDisplacePart.GetComponent<Suspension>();
+                        if (damagedSus)
+                        {
+                            if ((!damagedSus.wheel.grounded && ignoreGroundedWheels) || !ignoreGroundedWheels)
+                            {
+                                curDisplacePart.RotateAround(damagedSus.tr.TransformPoint(damagedSus.damagePivot), Vector3.ProjectOnPlane(damagePoint - curDisplacePart.position, -translation.normalized), clampedColMag * surfaceDot * distClamp * 20 * massFactor);
+
+                                damagedSus.wheel.damage += clampedColMag * surfaceDot * distClamp * 10 * massFactor;
+
+                                if (clampedColMag * surfaceDot * distClamp * 10 * massFactor > damagedSus.jamForce)
+                                {
+                                    damagedSus.jammed = true;
+                                }
+
+                                if (clampedColMag * surfaceDot * distClamp * 10 * massFactor > damagedSus.wheel.detachForce)
+                                {
+                                    damagedSus.wheel.Detach();
+                                }
+
+                                foreach (SuspensionPart curPart in damagedSus.movingParts)
+                                {
+                                    if (curPart.connectObj && !curPart.isHub && !curPart.solidAxle)
+                                    {
+                                        if (!curPart.connectObj.GetComponent<SuspensionPart>())
+                                        {
+                                            curPart.connectPoint += curPart.connectObj.InverseTransformDirection(clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor);
+                                        }
+                                    }
+                                }
+                            }
+                        }*/
+
+                        //Damage hover wheels
+                        /*HoverWheel damagedHoverWheel = curDisplacePart.GetComponent<HoverWheel>();
+                        if (damagedHoverWheel)
+                        {
+                            if ((!damagedHoverWheel.grounded && ignoreGroundedWheels) || !ignoreGroundedWheels)
+                            {
+                                if (clampedColMag * surfaceDot * distClamp * 10 * massFactor > damagedHoverWheel.detachForce)
+                                {
+                                    damagedHoverWheel.Detach();
+                                }
+                            }
+                        }*/
+                    }
+                }
+            }
+        }
+
+		void FinalizeDamage()
+        {
+            //Apply vertices to actual meshes
+            for (int i = 0; i < deformMeshes.Length; i++)
+            {
+                if (damagedMeshes[i])
+                {
+                    tempMeshes[i].vertices = meshVertices[i].verts;
+
+                    if (calculateNormals)
+                    {
+                        tempMeshes[i].RecalculateNormals();
+                    }
+
+                    tempMeshes[i].RecalculateBounds();
+                }
+
+                damagedMeshes[i] = false;
+            }
+
+            //Apply vertices to actual mesh colliders
+            for (int i = 0; i < deformColliders.Length; i++)
+            {
+                if (damagedCols[i])
+                {
+                    tempCols[i].vertices = colVertices[i].verts;
+                    deformColliders[i].sharedMesh = null;
+                    deformColliders[i].sharedMesh = tempCols[i];
+                }
+
+                damagedCols[i] = false;
+            }
+        }
 
 	void OnDrawGizmos(){
 #if UNITY_EDITOR
