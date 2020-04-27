@@ -69,7 +69,7 @@ namespace Game.Scripts.UI
             var add = Instantiate(eventRedPrefab, events.transform);
             add.transform.SetSiblingIndex(0);
             add.GetComponentInChildren<Text>().text =
-                $"[{DateTime.Now:HH:mm:ss}] {player1} -> {player2} for {hp:0.0} HP";
+                $"[{DateTime.Now:mm:ss}] {player1} -> {player2} for {hp:0.0} HP";
             AddEvent(add);
         }
 
@@ -78,7 +78,7 @@ namespace Game.Scripts.UI
             var add = Instantiate(eventRedPrefab, events.transform);
             add.transform.SetSiblingIndex(0);
             add.GetComponentInChildren<Text>().text =
-                $"[{DateTime.Now:HH:mm:ss}] {player} lost {hp:0.0} HP by colliding with {target}";
+                $"[{DateTime.Now:mm:ss}] {player} lost {hp:0.0} HP by {target} collision";
             AddEvent(add);
         }
 
@@ -87,7 +87,7 @@ namespace Game.Scripts.UI
             var add = Instantiate(eventGreenPrefab, events.transform);
             add.transform.SetSiblingIndex(0);
             add.GetComponentInChildren<Text>().text =
-                $"[{DateTime.Now:HH:mm:ss}] {positiveMessage}";
+                $"[{DateTime.Now:mm:ss}] {positiveMessage}";
             AddEvent(add);
         }
 

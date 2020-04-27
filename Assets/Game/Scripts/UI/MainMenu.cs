@@ -3,9 +3,7 @@ using System.Linq;
 using Game.Scripts.Network;
 using Mirror;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Debug = UnityEngine.Debug;
 using Random = System.Random;
 
 namespace Game.Scripts.UI
@@ -31,7 +29,16 @@ namespace Game.Scripts.UI
 
             // Android: don't sleep
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        }
 
+        private void OnEnable()
+        {
+            // Initialization & Hot-swap
+            InitializePlayerName();
+        }
+
+        private void InitializePlayerName()
+        {
             // Player's name initialization
             if (PlayerName == null)
             {

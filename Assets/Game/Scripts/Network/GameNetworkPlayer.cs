@@ -31,22 +31,25 @@ namespace Game.Scripts.Network
         [SyncVar] private GameObject _car;
         private int _carIndex;
 
+        public GameObject Car => _car;
+
         public void Start()
         {
             _arenaUi = GameObject.Find("ArenaUI").GetComponent<ArenaUi>();
             // If this is the local player, then the Start means he has just has just connected, so he will pick a car
-            // If the car was already spawned by other player before connecting, add the relevant additions
-            // If the car wasn't spawned yet, then wait for the RPC callback
             if (isLocalPlayer)
             {
                 _spectatorCamera = GameObject.Find("SpectatorCamera").GetComponent<Camera>()
                                    ?? throw new NullReferenceException($"Missing SpectatorCamera");
                 ChangeCar();
             }
+            // If the car was already spawned by other player before connecting, add the relevant additions
             else if (!ReferenceEquals(_car, null))
             {
                 ConfigureSpawnedCar(_car);
             }
+
+            // If the car wasn't spawned yet, then wait for the RPC callback
         }
 
         public void ChangeCar()
@@ -56,7 +59,11 @@ namespace Game.Scripts.Network
                 Destroy(_car);
             }
 
-            _spectatorCamera.gameObject.SetActive(false);
+            if (isLocalPlayer)
+            {
+                _spectatorCamera.gameObject.SetActive(false);
+            }
+
             vehicleCamera.gameObject.SetActive(false);
             _arenaUi.DisableUi();
             SceneManager.LoadScene("CarSelection", LoadSceneMode.Additive);
@@ -78,6 +85,12 @@ namespace Game.Scripts.Network
 
         public void SelectedCar(int carIndex, bool byNewRound = false)
         {
+            // Display the spectator camera during loading
+            if (isLocalPlayer)
+            {
+                _spectatorCamera.gameObject.SetActive(true);
+            }
+
             if (isServer)
             {
                 _carIndex = carIndex;
@@ -115,6 +128,7 @@ namespace Game.Scripts.Network
             if (isLocalPlayer)
             {
                 _arenaUi.EnableUi(this);
+                _spectatorCamera.gameObject.SetActive(false);
                 vehicleCamera.gameObject.SetActive(true);
                 vehicleCamera.playerCar = car.transform;
                 car.transform.parent = transform;
@@ -130,7 +144,7 @@ namespace Game.Scripts.Network
 
             if (!byNewRound)
             {
-                RpcDisplayPositiveEvent($"Spawned car {car.name}", false);
+                DisplayPositiveEvent($"Spawned car {car.name}", false);
             }
         }
 
@@ -189,6 +203,11 @@ namespace Game.Scripts.Network
 
         [ClientRpc]
         public void RpcDisplayPositiveEvent(string positiveMessage, bool announcement)
+        {
+            DisplayPositiveEvent(positiveMessage, announcement);
+        }
+
+        public void DisplayPositiveEvent(string positiveMessage, bool announcement)
         {
             _arenaUi.DisplayPositiveEvent(!announcement ? $"{playerName}: {positiveMessage}" : positiveMessage);
         }

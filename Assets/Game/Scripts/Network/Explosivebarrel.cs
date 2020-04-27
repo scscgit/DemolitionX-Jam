@@ -1,44 +1,57 @@
-using System.Collections;
 using System.Collections.Generic;
+using Game.Scripts.Network;
 using UnityEngine;
 using Mirror;
+using Game.Scripts.Util;
 
 public class Explosivebarrel : NetworkBehaviour
 {
-    public bool exploaded = false;
+    public const string HitName = "barrel";
+    public const float Damage = 20;
+
     public float radius = 5;
-    public float force = 250;
-    public float damage = 200;
+    public float force = 2000;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    private bool _exploded;
 
     [ServerCallback]
     private void OnCollisionEnter(Collision collision)
     {
-        if (!exploaded && collision.gameObject.tag != gameObject.tag && collision.rigidbody)
+        if (!_exploded && !collision.gameObject.CompareTag(gameObject.tag) && collision.rigidbody)
         {
-            RaycastHit[] hits = Physics.SphereCastAll(transform.position, radius, transform.forward, radius);
+            var hits = Physics.SphereCastAll(transform.position, radius, transform.forward, radius);
             if (hits != null && hits.Length > 0)
             {
+                var hitPlayers = new HashSet<uint>();
                 foreach (var hit in hits)
                 {
-                    if (hit.collider.gameObject)
+                    if (!hit.collider.gameObject.GetComponent<Rigidbody>())
+                    {
+                        continue;
+                    }
+
+                    var hitPlayer = hit.collider.transform.FindComponentIncludingParents<GameNetworkPlayer>();
+                    if (hitPlayer)
+                    {
+                        if (hitPlayers.Contains(hitPlayer.netId))
+                        {
+                            continue;
+                        }
+
+                        hitPlayers.Add(hitPlayer.netId);
+                        hitPlayer.RpcDisplayHealth(hitPlayer.health - Damage);
+                        hitPlayer.RpcDisplayObjectHitEvent(HitName, Damage);
+                        // Hit the vehicle parent rigidbody, which has an identity
+                        RpcAddForce(hitPlayer.Car);
+                    }
+                    else
+                    {
                         RpcAddForce(hit.collider.gameObject);
-                    if (hit.rigidbody)
-                        hit.rigidbody.AddExplosionForce(hit.rigidbody.mass * force, transform.position, radius);
+                    }
                 }
             }
-            exploaded = true;
+
+            _exploded = true;
             Destroy(gameObject, 2f);
         }
     }
@@ -46,12 +59,12 @@ public class Explosivebarrel : NetworkBehaviour
     [ClientRpc]
     public void RpcAddForce(GameObject go)
     {
-        Rigidbody rigidbody = go.GetComponent<Rigidbody>();
-        if (!rigidbody)
-            rigidbody = go.GetComponentInParent<Rigidbody>();
-        if (!rigidbody)
-            rigidbody = go.GetComponentInChildren<Rigidbody>();
-        if (rigidbody)
-            rigidbody.AddExplosionForce(rigidbody.mass * force, transform.position, radius);
+        if (!go)
+        {
+            return;
+        }
+
+        var rigidbody = go.GetComponent<Rigidbody>();
+        rigidbody.AddExplosionForce(rigidbody.mass * force, transform.position, radius);
     }
 }

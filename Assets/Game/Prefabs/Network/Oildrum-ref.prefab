@@ -126,10 +126,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  exploaded: 0
   radius: 5
-  force: 600
-  damage: 200
+  force: 2000
 --- !u!114 &114868227092928088
 MonoBehaviour:
   m_ObjectHideFlags: 0

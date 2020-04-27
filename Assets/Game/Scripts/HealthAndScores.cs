@@ -1,4 +1,5 @@
-﻿using Game.Scripts.Network;
+﻿using System;
+using Game.Scripts.Network;
 using Game.Scripts.Util;
 using Mirror;
 using UnityEngine;
@@ -20,6 +21,11 @@ public class HealthAndScores : NetworkBehaviour
     [ServerCallback]
     private void OnCollisionEnter(Collision other)
     {
+        if (Player == null)
+        {
+            throw new Exception("Fatal error, Player isn't assigned, this must never happen");
+        }
+
         var velocity = _rigidbody.velocity.magnitude;
         var hp = velocity * EnvironmentDamageModifier;
         if (hp < 1)
