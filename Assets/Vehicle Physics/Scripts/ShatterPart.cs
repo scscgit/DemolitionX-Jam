@@ -23,14 +23,24 @@ public class ShatterPart : MonoBehaviour
     public AudioSource shatterSnd;
     public AudioClip shatterClip;
 
-    /*void Start()
+    void Update()
     {
-        rend = GetComponent<Renderer>();
-        if (rend)
+        if(shattered)
         {
-            initialMat = rend.sharedMaterial;
+            //Destroy(shatterParticles.gameObject, 2.02f);
+            if(parentBody.GetComponent<VehiclePhysics>().hasPivotIssues) 
+            {
+                transform.parent.transform.parent = null;
+                Destroy(transform.parent.gameObject, 2f);
+            }
+            else
+            {
+                transform.parent = null;
+                Destroy(gameObject, 2f);
+            }
+            //Destroy(GetComponent<ShatterPart>(), 2.5f);
         }
-    }*/
+    }
 
     public void Shatter()
     {
@@ -51,13 +61,6 @@ public class ShatterPart : MonoBehaviour
             if(!shatterSnd.isPlaying)
             shatterSnd.Play();
             
-        }
-        else
-        {
-            //parentBody.GetComponent<VehiclePhysics>().RemoveAt(ref parentBody.GetComponent<VehiclePhysics>().defor);
-            Destroy(shatterParticles.gameObject, 2.02f);
-            //Destroy(gameObject, 2.02f);
-            Destroy(GetComponent<ShatterPart>(), 2.5f);
         }
     }
 }

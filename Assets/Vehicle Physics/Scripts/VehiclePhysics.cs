@@ -1660,25 +1660,16 @@ public class VehiclePhysics : MonoBehaviour {
 		}
 		
 	}
-
-	void RemoveArrayElementsDeformMesh()
-	{
-		MeshFilter[] a = deformMeshes;
-        List<MeshFilter> aList = new List<MeshFilter>(a);
-        aList.RemoveAll(x => x == null);
-        a = aList.ToArray();
-		deformMeshes = a;
-	}
 	
 	void OnCollisionEnter (Collision col)
 	{
-		RemoveArrayElementsDeformMesh();
 		if (col.contacts.Length < 1)
 			return;
 
+		RemoveArrayNullElements();
+
 		if(useDamage)
 		{
-
 			if (hitTime == 0 && col.relativeVelocity.sqrMagnitude * damageFactor > 1 && strength < 1)
             {
                 Vector3 normalizedVel = col.relativeVelocity.normalized;
@@ -1803,14 +1794,14 @@ public class VehiclePhysics : MonoBehaviour {
                     seamKeeper = shattered.seamKeeper;
 					if(!hasPivotIssues)
 					{
-						if (Vector3.Distance(curDamageMesh.transform.position, damagePoint) < colMag * surfaceDot && colMag * surfaceDot * 1/massFactor > shattered.breakForce)
+						if (Vector3.Distance(curDamageMesh.transform.position, damagePoint) < colMag * surfaceDot * 0.1f * massFactor && colMag * surfaceDot * 1/massFactor > shattered.breakForce)
 						{
 							shattered.Shatter();
 						}
 					}
 					else
 					{
-						if (Vector3.Distance(curDamageMesh.transform.parent.position, damagePoint) < colMag * surfaceDot && colMag * surfaceDot * 1/massFactor > shattered.breakForce)
+						if (Vector3.Distance(curDamageMesh.transform.parent.position, damagePoint) < colMag * surfaceDot * 0.1f * massFactor && colMag * surfaceDot * 1/massFactor > shattered.breakForce)
 						{
 							shattered.Shatter();
 						}						
@@ -1881,6 +1872,7 @@ public class VehiclePhysics : MonoBehaviour {
                 {
                     vertDist = Vector3.Distance(curDisplacePart.position, damagePoint);
                     distClamp = (clampedColMag * 0.001f) / Mathf.Pow(vertDist, clampedColMag);
+					//Debug.Log((colMag * surfaceDot * massFactor).ToString());
 
                     if (distClamp > 0.001f)
                     {
@@ -1890,8 +1882,11 @@ public class VehiclePhysics : MonoBehaviour {
                         if (curDisplacePart.GetComponent<DetachablePart>())
                         {
                             detachedPart = curDisplacePart.GetComponent<DetachablePart>();
+							//Debug.Log(Vector3.Distance(curDisplacePart.transform.position, damagePoint).ToString());
+							
+							//colMag * surfaceDot * massFactor
 
-                            if (!detachedPart.detached)
+                            if (!detachedPart.detached)/* && Vector3.Distance(curDisplacePart.transform.position, damagePoint) < colMag * surfaceDot * massFactor)*/
                             {
                                 /*if (colMag * surfaceDot * massFactor > detachedPart.looseForce && detachedPart.looseForce >= 0)
                                 {
@@ -2102,5 +2097,18 @@ public class VehiclePhysics : MonoBehaviour {
 		}
 		// finally, let's decrement Array's size by one
 		Array.Resize(ref arr, arr.Length - 1);
+	}
+
+	void RemoveArrayNullElements()
+	{
+		MeshFilter[] a = deformMeshes;
+        List<MeshFilter> aList = new List<MeshFilter>(a);
+        aList.RemoveAll(x => x == null);
+		deformMeshes = aList.ToArray();
+
+		Transform[] t = displaceParts;
+		List<Transform> tList = new List<Transform>(t);
+		tList.RemoveAll(x => x == null);
+		displaceParts = tList.ToArray();
 	}
 } 
