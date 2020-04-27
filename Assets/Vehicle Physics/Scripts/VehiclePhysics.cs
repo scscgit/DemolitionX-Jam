@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 [RequireComponent (typeof(Rigidbody))]
 /// <summary>
@@ -309,7 +310,8 @@ public class VehiclePhysics : MonoBehaviour {
 
 	// Damage.
 	[Header("Deform System")]
-	public bool useDamage = true;													// Use Damage.
+	public bool useDamage = true;	
+	public bool hasPivotIssues = false;												// Use Damage.
 	Transform tr;
     Rigidbody rb;
 
@@ -1658,10 +1660,19 @@ public class VehiclePhysics : MonoBehaviour {
 		}
 		
 	}
+
+	void RemoveArrayElementsDeformMesh()
+	{
+		MeshFilter[] a = deformMeshes;
+        List<MeshFilter> aList = new List<MeshFilter>(a);
+        aList.RemoveAll(x => x == null);
+        a = aList.ToArray();
+		deformMeshes = a;
+	}
 	
 	void OnCollisionEnter (Collision col)
 	{
-		
+		RemoveArrayElementsDeformMesh();
 		if (col.contacts.Length < 1)
 			return;
 
@@ -1784,15 +1795,28 @@ public class VehiclePhysics : MonoBehaviour {
                 clampedTranslation = Vector3.ClampMagnitude(translation, clampedColMag);
 
                 //Shatter parts that can shatter
-                /*shatterPart shattered = curDamageMesh.GetComponent<ShatterPart>();
+                ShatterPart shattered = curDamageMesh.GetComponent<ShatterPart>();
                 if (shattered)
                 {
+					if(massFactor <= 0.001) return;
+
                     seamKeeper = shattered.seamKeeper;
-                    if (Vector3.Distance(curDamageMesh.transform.position, damagePoint) < colMag * surfaceDot * 0.1f * massFactor && colMag * surfaceDot * massFactor > shattered.breakForce)
-                    {
-                        shattered.Shatter();
-                    }
-                }*/
+					if(!hasPivotIssues)
+					{
+						if (Vector3.Distance(curDamageMesh.transform.position, damagePoint) < colMag * surfaceDot && colMag * surfaceDot * 1/massFactor > shattered.breakForce)
+						{
+							shattered.Shatter();
+						}
+					}
+					else
+					{
+						if (Vector3.Distance(curDamageMesh.transform.parent.position, damagePoint) < colMag * surfaceDot && colMag * surfaceDot * 1/massFactor > shattered.breakForce)
+						{
+							shattered.Shatter();
+						}						
+					}
+
+                }
 
                 //Actual deformation
                 if (translation.sqrMagnitude > 0 && strength < 1)
@@ -1823,7 +1847,7 @@ public class VehiclePhysics : MonoBehaviour {
             seamKeeper = null;
 
             //Deform mesh colliders
-            for (int i = 0; i < deformColliders.Length; i++)
+            /*for (int i = 0; i < deformColliders.Length; i++)
             {
                 localPos = deformColliders[i].transform.InverseTransformPoint(damagePoint);
                 translation = deformColliders[i].transform.InverseTransformDirection(clampedVel);
@@ -1843,7 +1867,7 @@ public class VehiclePhysics : MonoBehaviour {
                         }
                     }
                 }
-            }
+            }*/
 
 
             //Displace parts
@@ -1867,38 +1891,28 @@ public class VehiclePhysics : MonoBehaviour {
                         {
                             detachedPart = curDisplacePart.GetComponent<DetachablePart>();
 
-                            if (colMag * surfaceDot * massFactor > detachedPart.looseForce && detachedPart.looseForce >= 0)
-                            {
-                                detachedPart.initialPos = curDisplacePart.localPosition;
-                                detachedPart.Detach(true);
-                            }
-                            else if (colMag * surfaceDot * massFactor > detachedPart.breakForce)
-                            {
-                                detachedPart.Detach(false);
-                            }
-                        }
-                        //Maybe the parent of this part is what actually detaches, useful for displacing compound colliders that represent single detachable objects
-                        else if (curDisplacePart.parent.GetComponent<DetachablePart>())
-                        {
-                            detachedPart = curDisplacePart.parent.GetComponent<DetachablePart>();
-
                             if (!detachedPart.detached)
                             {
-                                if (colMag * surfaceDot * massFactor > detachedPart.looseForce && detachedPart.looseForce >= 0)
+                                /*if (colMag * surfaceDot * massFactor > detachedPart.looseForce && detachedPart.looseForce >= 0)
                                 {
-                                    detachedPart.initialPos = curDisplacePart.parent.localPosition;
+                                    detachedPart.initialPos = curDisplacePart.localPosition;
                                     detachedPart.Detach(true);
-                                }
-                                else if (colMag * surfaceDot * massFactor > detachedPart.breakForce)
+                                }*/
+                                if (colMag * surfaceDot * massFactor > detachedPart.breakForce)
                                 {
-                                    detachedPart.Detach(false);
+                                    detachedPart.Detach();
                                 }
                             }
-                            else if (detachedPart.hinge)
+                            /*else if (detachedPart.hinge)
                             {
-                                detachedPart.displacedAnchor += curDisplacePart.parent.InverseTransformDirection(clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor);
-                            }
+                                detachedPart.displacedAnchor += curDisplacePart.InverseTransformDirection(clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor);
+                            }*/
                         }
+                        //Maybe the parent of this part is what actually detaches, useful for displacing compound colliders that represent single detachable objects
+                        /*else if (curDisplacePart.parent.GetComponent<DetachablePart>())
+                        {
+                            
+                        }*/
 
                         //Damage suspensions and wheels
                         /*damagedSus = curDisplacePart.GetComponent<Suspension>();
@@ -2077,5 +2091,16 @@ public class VehiclePhysics : MonoBehaviour {
 
 		}
 
-	}	
+	}
+
+	public static void RemoveAt<T>(ref T[] arr, int index)
+	{
+		for (int a = index; a < arr.Length - 1; a++)
+		{
+			// moving elements downwards, to fill the gap at [index]
+			arr[a] = arr[a + 1];
+		}
+		// finally, let's decrement Array's size by one
+		Array.Resize(ref arr, arr.Length - 1);
+	}
 } 
