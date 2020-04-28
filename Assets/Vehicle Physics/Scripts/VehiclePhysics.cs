@@ -1720,244 +1720,172 @@ public class VehiclePhysics : MonoBehaviour {
 	}
 
 	void DamageApplication(Vector3 damagePoint, Vector3 damageForce, float damageForceLimit, Vector3 surfaceNormal, ContactPoint colPoint, bool useContactPoint)
-        {
-            float colMag = Mathf.Min(damageForce.magnitude, maxCollisionMagnitude) * (1 - strength) * damageFactor;//Magnitude of collision
-            float clampedColMag = Mathf.Pow(Mathf.Sqrt(colMag) * 0.5f, 1.5f);//Clamped magnitude of collision
-            Vector3 clampedVel = Vector3.ClampMagnitude(damageForce, damageForceLimit);//Clamped velocity of collision
-            Vector3 normalizedVel = damageForce.normalized;
-            float surfaceDot;//Dot production of collision velocity and surface normal
-            float massFactor = 1;//Multiplier for damage based on mass of other rigidbody
-            //Transform curDamagePart;
-            //float damagePartFactor;
-            MeshFilter curDamageMesh;
-            Transform curDisplacePart;
-            Transform seamKeeper = null;//Transform for maintaining seams on shattered parts
-            Vector3 seamLocalPoint;
-            Vector3 vertProjection;
-            Vector3 translation;
-            Vector3 clampedTranslation;
-            Vector3 localPos;
-            float vertDist;
-            float distClamp;
-            DetachablePart detachedPart;
-            //Suspension damagedSus;
+	{
+		float colMag = Mathf.Min(damageForce.magnitude, maxCollisionMagnitude) * (1 - strength) * damageFactor;//Magnitude of collision
+		float clampedColMag = Mathf.Pow(Mathf.Sqrt(colMag) * 0.5f, 1.5f);//Clamped magnitude of collision
+		Vector3 clampedVel = Vector3.ClampMagnitude(damageForce, damageForceLimit);//Clamped velocity of collision
+		Vector3 normalizedVel = damageForce.normalized;
+		float surfaceDot;//Dot production of collision velocity and surface normal
+		float massFactor = 1;//Multiplier for damage based on mass of other rigidbody
+		//Transform curDamagePart;
+		//float damagePartFactor;
+		MeshFilter curDamageMesh;
+		Transform curDisplacePart;
+		Transform seamKeeper = null;//Transform for maintaining seams on shattered parts
+		Vector3 seamLocalPoint;
+		Vector3 vertProjection;
+		Vector3 translation;
+		Vector3 clampedTranslation;
+		Vector3 localPos;
+		float vertDist;
+		float distClamp;
+		DetachablePart detachedPart;
+		VehiclePhysicsWheelCollider wheelCol;
 
-            //Get mass factor for multiplying damage
-            if (useContactPoint)
-            {
-                damagePoint = colPoint.point;
-                surfaceNormal = colPoint.normal;
+		//Get mass factor for multiplying damage
+		if (useContactPoint)
+		{
+			damagePoint = colPoint.point;
+			surfaceNormal = colPoint.normal;
 
-                if (colPoint.otherCollider.attachedRigidbody)
-                {
-                    massFactor = Mathf.Clamp01(colPoint.otherCollider.attachedRigidbody.mass / rb.mass);
-                }
-            }
+			if (colPoint.otherCollider.attachedRigidbody)
+			{
+				massFactor = Mathf.Clamp01(colPoint.otherCollider.attachedRigidbody.mass / rb.mass);
+			}
+		}
 
-            surfaceDot = Mathf.Clamp01(Vector3.Dot(surfaceNormal, normalizedVel)) * (Vector3.Dot((tr.position - damagePoint).normalized, normalizedVel) + 1) * 0.5f;
+		surfaceDot = Mathf.Clamp01(Vector3.Dot(surfaceNormal, normalizedVel)) * (Vector3.Dot((tr.position - damagePoint).normalized, normalizedVel) + 1) * 0.5f;
 
-            //Damage damageable parts
-            /*or (int i = 0; i < damageParts.Length; i++)
-            {
-                curDamagePart = damageParts[i];
-                damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.01f, (clampedColMag * 0.001f) / Mathf.Pow(Vector3.Distance(curDamagePart.position, damagePoint), clampedColMag));
+		//Damage damageable parts
+		/*or (int i = 0; i < damageParts.Length; i++)
+		{
+			curDamagePart = damageParts[i];
+			damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.01f, (clampedColMag * 0.001f) / Mathf.Pow(Vector3.Distance(curDamagePart.position, damagePoint), clampedColMag));
 
-                //Damage motors
-                Motor damagedMotor = curDamagePart.GetComponent<Motor>();
-                if (damagedMotor)
-                {
-                    damagedMotor.health -= damagePartFactor * (1 - damagedMotor.strength);
-                }
+			//Damage motors
+			Motor damagedMotor = curDamagePart.GetComponent<Motor>();
+			if (damagedMotor)
+			{
+				damagedMotor.health -= damagePartFactor * (1 - damagedMotor.strength);
+			}
 
-                //Damage transmissions
-                Transmission damagedTransmission = curDamagePart.GetComponent<Transmission>();
-                if (damagedTransmission)
-                {
-                    damagedTransmission.health -= damagePartFactor * (1 - damagedTransmission.strength);
-                }
-            }*/
+			//Damage transmissions
+			Transmission damagedTransmission = curDamagePart.GetComponent<Transmission>();
+			if (damagedTransmission)
+			{
+				damagedTransmission.health -= damagePartFactor * (1 - damagedTransmission.strength);
+			}
+		}*/
 
-            //Deform meshes
-            for (int i = 0; i < deformMeshes.Length; i++)
-            {
-                curDamageMesh = deformMeshes[i];
-                localPos = curDamageMesh.transform.InverseTransformPoint(damagePoint);
-                translation = curDamageMesh.transform.InverseTransformDirection(clampedVel);
-                clampedTranslation = Vector3.ClampMagnitude(translation, clampedColMag);
+		//Deform meshes
+		for (int i = 0; i < deformMeshes.Length; i++)
+		{
+			curDamageMesh = deformMeshes[i];
+			localPos = curDamageMesh.transform.InverseTransformPoint(damagePoint);
+			translation = curDamageMesh.transform.InverseTransformDirection(clampedVel);
+			clampedTranslation = Vector3.ClampMagnitude(translation, clampedColMag);
 
-                //Shatter parts that can shatter
-                ShatterPart shattered = curDamageMesh.GetComponent<ShatterPart>();
-                if (shattered)
-                {
-					if(massFactor <= 0.001) return;
+			//Shatter parts that can shatter
+			ShatterPart shattered = curDamageMesh.GetComponent<ShatterPart>();
+			if (shattered)
+			{
+				if(massFactor <= 0.001) return;
 
-                    seamKeeper = shattered.seamKeeper;
-					if(!hasPivotIssues)
+				seamKeeper = shattered.seamKeeper;
+				if(!hasPivotIssues)
+				{
+					if (Vector3.Distance(curDamageMesh.transform.position, damagePoint) < colMag * surfaceDot * 0.1f * massFactor && colMag * surfaceDot * 1/massFactor > shattered.breakForce)
 					{
-						if (Vector3.Distance(curDamageMesh.transform.position, damagePoint) < colMag * surfaceDot * 0.1f * massFactor && colMag * surfaceDot * 1/massFactor > shattered.breakForce)
+						shattered.Shatter();
+					}
+				}
+				else
+				{
+					if (Vector3.Distance(curDamageMesh.transform.parent.position, damagePoint) < colMag * surfaceDot * 0.1f * massFactor && colMag * surfaceDot * 1/massFactor > shattered.breakForce)
+					{
+						shattered.Shatter();
+					}						
+				}
+
+			}
+
+			//Actual deformation
+			if (translation.sqrMagnitude > 0 && strength < 1)
+			{
+				for (int j = 0; j < meshVertices[i].verts.Length; j++)
+				{
+					vertDist = Vector3.Distance(meshVertices[i].verts[j], localPos);
+					distClamp = (clampedColMag * 0.001f) / Mathf.Pow(vertDist, clampedColMag);
+
+					if (distClamp > 0.001f)
+					{
+						damagedMeshes[i] = true;
+						if (seamKeeper == null || seamlessDeform)
 						{
-							shattered.Shatter();
+							vertProjection = seamlessDeform ? Vector3.zero : Vector3.Project(normalizedVel, meshVertices[i].verts[j]);
+							meshVertices[i].verts[j] += (clampedTranslation - vertProjection * (usePerlinNoise ? 1 + Mathf.PerlinNoise(meshVertices[i].verts[j].x * 100, meshVertices[i].verts[j].y * 100) : 1)) * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
+						}
+						else
+						{
+							seamLocalPoint = seamKeeper.InverseTransformPoint(curDamageMesh.transform.TransformPoint(meshVertices[i].verts[j]));
+							meshVertices[i].verts[j] += (clampedTranslation - Vector3.Project(normalizedVel, seamLocalPoint) * (usePerlinNoise ? 1 + Mathf.PerlinNoise(seamLocalPoint.x * 100, seamLocalPoint.y * 100) : 1)) * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
 						}
 					}
-					else
+				}
+			}
+		}
+
+		seamKeeper = null;
+
+
+		//Displace parts
+		for (int i = 0; i < displaceParts.Length; i++)
+		{
+			curDisplacePart = displaceParts[i];
+			translation = clampedVel;
+			clampedTranslation = Vector3.ClampMagnitude(translation, clampedColMag);
+
+			if (translation.sqrMagnitude > 0 && strength < 1)
+			{
+				vertDist = Vector3.Distance(curDisplacePart.position, damagePoint);
+				distClamp = (clampedColMag * 0.001f) / Mathf.Pow(vertDist, clampedColMag);
+				//Debug.Log((colMag * surfaceDot * massFactor).ToString());
+
+				if (distClamp > 0.001f)
+				{
+					curDisplacePart.position += clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
+
+					//Detach detachable parts
+					if (curDisplacePart.GetComponent<DetachablePart>())
 					{
-						if (Vector3.Distance(curDamageMesh.transform.parent.position, damagePoint) < colMag * surfaceDot * 0.1f * massFactor && colMag * surfaceDot * 1/massFactor > shattered.breakForce)
+						detachedPart = curDisplacePart.GetComponent<DetachablePart>();
+
+						if (!detachedPart.detached)
 						{
-							shattered.Shatter();
+							
+							if (colMag * surfaceDot * massFactor > detachedPart.breakForce)
+							{
+								detachedPart.Detach();
+							}
+						}
+						
+					}
+					
+					wheelCol = curDisplacePart.GetComponent<VehiclePhysicsWheelCollider>();
+					if (wheelCol)
+					{
+						
+
+						if ((clampedColMag * surfaceDot * distClamp * 10 * massFactor > wheelCol.detachForce))
+						{
+							
+							wheelCol.Detach();
 						}						
 					}
-
-                }
-
-                //Actual deformation
-                if (translation.sqrMagnitude > 0 && strength < 1)
-                {
-                    for (int j = 0; j < meshVertices[i].verts.Length; j++)
-                    {
-                        vertDist = Vector3.Distance(meshVertices[i].verts[j], localPos);
-                        distClamp = (clampedColMag * 0.001f) / Mathf.Pow(vertDist, clampedColMag);
-
-                        if (distClamp > 0.001f)
-                        {
-                            damagedMeshes[i] = true;
-                            if (seamKeeper == null || seamlessDeform)
-                            {
-                                vertProjection = seamlessDeform ? Vector3.zero : Vector3.Project(normalizedVel, meshVertices[i].verts[j]);
-                                meshVertices[i].verts[j] += (clampedTranslation - vertProjection * (usePerlinNoise ? 1 + Mathf.PerlinNoise(meshVertices[i].verts[j].x * 100, meshVertices[i].verts[j].y * 100) : 1)) * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
-                            }
-                            else
-                            {
-                                seamLocalPoint = seamKeeper.InverseTransformPoint(curDamageMesh.transform.TransformPoint(meshVertices[i].verts[j]));
-                                meshVertices[i].verts[j] += (clampedTranslation - Vector3.Project(normalizedVel, seamLocalPoint) * (usePerlinNoise ? 1 + Mathf.PerlinNoise(seamLocalPoint.x * 100, seamLocalPoint.y * 100) : 1)) * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
-                            }
-                        }
-                    }
-                }
-            }
-
-            seamKeeper = null;
-
-            //Deform mesh colliders
-            /*for (int i = 0; i < deformColliders.Length; i++)
-            {
-                localPos = deformColliders[i].transform.InverseTransformPoint(damagePoint);
-                translation = deformColliders[i].transform.InverseTransformDirection(clampedVel);
-                clampedTranslation = Vector3.ClampMagnitude(translation, clampedColMag);
-
-                if (translation.sqrMagnitude > 0 && strength < 1)
-                {
-                    for (int j = 0; j < colVertices[i].verts.Length; j++)
-                    {
-                        vertDist = Vector3.Distance(colVertices[i].verts[j], localPos);
-                        distClamp = (clampedColMag * 0.001f) / Mathf.Pow(vertDist, clampedColMag);
-
-                        if (distClamp > 0.001f)
-                        {
-                            damagedCols[i] = true;
-                            colVertices[i].verts[j] += clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
-                        }
-                    }
-                }
-            }*/
-
-
-            //Displace parts
-            for (int i = 0; i < displaceParts.Length; i++)
-            {
-                curDisplacePart = displaceParts[i];
-                translation = clampedVel;
-                clampedTranslation = Vector3.ClampMagnitude(translation, clampedColMag);
-
-                if (translation.sqrMagnitude > 0 && strength < 1)
-                {
-                    vertDist = Vector3.Distance(curDisplacePart.position, damagePoint);
-                    distClamp = (clampedColMag * 0.001f) / Mathf.Pow(vertDist, clampedColMag);
-					//Debug.Log((colMag * surfaceDot * massFactor).ToString());
-
-                    if (distClamp > 0.001f)
-                    {
-                        curDisplacePart.position += clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor;
-
-                        //Detach detachable parts
-                        if (curDisplacePart.GetComponent<DetachablePart>())
-                        {
-                            detachedPart = curDisplacePart.GetComponent<DetachablePart>();
-							//Debug.Log(Vector3.Distance(curDisplacePart.transform.position, damagePoint).ToString());
-							
-							//colMag * surfaceDot * massFactor
-
-                            if (!detachedPart.detached)/* && Vector3.Distance(curDisplacePart.transform.position, damagePoint) < colMag * surfaceDot * massFactor)*/
-                            {
-                                /*if (colMag * surfaceDot * massFactor > detachedPart.looseForce && detachedPart.looseForce >= 0)
-                                {
-                                    detachedPart.initialPos = curDisplacePart.localPosition;
-                                    detachedPart.Detach(true);
-                                }*/
-                                if (colMag * surfaceDot * massFactor > detachedPart.breakForce)
-                                {
-                                    detachedPart.Detach();
-                                }
-                            }
-                            /*else if (detachedPart.hinge)
-                            {
-                                detachedPart.displacedAnchor += curDisplacePart.InverseTransformDirection(clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor);
-                            }*/
-                        }
-                        //Maybe the parent of this part is what actually detaches, useful for displacing compound colliders that represent single detachable objects
-                        /*else if (curDisplacePart.parent.GetComponent<DetachablePart>())
-                        {
-                            
-                        }*/
-
-                        //Damage suspensions and wheels
-                        /*damagedSus = curDisplacePart.GetComponent<Suspension>();
-                        if (damagedSus)
-                        {
-                            if ((!damagedSus.wheel.grounded && ignoreGroundedWheels) || !ignoreGroundedWheels)
-                            {
-                                curDisplacePart.RotateAround(damagedSus.tr.TransformPoint(damagedSus.damagePivot), Vector3.ProjectOnPlane(damagePoint - curDisplacePart.position, -translation.normalized), clampedColMag * surfaceDot * distClamp * 20 * massFactor);
-
-                                damagedSus.wheel.damage += clampedColMag * surfaceDot * distClamp * 10 * massFactor;
-
-                                if (clampedColMag * surfaceDot * distClamp * 10 * massFactor > damagedSus.jamForce)
-                                {
-                                    damagedSus.jammed = true;
-                                }
-
-                                if (clampedColMag * surfaceDot * distClamp * 10 * massFactor > damagedSus.wheel.detachForce)
-                                {
-                                    damagedSus.wheel.Detach();
-                                }
-
-                                foreach (SuspensionPart curPart in damagedSus.movingParts)
-                                {
-                                    if (curPart.connectObj && !curPart.isHub && !curPart.solidAxle)
-                                    {
-                                        if (!curPart.connectObj.GetComponent<SuspensionPart>())
-                                        {
-                                            curPart.connectPoint += curPart.connectObj.InverseTransformDirection(clampedTranslation * surfaceDot * Mathf.Min(clampedColMag * 0.01f, distClamp) * massFactor);
-                                        }
-                                    }
-                                }
-                            }
-                        }*/
-
-                        //Damage hover wheels
-                        /*HoverWheel damagedHoverWheel = curDisplacePart.GetComponent<HoverWheel>();
-                        if (damagedHoverWheel)
-                        {
-                            if ((!damagedHoverWheel.grounded && ignoreGroundedWheels) || !ignoreGroundedWheels)
-                            {
-                                if (clampedColMag * surfaceDot * distClamp * 10 * massFactor > damagedHoverWheel.detachForce)
-                                {
-                                    damagedHoverWheel.Detach();
-                                }
-                            }
-                        }*/
-                    }
-                }
-            }
-        }
+				}
+			}
+		}
+	}
 
 		void FinalizeDamage()
         {

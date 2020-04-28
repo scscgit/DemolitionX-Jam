@@ -70,6 +70,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 4ebe01570cad61a40be61693713688b4, type: 3}
   - {fileID: 8300000, guid: f772a702dcfbfe9478afe01aa9429fbc, type: 3}
   useSharedAudioSources: 1
+  dontUseAnyParticleEffects: 1
   maxGearShiftingSoundVolume: 0.25
   maxCrashSoundVolume: 0.5
   maxWindSoundVolume: 0.1

@@ -8,6 +8,15 @@ using System.Collections.Generic;
 [RequireComponent (typeof(WheelCollider))]
 public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
+	[SerializeField] private bool canDetach = true;
+	[Header("Damage")]
+
+    [Tooltip("Point around which the suspension pivots when damaged")]
+    public Vector3 damagePivot;
+	[System.NonSerialized] public float damage;
+	public float detachForce = 5f;
+	public bool detached = false;
+
 	private float _lastLocalZ;
 
 	private CommonSettings commonSettingsInstance;
@@ -94,6 +103,7 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 	float mNumTextures;
 
 	public float compression;
+	private GameObject detachedWheel;
 	
 	void Start (){
 		
@@ -104,6 +114,7 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 		allWheelColliders = carController.GetComponentsInChildren<VehiclePhysicsWheelCollider>().ToList();
 //		allWheelColliders.Remove(this);
 		GetTerrainData ();
+		damagePivot = transform.position;
 		
 
 		// Getting friction curves.
@@ -149,6 +160,24 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
 		}
 
+		if (canDetach)
+		{
+			detachedWheel = new GameObject("Pivot_Detached_Wheel_" + wheelModel.transform.name);
+			detachedWheel.transform.parent = rigid.transform;
+			//detachedWheel.layer = LayerMask.NameToLayer("Detachable Part");
+			detachedWheel.AddComponent<MeshFilter>();
+			detachedWheel.GetComponent<MeshFilter>().sharedMesh = wheelModel.GetComponent<MeshFilter>().sharedMesh;
+			MeshRenderer detachRend = detachedWheel.AddComponent<MeshRenderer>();
+			detachRend.sharedMaterial = wheelModel.GetComponent<MeshRenderer>().sharedMaterial;
+			detachedWheel.AddComponent<MeshCollider>();
+			detachedWheel.GetComponent<MeshCollider>().convex = true;
+			detachedWheel.AddComponent<Rigidbody>();
+			//detachedWheel.GetComponent<Rigidbody>().isKinematic = true;
+			detachedWheel.GetComponent<Rigidbody>().mass = wheelCollider.mass;
+
+			detachedWheel.SetActive(false);
+		}
+
 		// Assigning new frictons if one of the behavior preset selected above.
 		wheelCollider.forwardFriction = forwardFrictionCurve;
 		wheelCollider.sidewaysFriction = sidewaysFrictionCurve;
@@ -192,7 +221,6 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 		newPivot.transform.SetParent (wheelModel.transform.parent, true);
 		wheelModel.SetParent (newPivot.transform, true);
 		wheelModel = newPivot.transform;
-
 	}
 
 	void Update(){
@@ -204,7 +232,7 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 			return;
 
 		// Only runs when vehicle is active. Raycasts are used for WheelAlign().
-		WheelAlign ();
+		if(!detached) WheelAlign ();
 
 	}
 	
@@ -724,6 +752,32 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 		newCurve.asymptoteValue = asymptoteValue;
 
 		return newCurve;
+
+	}
+
+
+	public void Detach()
+	{
+		
+		detached = true;
+		detachedWheel.SetActive(true);
+		detachedWheel.transform.position = wheelModel.position;
+		detachedWheel.transform.rotation = wheelModel.rotation;
+		//detachedCol.sharedMaterial = popped ? detachedRimMaterial : detachedTireMaterial;
+
+
+		rigid.mass -= detachedWheel.GetComponent<Rigidbody>().mass;
+		//detachedWheel.GetComponent<Rigidbody>().isKinematic = false;
+		detachedWheel.GetComponent<Rigidbody>().velocity = rigid.GetPointVelocity(transform.position);
+		detachedWheel.GetComponent<Rigidbody>().angularVelocity = rigid.angularVelocity;
+
+		wheelModel.gameObject.SetActive(false);
+		gameObject.SetActive(false);
+
+		/*if (sphereColTr)
+		{
+			sphereColTr.gameObject.SetActive(false);		}*/
+		
 
 	}
 
