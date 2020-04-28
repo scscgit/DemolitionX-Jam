@@ -12,6 +12,7 @@ namespace Game.Scripts.UI
     {
         public static string PlayerName;
 
+        [Header("Server options")] public bool hostServerOnStart;
         [Header("Settings pages")] public GameObject menuPage;
         public GameObject settingsPage;
         [Header("Text callbacks")] public InputField playerInput;
@@ -35,6 +36,13 @@ namespace Game.Scripts.UI
         {
             // Initialization & Hot-swap
             InitializePlayerName();
+            if (hostServerOnStart)
+            {
+                // Server-only build
+                transform.Find("Settings").gameObject.SetActive(true);
+                var networkSettingsUi = GetComponentInChildren<NetworkSettingsUi>();
+                networkSettingsUi.StartServerAndClient();
+            }
         }
 
         private void InitializePlayerName()

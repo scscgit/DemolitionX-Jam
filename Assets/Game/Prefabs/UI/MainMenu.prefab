@@ -1040,6 +1040,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc9cf7100fd67e54c953ddcff339472f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hostServerOnStart: 0
   menuPage: {fileID: 2147218097781361208}
   settingsPage: {fileID: 459850405366176920}
   playerInput: {fileID: 8562018026937018480}
