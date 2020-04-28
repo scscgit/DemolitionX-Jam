@@ -45,6 +45,8 @@ MonoBehaviour:
   brakeLights: {fileID: 136378, guid: 40648ef4ebef26d4c9cc0663c2f08e5e, type: 3}
   reverseLights: {fileID: 197258, guid: 188c477ab444228409c4a246c02a86bd, type: 3}
   indicatorLights: {fileID: 166118, guid: 580925c070bc6064c90563e08cb421f0, type: 3}
+  engineSmoke: {fileID: 731928366244075772, guid: eed6cbc47e6edd047ae53e069482cf99,
+    type: 3}
   gearShiftingClips:
   - {fileID: 8300000, guid: fd92e514f75331e4085d0846a166fef8, type: 3}
   - {fileID: 8300000, guid: 51d3f215e07c15a41aab4038522df8d6, type: 3}

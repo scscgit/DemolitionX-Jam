@@ -309,7 +309,8 @@ public class VehiclePhysics : MonoBehaviour {
     }
 
 	// Damage.
-	[Header("Deform System")]
+	[Header("Damage System")]
+	public float health = 100;
 	public bool useDamage = true;	
 	public bool hasPivotIssues = false;												// Use Damage.
 	Transform tr;
@@ -363,6 +364,11 @@ public class VehiclePhysics : MonoBehaviour {
 	public GameObject contactSparkle{get{return commonSettings.contactParticles;}}		// Contact Particles for collisions. It must be Particle System.
 	public int maximumContactSparkle = 5;																	//	Contact Particles will be ready to use for collisions in pool. 
 	private List<ParticleSystem> contactSparkeList = new List<ParticleSystem>();			// Array for Contact Particles.
+
+	private ParticleSystem engineSmoke{get{return commonSettings.engineSmoke.GetComponent<ParticleSystem>();}}
+	private GameObject smokeObj;
+	public Transform smokePosition;
+	private float initialSmokeEmission;
 
 	// Used for Angular and Linear Steering Helper.
 	private Vector3 localVector;
@@ -423,7 +429,10 @@ public class VehiclePhysics : MonoBehaviour {
 	[Header("Generated")]
 	public AnimationCurve[] engineTorqueCurve;
 	public float[] targetSpeedForGear;							// Target Speed For Changing Gear.
-	public float[] maxSpeedForGear;								// Maximum Speed For Current Gear.
+	public float[] maxSpeedForGear;	
+	
+
+								// Maximum Speed For Current Gear.
 
 
 	void Awake (){
@@ -524,6 +533,10 @@ public class VehiclePhysics : MonoBehaviour {
 		}
 
 		//KillEngine();
+		smokeObj = (GameObject)Instantiate(engineSmoke.gameObject, smokePosition.position, Quaternion.identity, smokePosition);
+		smokeObj.transform.parent = smokePosition;	
+		initialSmokeEmission = smokeObj.GetComponent<ParticleSystem>().emission.rateOverTime.constantMax;
+
 
 	}
 
@@ -910,6 +923,7 @@ public class VehiclePhysics : MonoBehaviour {
 		ResetCar();
 
 		OtherVisuals ();
+		Smoke();
 
 		indicatorTimer += Time.deltaTime;
 
@@ -919,6 +933,11 @@ public class VehiclePhysics : MonoBehaviour {
 			launched -= Time.deltaTime;
 		
 		launched = Mathf.Clamp01 (launched);
+
+		if(health < 0)
+		{
+			health = 0;
+		}
 		
 	}
 
@@ -983,6 +1002,15 @@ public class VehiclePhysics : MonoBehaviour {
 			}
 
 
+	}
+
+	void Smoke()
+	{
+		if(smokeObj)
+		{
+			ParticleSystem.EmissionModule p = smokeObj.GetComponent<ParticleSystem>().emission;
+			p.rateOverTime = new ParticleSystem.MinMaxCurve(health < 70 ? initialSmokeEmission * (1 - health/100) : 0);
+		}
 	}
 	
 	void FixedUpdate (){
@@ -1728,7 +1756,7 @@ public class VehiclePhysics : MonoBehaviour {
 		float surfaceDot;//Dot production of collision velocity and surface normal
 		float massFactor = 1;//Multiplier for damage based on mass of other rigidbody
 		//Transform curDamagePart;
-		//float damagePartFactor;
+		float damagePartFactor;
 		MeshFilter curDamageMesh;
 		Transform curDisplacePart;
 		Transform seamKeeper = null;//Transform for maintaining seams on shattered parts
@@ -1755,9 +1783,11 @@ public class VehiclePhysics : MonoBehaviour {
 		}
 
 		surfaceDot = Mathf.Clamp01(Vector3.Dot(surfaceNormal, normalizedVel)) * (Vector3.Dot((tr.position - damagePoint).normalized, normalizedVel) + 1) * 0.5f;
+        damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.01f, (clampedColMag * 0.001f) / Mathf.Pow(Vector3.Distance(transform.position, damagePoint), clampedColMag));
+        health -= damageFactor * 10;
 
 		//Damage damageable parts
-		/*or (int i = 0; i < damageParts.Length; i++)
+		/*for (int i = 0; i < damageParts.Length; i++)
 		{
 			curDamagePart = damageParts[i];
 			damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.01f, (clampedColMag * 0.001f) / Mathf.Pow(Vector3.Distance(curDamagePart.position, damagePoint), clampedColMag));
@@ -1770,11 +1800,11 @@ public class VehiclePhysics : MonoBehaviour {
 			}
 
 			//Damage transmissions
-			Transmission damagedTransmission = curDamagePart.GetComponent<Transmission>();
+			/*Transmission damagedTransmission = curDamagePart.GetComponent<Transmission>();
 			if (damagedTransmission)
 			{
 				damagedTransmission.health -= damagePartFactor * (1 - damagedTransmission.strength);
-			}
+			}*
 		}*/
 
 		//Deform meshes
@@ -1877,8 +1907,7 @@ public class VehiclePhysics : MonoBehaviour {
 						
 
 						if ((clampedColMag * surfaceDot * distClamp * 10 * massFactor > wheelCol.detachForce))
-						{
-							
+						{							
 							wheelCol.Detach();
 						}						
 					}

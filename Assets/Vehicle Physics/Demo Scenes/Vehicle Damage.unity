@@ -9812,6 +9812,7 @@ Transform:
   - {fileID: 1823518224}
   - {fileID: 1938464808}
   - {fileID: 150616299}
+  - {fileID: 1317740896}
   m_Father: {fileID: 3148443008100859371}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -19496,8 +19497,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1152502376}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.23992552, y: -0.16617683, z: 0.041724764, w: 0.9555523}
+  m_LocalPosition: {x: 2.9922304, y: 4.7823734, z: -6.212528}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -19778,6 +19779,36 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!1 &1317740895
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1317740896}
+  m_Layer: 0
+  m_Name: Smoke
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1317740896
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1317740895}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.45, z: 1.5800018}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 604646266}
+  m_RootOrder: 13
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1353937272
 GameObject:
   m_ObjectHideFlags: 0
@@ -48440,7 +48471,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3150968763920328481}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.26, z: -200.8}
+  m_LocalPosition: {x: 0, y: 0.38, z: -200.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 604646266}
@@ -49150,6 +49181,7 @@ MonoBehaviour:
   highBeamHeadLightsOn: 0
   indicatorsOn: 0
   indicatorTimer: 0
+  health: 100
   useDamage: 1
   hasPivotIssues: 1
   strength: 0
@@ -49208,7 +49240,9 @@ MonoBehaviour:
   - {fileID: 3147906414492760305}
   - {fileID: 3148478626395329443}
   - {fileID: 3147977483905702511}
+  - {fileID: 1317740896}
   maximumContactSparkle: 2
+  smokePosition: {fileID: 1317740896}
   velocityDirection: {fileID: 0}
   steeringDirection: {fileID: 0}
   velocityAngle: 0

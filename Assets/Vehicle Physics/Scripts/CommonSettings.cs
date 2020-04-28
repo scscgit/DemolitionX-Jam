@@ -51,6 +51,9 @@ public class CommonSettings : ScriptableObject {
 	public GameObject reverseLights;
 	public GameObject indicatorLights;
 
+	[Header("Particles")]
+	public GameObject engineSmoke;
+
 	// Sound FX
 	public AudioClip[] gearShiftingClips;
 	public AudioClip[] crashClips;
