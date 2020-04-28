@@ -56,3 +56,5 @@ Assets/Samples/Terrain Tools/0.1.0-preview/Terrain Assets/TerrainBrushes.meta
 ProjectSettings/Packages/com.unity.probuilder/Settings.json
 Assets/Samples/Terrain Tools/0.1.0-preview/Terrain Assets/BrushTextures.meta
 Assets/Game/Scenes/MainMenu.meta
+Assets/certificate.pfx
+Assets/certificate.pfx.meta
