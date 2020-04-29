@@ -1414,6 +1414,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 165577887}
+  - component: {fileID: 165577886}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -1421,6 +1422,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &165577886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165577885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb08562a738c1de4f89e435d98b1011a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowPing: 1
+  PingUI: {fileID: 3519340170442121768, guid: fa4c1de33d4c31c47bec6ce7f008bd8d, type: 3}
 --- !u!4 &165577887
 Transform:
   m_ObjectHideFlags: 0
@@ -10710,7 +10725,7 @@ PrefabInstance:
     - target: {fileID: 1838352081436861098, guid: d287ce72346920b418921199d00b9366,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 231.65999
       objectReference: {fileID: 0}
     - target: {fileID: 1838352081436861098, guid: d287ce72346920b418921199d00b9366,
         type: 3}
@@ -10790,7 +10805,7 @@ PrefabInstance:
     - target: {fileID: 5733842127623674023, guid: d287ce72346920b418921199d00b9366,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 231.65999
       objectReference: {fileID: 0}
     - target: {fileID: 5733842127623674023, guid: d287ce72346920b418921199d00b9366,
         type: 3}
