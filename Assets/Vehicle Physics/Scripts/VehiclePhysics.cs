@@ -349,15 +349,9 @@ public class VehiclePhysics : MonoBehaviour {
     Mesh[] tempMeshes;
     meshVerts[] meshVertices;
 
-    [Tooltip("Mesh colliders that are deformed (Poor performance, must be convex)")]
-    public MeshCollider[] deformColliders;
-    bool[] damagedCols;
-    Mesh[] tempCols;
-    meshVerts[] colVertices;
-
     [Tooltip("Parts that are displaced")]
     public Transform[] displaceParts;
-    Vector3[] initialPartPositions;
+    //Vector3[] initialPartPositions;
 
     ContactPoint nullContact = new ContactPoint();
 	
@@ -836,26 +830,6 @@ public class VehiclePhysics : MonoBehaviour {
             meshVertices[i].verts = deformMeshes[i].mesh.vertices;
             meshVertices[i].initialVerts = deformMeshes[i].mesh.vertices;
             damagedMeshes[i] = false;
-        }
-
-            //Set up mesh collider data
-        tempCols = new Mesh[deformColliders.Length];
-        damagedCols = new bool[deformColliders.Length];
-        colVertices = new meshVerts[deformColliders.Length];
-        for (int i = 0; i < deformColliders.Length; i++)
-        {
-            tempCols[i] = (Mesh)Instantiate(deformColliders[i].sharedMesh);
-            colVertices[i] = new meshVerts();
-            colVertices[i].verts = deformColliders[i].sharedMesh.vertices;
-            colVertices[i].initialVerts = deformColliders[i].sharedMesh.vertices;
-            damagedCols[i] = false;
-        }
-
-            //Set initial positions for displaced parts
-        initialPartPositions = new Vector3[displaceParts.Length];
-        for (int i = 0; i < displaceParts.Length; i++)
-        {
-            initialPartPositions[i] = displaceParts[i].localPosition;
         }
 	}
 
@@ -1784,28 +1758,7 @@ public class VehiclePhysics : MonoBehaviour {
 
 		surfaceDot = Mathf.Clamp01(Vector3.Dot(surfaceNormal, normalizedVel)) * (Vector3.Dot((tr.position - damagePoint).normalized, normalizedVel) + 1) * 0.5f;
         damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.01f, (clampedColMag * 0.001f) / Mathf.Pow(Vector3.Distance(transform.position, damagePoint), clampedColMag));
-        health -= damageFactor * 10;
-
-		//Damage damageable parts
-		/*for (int i = 0; i < damageParts.Length; i++)
-		{
-			curDamagePart = damageParts[i];
-			damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.01f, (clampedColMag * 0.001f) / Mathf.Pow(Vector3.Distance(curDamagePart.position, damagePoint), clampedColMag));
-
-			//Damage motors
-			Motor damagedMotor = curDamagePart.GetComponent<Motor>();
-			if (damagedMotor)
-			{
-				damagedMotor.health -= damagePartFactor * (1 - damagedMotor.strength);
-			}
-
-			//Damage transmissions
-			/*Transmission damagedTransmission = curDamagePart.GetComponent<Transmission>();
-			if (damagedTransmission)
-			{
-				damagedTransmission.health -= damagePartFactor * (1 - damagedTransmission.strength);
-			}*
-		}*/
+        health -= damageFactor * 5f;
 
 		//Deform meshes
 		for (int i = 0; i < deformMeshes.Length; i++)
@@ -1934,19 +1887,6 @@ public class VehiclePhysics : MonoBehaviour {
                 }
 
                 damagedMeshes[i] = false;
-            }
-
-            //Apply vertices to actual mesh colliders
-            for (int i = 0; i < deformColliders.Length; i++)
-            {
-                if (damagedCols[i])
-                {
-                    tempCols[i].vertices = colVertices[i].verts;
-                    deformColliders[i].sharedMesh = null;
-                    deformColliders[i].sharedMesh = tempCols[i];
-                }
-
-                damagedCols[i] = false;
             }
         }
 
