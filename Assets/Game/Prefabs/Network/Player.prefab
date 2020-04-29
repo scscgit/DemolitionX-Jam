@@ -49,11 +49,13 @@ MonoBehaviour:
   syncInterval: 0.1
   cars:
   - {fileID: 8661405591729687195, guid: 8243eb0c9c9235e45b3dd53a82209659, type: 3}
-  - {fileID: 6192708082130723623, guid: 3a11d7d88773e5049bef77411dbd06a0, type: 3}
+  - {fileID: 2406667163718774835, guid: 544cd6409f5a0684aa2ad5bb6ef30df4, type: 3}
   hoveringPrefab: {fileID: 3940375900275686347, guid: c75769ceca8ae1941995d8097fc7fc6a,
     type: 3}
   vehicleCamera: {fileID: 9065674381792908431}
   playerName: 
+  score: 0
+  health: 0
 --- !u!114 &3343494049405777883
 MonoBehaviour:
   m_ObjectHideFlags: 0

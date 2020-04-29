@@ -9,6 +9,8 @@ using System;
 /// </summary>
 public class VehiclePhysics : MonoBehaviour {
 
+	#region Variables
+
 	[Header("Behaviour Preset")]
 	/// <summary>
     /// How must the vehicle behave?
@@ -427,6 +429,7 @@ public class VehiclePhysics : MonoBehaviour {
 	
 
 								// Maximum Speed For Current Gear.
+	#endregion
 
 
 	void Awake (){
