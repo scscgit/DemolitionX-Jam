@@ -216,6 +216,7 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
 		GameObject newPivot = new GameObject ("Pivot_" + wheelModel.transform.name);
         carController.gameObject.AddComponent<Mirror.NetworkTransformChild>().target = newPivot.transform;
+		carController.gameObject.GetComponent<Mirror.NetworkTransformChild>().clientAuthority = true;
 		newPivot.transform.position = GetBounds.GetBoundsCenter (wheelModel.transform);
 		newPivot.transform.rotation = transform.rotation;
 		newPivot.transform.SetParent (wheelModel.transform.parent, true);

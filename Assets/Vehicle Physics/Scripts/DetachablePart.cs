@@ -7,10 +7,10 @@ using UnityEngine;
 //Class for parts that can detach
 public class DetachablePart : MonoBehaviour
 {
-    Transform tr;
+    //Transform tr;
     Rigidbody rb;
     //public Rigidbody parentBody;
-    Transform initialParent;
+    //Transform initialParent;
     //Vector3 initialLocalPos;
     //Quaternion initialLocalRot;
 
@@ -32,19 +32,6 @@ public class DetachablePart : MonoBehaviour
     //[System.NonSerialized]
     //public Vector3 displacedAnchor;
 
-    void Start()
-    {
-        tr = transform;
-
-        if (tr.parent)
-        {
-            initialParent = tr.parent;
-            //initialLocalPos = tr.localPosition;
-            //initialLocalRot = tr.localRotation;
-        }
-        //initialPos = tr.localPosition;
-    }
-
     void Update()
     {
         if(detached)
@@ -58,7 +45,7 @@ public class DetachablePart : MonoBehaviour
         if (!detached)
         {
             detached = true;
-            tr.parent = null;
+            //tr.parent = null;
             rb = gameObject.AddComponent<Rigidbody>();
             rb.mass = mass;
             rb.drag = drag;
