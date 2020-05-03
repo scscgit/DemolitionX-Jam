@@ -3,11 +3,12 @@ using Game.Scripts.Network;
 using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
+using UnityEngine.Serialization;
 
 public class Timer : NetworkBehaviour
 {
     public Text timerText;
-    public Animator a;
+    [FormerlySerializedAs("a")] public Animator animator;
     public Text resultsText;
     public Environment environment;
 
@@ -30,6 +31,7 @@ public class Timer : NetworkBehaviour
     {
         if (isServer)
         {
+            // Countdown is above zero (paused or not paused)
             if (time - Time.deltaTime > 0)
             {
                 time -= Time.deltaTime;
@@ -39,23 +41,23 @@ public class Timer : NetworkBehaviour
                     _lastSyncedTime = time;
                 }
             }
+            // Countdown reached zero, toggle paused state
             else
             {
                 if (paused)
                 {
-                    time = sec + (mins * 60);
-                    RestartGame();
+                    //time = sec + (mins * 60);
+                    //RestartGame();
                     RpcSetTime(sec + (mins * 60), false);
                     _lastSyncedTime = sec + (mins * 60);
                 }
                 else
                 {
-                    time = breakSec;
-                    ResultScreen();
+                    //time = breakSec;
+                    //ResultScreen();
                     RpcSetTime(breakSec, true);
+                    _lastSyncedTime = breakSec;
                 }
-
-                _lastSyncedTime = breakSec;
             }
         }
 
@@ -65,7 +67,7 @@ public class Timer : NetworkBehaviour
 
         if (!paused && time < 11)
         {
-            a.SetBool("start", true);
+            animator.SetBool("start", true);
         }
     }
 
@@ -95,9 +97,11 @@ public class Timer : NetworkBehaviour
 
     public void ResultScreen()
     {
+        animator.SetBool("start", false);
         paused = true;
-        var players = FindObjectsOfType<GameNetworkPlayer>();
 
+        // Display the best player based on locally available synced data, don't involve server
+        var players = FindObjectsOfType<GameNetworkPlayer>();
         if (players.Length == 0)
         {
             resultsText.text = "No players, what a shame";
@@ -110,6 +114,7 @@ public class Timer : NetworkBehaviour
 
 with score:
 {best.score}";
+            best.DisplayPositiveEvent($"{best.playerName} won with score {best.score}", true);
         }
 
         resultsText.enabled = true;
@@ -128,9 +133,10 @@ with score:
             {
                 player.SetScore(0);
                 player.SetHealth(100);
-                player.RespawnCarByNewRound();
+                player.RespawnCarByNewRoundByServer();
                 if (onlyOnce)
                 {
+                    // Report the round start via server (this could be done locally as well)
                     player.RpcDisplayPositiveEvent("New round started", true);
                     onlyOnce = false;
                 }

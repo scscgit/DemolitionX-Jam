@@ -50,7 +50,7 @@ namespace Game.Scripts.UI
 
         public void ChangeCar()
         {
-            _activePlayer.ChangeCar();
+            _activePlayer.ChangeCarByLocalPlayer();
         }
 
         public void EnableUi(GameNetworkPlayer player)

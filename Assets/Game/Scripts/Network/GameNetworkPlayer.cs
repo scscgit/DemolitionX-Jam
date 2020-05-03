@@ -9,6 +9,8 @@ namespace Game.Scripts.Network
 {
     public class GameNetworkPlayer : NetworkBehaviour
     {
+        public static GameNetworkPlayer LocalPlayer;
+
         public const float StartHealth = 100;
 
         [Tooltip("All car prefabs available for Player's spawn; ordered as CarSelection")]
@@ -24,9 +26,11 @@ namespace Game.Scripts.Network
         [SyncVar] public int score;
         [SyncVar] public float health;
 
+        private NetworkIdentity _identity;
         private ArenaUi _arenaUi;
         private Camera _spectatorCamera;
         private HoveringDetails _hoveringDetails;
+        private bool _inCarSelection;
 
         [SyncVar] private GameObject _car;
         private int _carIndex;
@@ -35,13 +39,16 @@ namespace Game.Scripts.Network
 
         public void Start()
         {
+            CmdInitialize(MainMenu.PlayerName);
+            _identity = GetComponent<NetworkIdentity>();
             _arenaUi = GameObject.Find("ArenaUI").GetComponent<ArenaUi>();
             // If this is the local player, then the Start means he has just has just connected, so he will pick a car
             if (isLocalPlayer)
             {
+                LocalPlayer = this;
                 _spectatorCamera = GameObject.Find("SpectatorCamera").GetComponent<Camera>()
                                    ?? throw new NullReferenceException($"Missing SpectatorCamera");
-                ChangeCar();
+                ChangeCarByLocalPlayer();
             }
             // If the car was already spawned by other player before connecting, add the relevant additions
             else if (!ReferenceEquals(_car, null))
@@ -52,39 +59,54 @@ namespace Game.Scripts.Network
             // If the car wasn't spawned yet, then wait for the RPC callback
         }
 
-        public void ChangeCar()
+        [Command]
+        public void CmdInitialize(string playerName)
         {
-            if (!ReferenceEquals(_car, null))
-            {
-                Destroy(_car);
-            }
-
-            if (isLocalPlayer)
-            {
-                _spectatorCamera.gameObject.SetActive(false);
-            }
-
-            vehicleCamera.gameObject.SetActive(false);
-            _arenaUi.DisableUi();
-            SceneManager.LoadScene("CarSelection", LoadSceneMode.Additive);
+            this.playerName = playerName;
         }
 
-        public void RespawnCarByNewRound()
+        /// <summary>
+        /// Assumes isLocalPlayer == true
+        /// </summary>
+        public void ChangeCarByLocalPlayer()
         {
-            if (!_car)
+            // Inform the server of the car change, so that respawning on new round start stops
+            if (!ReferenceEquals(_car, null))
             {
-                // Most likely still under the CarSelection screen
+                CmdDestroyCar();
+            }
+
+            _spectatorCamera.gameObject.SetActive(false);
+            vehicleCamera.gameObject.SetActive(false);
+            _arenaUi.DisableUi();
+            // Ensure that the car selection scene is never loaded twice
+            if (!_inCarSelection)
+            {
+                SceneManager.LoadScene("CarSelection", LoadSceneMode.Additive);
+            }
+
+            _inCarSelection = true;
+        }
+
+        public void RespawnCarByNewRoundByServer()
+        {
+            if (ReferenceEquals(_car, null))
+            {
+                // Still under the CarSelection screen
                 return;
             }
 
-            Destroy(_car);
-            // Just to be sure for the future
-            _car = null;
+            DestroyCarByServer();
             SelectedCar(_carIndex, true);
         }
 
         public void SelectedCar(int carIndex, bool byNewRound = false)
         {
+            if (!byNewRound)
+            {
+                _inCarSelection = false;
+            }
+
             // Display the spectator camera during loading
             if (isLocalPlayer)
             {
@@ -95,29 +117,42 @@ namespace Game.Scripts.Network
             {
                 _carIndex = carIndex;
                 var car = Instantiate(cars[carIndex], transform);
-                // Spawning without parent is necessary when a respawn occurs, so that stacked cars don't collide
-                car.ExecuteWithoutParent(o => NetworkServer.Spawn(o, gameObject));
+                // Spawning without parent is necessary, otherwise stacked cars collide on client at the respawn moment
+                car.ExecuteWithoutParent(o => NetworkServer.Spawn(o, _identity.connectionToClient));
                 _car = car;
-                playerName = MainMenu.PlayerName;
                 RpcOnSpawnedCar(car, byNewRound);
             }
             else
             {
-                CmdSelectedCar(carIndex, gameObject, MainMenu.PlayerName, byNewRound);
+                CmdSelectedCar(carIndex, byNewRound);
             }
         }
 
         [Command]
-        public void CmdSelectedCar(int carIndex, GameObject player, string setPlayerName, bool byNewRound)
+        public void CmdSelectedCar(int carIndex, bool byNewRound)
         {
+            // Server-sided protection against spawning two cars
+            if (_car)
+            {
+                TargetForceChangeCar();
+                Debug.LogWarning($"Player {playerName} attempted to spawn two cars");
+                return;
+            }
+
             _carIndex = carIndex;
             var car = Instantiate(cars[carIndex], transform);
-            NetworkServer.Spawn(car, player);
+            NetworkServer.Spawn(car, _identity.connectionToClient);
             _car = car;
             // Also sync the player name before creating the HoveringDetails
-            playerName = setPlayerName;
             health = StartHealth;
             RpcOnSpawnedCar(car, byNewRound);
+        }
+
+        [TargetRpc]
+        public void TargetForceChangeCar()
+        {
+            Debug.Log("Server forced a car change");
+            ChangeCarByLocalPlayer();
         }
 
         [ClientRpc]
@@ -131,11 +166,9 @@ namespace Game.Scripts.Network
                 _spectatorCamera.gameObject.SetActive(false);
                 vehicleCamera.gameObject.SetActive(true);
                 vehicleCamera.playerCar = car.transform;
-                car.transform.parent = transform;
-                car.GetComponent<VehiclePhysics>().canControl = true;
-                car.GetComponent<VehiclePhysics>().StartEngine();
-                // playerName SyncVar isn't set until the next frame, but if this is a local callback, we know the name
-                playerName = MainMenu.PlayerName;
+                var vehiclePhysics = car.GetComponent<VehiclePhysics>();
+                vehiclePhysics.canControl = true;
+                vehiclePhysics.StartEngine();
                 // Always rotate HoveringDetails towards the current player
                 HoveringDetails.VehicleCamera = vehicleCamera.transform;
             }
@@ -146,6 +179,19 @@ namespace Game.Scripts.Network
             {
                 DisplayPositiveEvent($"Spawned car {car.name}", false);
             }
+        }
+
+        [Command]
+        public void CmdDestroyCar()
+        {
+            // TODO: RPC to explode instead of destroy
+            DestroyCarByServer();
+        }
+
+        private void DestroyCarByServer()
+        {
+            Destroy(_car);
+            _car = null;
         }
 
         private void ConfigureSpawnedCar(GameObject car)

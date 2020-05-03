@@ -24,10 +24,11 @@ namespace Game.Scripts.Util
 
         public static void ExecuteWithoutParent(this GameObject on, Action<GameObject> action)
         {
-            var lastParent = on.transform.parent;
-            on.transform.parent = null;
+            var onTransform = on.transform;
+            var lastParent = onTransform.parent;
+            onTransform.parent = null;
             action(on);
-            on.transform.parent = lastParent;
+            onTransform.parent = lastParent;
         }
     }
 }

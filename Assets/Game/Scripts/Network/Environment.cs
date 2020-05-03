@@ -32,8 +32,10 @@ namespace Game.Scripts.Network
             {
                 // TODO: generic way of determining which prefab is it. Only a prefab can be spawned.
                 var spawn = Instantiate(oilPrefab);
-                spawn.transform.position = identity.transform.position;
-                spawn.transform.rotation = identity.transform.rotation;
+                var spawnTransform = spawn.transform;
+                var identityTransform = identity.transform;
+                spawnTransform.position = identityTransform.position;
+                spawnTransform.rotation = identityTransform.rotation;
                 _spawnedObjects.Add(spawn);
                 // Spawn as un-parented in order to avoid missing inherited position and prevent collisions on spawn
                 // TODO: optional?

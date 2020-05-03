@@ -13,12 +13,10 @@ public class CarSelection : MonoBehaviour
     public UnityEvent enableReady;
 
     private int _carIndex;
-    private GameNetworkPlayer _game;
 
     private void Awake()
     {
-        _game = FindObjectOfType<GameNetworkPlayer>();
-        if (ReferenceEquals(_game, null))
+        if (ReferenceEquals(GameNetworkPlayer.LocalPlayer, null))
         {
             Debug.LogError("Launched CarSelection without the active game scene. You won't be able to start.");
         }
@@ -85,7 +83,7 @@ public class CarSelection : MonoBehaviour
         FindObjectOfType<NetworkManager>().GetComponent<NetworkManagerHUD>().showGUI = false;
 
         SceneManager.UnloadSceneAsync("Game/Scenes/CarSelection");
-        _game.SelectedCar(_carIndex);
+        GameNetworkPlayer.LocalPlayer.SelectedCar(_carIndex);
     }
 
     public void ExitToMenu()
