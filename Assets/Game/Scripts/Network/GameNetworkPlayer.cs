@@ -141,7 +141,8 @@ namespace Game.Scripts.Network
 
             _carIndex = carIndex;
             var car = Instantiate(cars[carIndex], transform);
-            NetworkServer.Spawn(car, _identity.connectionToClient);
+            // Spawning without parent is necessary, otherwise the parent position is ignored
+            car.ExecuteWithoutParent(o => NetworkServer.Spawn(o, _identity.connectionToClient));
             _car = car;
             // Also sync the player name before creating the HoveringDetails
             health = StartHealth;
