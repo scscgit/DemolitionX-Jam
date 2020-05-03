@@ -18,8 +18,10 @@ public class HealthAndScores : NetworkBehaviour
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    [ServerCallback]
-    private void OnCollisionEnter(Collision other)
+    //[ServerCallback]
+    //private void OnCollisionEnter(Collision other)
+    [Obsolete]
+    private void OnCollisionEnterDisabled(Collision other)
     {
         if (Player == null)
         {
@@ -64,7 +66,7 @@ public class HealthAndScores : NetworkBehaviour
         // The one who was slower gets damaged
         if (velocity > otherVelocity)
         {
-            Player.RpcDisplayPlayerHitEvent(otherPlayer.playerName, hp);
+            Player.RpcDisplayPlayerHitEvent(otherPlayer.playerName, hp, Mathf.RoundToInt(impactMagnitude));
             otherPlayer.SetHealth(otherPlayer.health - hp);
             Player.SetScore(Player.score + Mathf.RoundToInt(impactMagnitude));
         }

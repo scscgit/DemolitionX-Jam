@@ -64,12 +64,12 @@ namespace Game.Scripts.UI
             canvas.SetActive(false);
         }
 
-        public void DisplayPlayerHitEvent(string player1, string player2, float hp)
+        public void DisplayPlayerHitEvent(string player1, string player2, float hp, int score)
         {
             var add = Instantiate(eventRedPrefab, events.transform);
             add.transform.SetSiblingIndex(0);
             add.GetComponentInChildren<Text>().text =
-                $"[{DateTime.Now:mm:ss}] {player1} -> {player2} for {hp:0.0} HP";
+                $"[{DateTime.Now:mm:ss}] {player1} -> {player2} for {hp:0.0} HP, {score} score";
             AddEvent(add);
         }
 

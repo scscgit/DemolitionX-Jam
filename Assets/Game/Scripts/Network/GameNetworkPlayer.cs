@@ -203,6 +203,7 @@ namespace Game.Scripts.Network
             _hoveringDetails.DisplayHealth(health);
             var healthAndScores = car.GetComponent<HealthAndScores>();
             healthAndScores.Player = this;
+            car.GetComponent<VehiclePhysics>().Player = this;
         }
 
         public void SetScore(int setScore)
@@ -236,9 +237,9 @@ namespace Game.Scripts.Network
         }
 
         [ClientRpc]
-        public void RpcDisplayPlayerHitEvent(string player2, float hp)
+        public void RpcDisplayPlayerHitEvent(string player2, float health, int score)
         {
-            _arenaUi.DisplayPlayerHitEvent(playerName, player2, hp);
+            _arenaUi.DisplayPlayerHitEvent(playerName, player2, health, score);
         }
 
         [ClientRpc]

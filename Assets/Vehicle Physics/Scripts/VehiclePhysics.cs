@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using Game.Scripts.Network;
+using Game.Scripts.Util;
 
 [RequireComponent (typeof(Rigidbody))]
 /// <summary>
@@ -429,6 +431,7 @@ public class VehiclePhysics : MonoBehaviour {
 	
 
 								// Maximum Speed For Current Gear.
+    public GameNetworkPlayer Player { protected get; set; }
 	#endregion
 
 
@@ -1707,9 +1710,9 @@ public class VehiclePhysics : MonoBehaviour {
 					}
                     
 
-                    DamageApplication(curCol.point, col.relativeVelocity, maxCollisionMagnitude, curCol.normal, curCol, true);
                     
 
+                    DamageApplication(curCol.point, col.relativeVelocity, maxCollisionMagnitude, curCol.normal, curCol, true, col.transform.FindComponentIncludingParents<VehiclePhysics>());
                     //Stop checking collision points when limit reached
                     if (colsChecked >= maxCollisionPoints)
                     {
@@ -1724,7 +1727,7 @@ public class VehiclePhysics : MonoBehaviour {
 
 	}
 
-	void DamageApplication(Vector3 damagePoint, Vector3 damageForce, float damageForceLimit, Vector3 surfaceNormal, ContactPoint colPoint, bool useContactPoint)
+	void DamageApplication(Vector3 damagePoint, Vector3 damageForce, float damageForceLimit, Vector3 surfaceNormal, ContactPoint colPoint, bool useContactPoint, VehiclePhysics targetVehicle)
 	{
 		float colMag = Mathf.Min(damageForce.magnitude, maxCollisionMagnitude) * (1 - strength) * damageFactor;//Magnitude of collision
 		float clampedColMag = Mathf.Pow(Mathf.Sqrt(colMag) * 0.5f, 1.5f);//Clamped magnitude of collision
@@ -1761,7 +1764,22 @@ public class VehiclePhysics : MonoBehaviour {
 
 		surfaceDot = Mathf.Clamp01(Vector3.Dot(surfaceNormal, normalizedVel)) * (Vector3.Dot((tr.position - damagePoint).normalized, normalizedVel) + 1) * 0.5f;
         damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.01f, (clampedColMag * 0.001f) / Mathf.Pow(Vector3.Distance(transform.position, damagePoint), clampedColMag));
-        health -= damageFactor * 5f;
+        var healthLost = damageFactor * 5f;
+        var scoreGained = (int) (colMag * massFactor * clampedVel.magnitude);
+        health = health < 0 ? 0 : health - healthLost;
+        if (Player.isServer)
+        {
+            Player.SetHealth(health);
+            if (!ReferenceEquals(targetVehicle, null))
+            {
+                Player.SetScore(Player.score + scoreGained);
+                Player.RpcDisplayPlayerHitEvent(targetVehicle.Player.playerName, healthLost, scoreGained);
+            }
+            else
+            {
+                Player.RpcDisplayObjectHitEvent("object", damageFactor * 5f);
+            }
+        }
 
 		//Deform meshes
 		for (int i = 0; i < deformMeshes.Length; i++)
