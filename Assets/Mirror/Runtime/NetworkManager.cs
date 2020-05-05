@@ -235,7 +235,7 @@ namespace Mirror
             // (tick rate is applied in StartServer!)
             if (isHeadless && startOnHeadless)
             {
-                StartServer();
+                StartHost();
             }
         }
 
