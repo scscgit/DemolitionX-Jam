@@ -1,12 +1,12 @@
-﻿#pragma warning disable 0414 // private field assigned but not used.
+﻿//#pragma warning disable 0414 // private field assigned but not used.
 
 using UnityEngine;
+using Mirror;
 using System.Collections;
 using System.Collections.Generic;
-using Mirror;
  
 /// <summary>
-/// Streaming player input, or receiving data from server.
+/// Streaming player input, or receiving data from server. And then feeds the RCC.
 /// </summary>
 [RequireComponent(typeof(NetworkIdentity))]
 public class VehicleSync : NetworkBehaviour {
@@ -14,10 +14,11 @@ public class VehicleSync : NetworkBehaviour {
 	// Network Identity of the vehicle. All networked gameobjects must have this component.
 	private NetworkIdentity networkID;
 
-	// Main Vehicle, Rigidbody, and WheelColliders. 
-	private VehiclePhysics carController;
-	private VehiclePhysicsWheelCollider[] wheelColliders;
-	private Rigidbody rigid;
+	// Main RCC, Rigidbody, and WheelColliders. 
+	public VehiclePhysics carController;
+	public VehiclePhysicsWheelCollider[] wheelColliders;
+	public Rigidbody rigid;
+	public bool l;// => isLocalPlayer;
 
 	// Syncing transform, inputs, configurations, and lights of the vehicle. Not using any SyncVar. All synced data is organized via structs and lists.
 	#region STRUCTS
@@ -77,12 +78,24 @@ public class VehicleSync : NetworkBehaviour {
 	bool CB_running = false;
 
 	void Start(){
+		//l = true;
 
-		// Getting wheelcolliders, rigidbody, and Network Identity of the vehicle. 
+		// Getting RCC, wheelcolliders, rigidbody, and Network Identity of the vehicle. 
 		carController = GetComponent<VehiclePhysics>();
 		wheelColliders = GetComponentsInChildren<VehiclePhysicsWheelCollider> ();
 		rigid = GetComponent<Rigidbody>();
 		networkID = GetComponent<NetworkIdentity> ();
+
+		// If we are the owner of this vehicle, disable external controller and enable controller of the vehicle. Do opposite if we don't own this.
+		/*if (isLocalPlayer){
+
+			carController.canControl = true;
+			//carController.StartEngine();
+
+		}else{
+
+			carController.canControl = false;
+		}*/
 
 		// Setting name of the gameobject with Network ID.
 		gameObject.name = gameObject.name + networkID.netId;
@@ -93,9 +106,13 @@ public class VehicleSync : NetworkBehaviour {
 
 	void FixedUpdate(){
 
-		if (isLocalPlayer) {
+		// If we are the owner of this vehicle, disable external controller and enable controller of the vehicle. Do opposite if we don't own this.
+		//carController.canControl = isLocalPlayer;
+
+		if (l) {
 
 			// If we are owner of this vehicle, stream all inputs from vehicle.
+//			VehicleIsMein ();
 			if(!CB_running)
 				StartCoroutine(VehicleIsMein());
 
@@ -167,7 +184,7 @@ public class VehicleSync : NetworkBehaviour {
 
 			Vector3 projectedPosition = m_Transform[0].position + m_Transform[0].rigidLinearVelocity * (Time.time - updateTime);
 
-			if((m_Transform[0].position - transform.position).sqrMagnitude < 225f){
+			if(Vector3.Distance(transform.position, m_Transform[0].position) < 15f){
 				
 				transform.position = Vector3.Lerp (transform.position, projectedPosition, Time.deltaTime * 5f);
 				transform.rotation = Quaternion.Lerp (transform.rotation, m_Transform[0].rotation, Time.deltaTime * 5f);
@@ -182,6 +199,61 @@ public class VehicleSync : NetworkBehaviour {
 		}
 
 		updateTime = Time.time;
+
+		// DıSABLED
+//		if (m_Configurations != null && m_Configurations.Count >= 1) {
+//
+//			carController.currentGear = m_Configurations[m_Configurations.Count - 1].gear;
+//			carController.direction = m_Configurations[m_Configurations.Count - 1].direction;
+//			carController.changingGear = m_Configurations[m_Configurations.Count - 1].changingGear;
+//			carController.semiAutomaticGear = m_Configurations[m_Configurations.Count - 1].semiAutomaticGear;
+//	
+//			carController.fuelInput = m_Configurations[m_Configurations.Count - 1].fuelInput;
+//			carController.engineRunning = m_Configurations[m_Configurations.Count - 1].engineRunning;
+//	
+//			for (int i = 0; i < wheelColliders.Length; i++) {
+//	
+//				wheelColliders [i].camber = m_Configurations[m_Configurations.Count - 1].cambers [i];
+//	
+//			}
+//	
+//			carController.applyEngineTorqueToExtraRearWheelColliders = m_Configurations[m_Configurations.Count - 1].applyEngineTorqueToExtraRearWheelColliders;
+//			carController._wheelTypeChoise = m_Configurations[m_Configurations.Count - 1].wheelTypeChoise;
+//			carController.biasedWheelTorque = m_Configurations[m_Configurations.Count - 1].biasedWheelTorque;
+//			carController.canGoReverseNow = m_Configurations[m_Configurations.Count - 1].canGoReverseNow;
+//			carController.engineTorque = m_Configurations[m_Configurations.Count - 1].engineTorque;
+//			carController.brakeTorque = m_Configurations[m_Configurations.Count - 1].brakeTorque;
+//			carController.minEngineRPM = m_Configurations[m_Configurations.Count - 1].minEngineRPM;
+//			carController.maxEngineRPM = m_Configurations[m_Configurations.Count - 1].maxEngineRPM;
+//			carController.engineInertia = m_Configurations[m_Configurations.Count - 1].engineInertia;
+//			carController.useRevLimiter = m_Configurations[m_Configurations.Count - 1].useRevLimiter;
+//			carController.useExhaustFlame = m_Configurations[m_Configurations.Count - 1].useExhaustFlame;
+//			carController.useClutchMarginAtFirstGear = m_Configurations[m_Configurations.Count - 1].useClutchMarginAtFirstGear;
+//			carController.highspeedsteerAngle = m_Configurations[m_Configurations.Count - 1].highspeedsteerAngle;
+//			carController.highspeedsteerAngleAtspeed = m_Configurations[m_Configurations.Count - 1].highspeedsteerAngleAtspeed;
+//			carController.antiRollFrontHorizontal = m_Configurations[m_Configurations.Count - 1].antiRollFrontHorizontal;
+//			carController.antiRollRearHorizontal = m_Configurations[m_Configurations.Count - 1].antiRollRearHorizontal;
+//			carController.antiRollVertical = m_Configurations[m_Configurations.Count - 1].antiRollVertical;
+//			carController.maxspeed = m_Configurations[m_Configurations.Count - 1].maxspeed;
+//			carController.engineHeat = m_Configurations[m_Configurations.Count - 1].engineHeat;
+//			carController.engineHeatRate = m_Configurations[m_Configurations.Count - 1].engineHeatMultiplier;
+//			carController.totalGears = m_Configurations[m_Configurations.Count - 1].totalGears;
+//			carController.gearShiftingDelay = m_Configurations[m_Configurations.Count - 1].gearShiftingDelay;
+//			carController.gearShiftingThreshold = m_Configurations[m_Configurations.Count - 1].gearShiftingThreshold;
+//			carController.clutchInertia = m_Configurations[m_Configurations.Count - 1].clutchInertia;
+//			carController.NGear = m_Configurations[m_Configurations.Count - 1].NGear;
+//			carController.launched = m_Configurations[m_Configurations.Count - 1].launched;
+//			carController.ABS = m_Configurations[m_Configurations.Count - 1].ABS;
+//			carController.TCS = m_Configurations[m_Configurations.Count - 1].TCS;
+//			carController.ESP = m_Configurations[m_Configurations.Count - 1].ESP;
+//			carController.steeringHelper = m_Configurations[m_Configurations.Count - 1].steeringHelper;
+//			carController.tractionHelper = m_Configurations[m_Configurations.Count - 1].tractionHelper;
+//			carController.applyCounterSteering = m_Configurations[m_Configurations.Count - 1].applyCounterSteering;
+//			carController.useNOS = m_Configurations[m_Configurations.Count - 1].useNOS;
+//			carController.useTurbo = m_Configurations[m_Configurations.Count - 1].useTurbo;
+//
+//		}
+
 	}
 
 	[Command]
