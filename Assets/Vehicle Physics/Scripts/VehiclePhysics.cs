@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using Game.Scripts.Network;
+//using Game.Scripts.Network;
 using Game.Scripts.Util;
 
 [RequireComponent (typeof(Rigidbody))]
@@ -430,7 +430,7 @@ public class VehiclePhysics : MonoBehaviour
 	
 
 								// Maximum Speed For Current Gear.
-    public GameNetworkPlayer Player { protected get; set; }
+    //public GameNetworkPlayer Player { protected get; set; }
 	private bool permanentGas = false;
 	#endregion
 

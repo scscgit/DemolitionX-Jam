@@ -127,7 +127,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   radius: 5
-  force: 2000
+  force: 200
 --- !u!114 &114868227092928088
 MonoBehaviour:
   m_ObjectHideFlags: 0

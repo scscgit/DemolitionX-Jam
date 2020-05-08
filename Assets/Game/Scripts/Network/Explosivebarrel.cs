@@ -13,8 +13,8 @@ public class Explosivebarrel : NetworkBehaviour
     public float force = 2000;
 
     private bool _exploded;
+    Rigidbody r;
 
-    [ServerCallback]
     private void OnCollisionEnter(Collision collision)
     {
         if (!_exploded && !collision.gameObject.CompareTag(gameObject.tag) && collision.rigidbody)
@@ -35,7 +35,7 @@ public class Explosivebarrel : NetworkBehaviour
                         //}
                        // else
                        // {
-                            hitPlayer.RpcDisplayHealth(hitPlayer.health - Damage);
+                            //hitPlayer.RpcDisplayHealth(hitPlayer.health - Damage);
                             hitPlayer.RpcDisplayObjectHitEvent(HitName, Damage);
                             // Hit the vehicle parent rigidbody, which has an identity
                             if(hitPlayer.Car)
@@ -50,7 +50,7 @@ public class Explosivebarrel : NetworkBehaviour
                     }
                     else
                     {
-                        RpcAddForce(hit.collider.gameObject);
+                        RpcAddForce(collision.gameObject);
                     }
                 }
             }
@@ -68,11 +68,14 @@ public class Explosivebarrel : NetworkBehaviour
             Debug.Log("Where's the argument?");
         }
         
-        var rigidbody = go.GetComponent<Rigidbody>();
-
-        if(rigidbody)
+        if(go.GetComponent<Rigidbody>())
         {
-            rigidbody.AddExplosionForce(rigidbody.mass * force, transform.position, radius);
+            r = go.GetComponent<Rigidbody>();
+        }
+
+        if(r)
+        {
+            r.AddExplosionForce(r.mass * force, transform.position, radius);
         }
     }
 }

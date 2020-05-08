@@ -39,6 +39,7 @@ namespace Game.Scripts.Network
 
         public void Start()
         {
+            //Debug.LogWarning("Fuck");
             CmdInitialize(MainMenu.PlayerName);
             _identity = GetComponent<NetworkIdentity>();
             _arenaUi = GameObject.Find("ArenaUI").GetComponent<ArenaUi>();
@@ -58,6 +59,12 @@ namespace Game.Scripts.Network
 
             // If the car wasn't spawned yet, then wait for the RPC callback
         }
+
+        /*private void Update() {
+            if(_car){
+                _car.GetComponent<VehicleSync>().l = isLocalPlayer;
+            }
+        }*/
 
         [Command]
         public void CmdInitialize(string playerName)
@@ -168,6 +175,8 @@ namespace Game.Scripts.Network
                 vehicleCamera.gameObject.SetActive(true);
                 vehicleCamera.playerCar = car.transform;
                 var vehiclePhysics = car.GetComponent<VehiclePhysics>();
+                var vehicleSync = car.GetComponent<VehicleSync>();
+                vehicleSync.l = true;
                 vehiclePhysics.canControl = true;
                 vehiclePhysics.StartEngine();
                 // Always rotate HoveringDetails towards the current player
@@ -204,7 +213,7 @@ namespace Game.Scripts.Network
             _hoveringDetails.DisplayHealth(health);
             //var healthAndScores = car.GetComponent<HealthAndScores>();
             //healthAndScores.Player = this;
-            car.GetComponent<VehiclePhysics>().Player = this;
+            ///car.GetComponent<VehiclePhysics>().Player = this;
         }
 
         public void SetScore(int setScore)

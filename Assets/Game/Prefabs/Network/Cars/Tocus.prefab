@@ -58296,7 +58296,7 @@ GameObject:
   - component: {fileID: 2406667163718774833}
   - component: {fileID: 2406667163718774832}
   - component: {fileID: 3618715708367319740}
-  - component: {fileID: 114994312449875408}
+  - component: {fileID: 3721055198922952673}
   m_Layer: 0
   m_Name: Tocus
   m_TagString: Untagged
@@ -58795,7 +58795,7 @@ MonoBehaviour:
   sceneId: 0
   serverOnly: 0
   m_AssetId: 
---- !u!114 &114994312449875408
+--- !u!114 &3721055198922952673
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -58809,6 +58809,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+  carController: {fileID: 0}
+  wheelColliders: []
+  rigid: {fileID: 0}
+  l: 0
 --- !u!1 &2406677604163444581
 GameObject:
   m_ObjectHideFlags: 0
