@@ -14,7 +14,7 @@ public class VehicleSync : NetworkBehaviour {
 	// Network Identity of the vehicle. All networked gameobjects must have this component.
 	private NetworkIdentity networkID;
 
-	// Main RCC, Rigidbody, and WheelColliders. 
+	// Main Vehicle, Rigidbody, and WheelColliders. 
 	private VehiclePhysics carController;
 	private VehiclePhysicsWheelCollider[] wheelColliders;
 	private Rigidbody rigid;

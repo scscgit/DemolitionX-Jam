@@ -58296,8 +58296,7 @@ GameObject:
   - component: {fileID: 2406667163718774833}
   - component: {fileID: 2406667163718774832}
   - component: {fileID: 3618715708367319740}
-  - component: {fileID: 114673595849934070}
-  - component: {fileID: 114702755722463646}
+  - component: {fileID: 114994312449875408}
   m_Layer: 0
   m_Name: Tocus
   m_TagString: Untagged
@@ -58351,6 +58350,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   behaviorType: 3
+  carProperties: {fileID: 11400000, guid: 73688086861569e4b8373c2a7b3ceef4, type: 2}
   _wheelTypeChoise: 1
   biasedWheelTorque: 100
   FrontLeftWheelTransform: {fileID: 2408360841155861847}
@@ -58795,7 +58795,7 @@ MonoBehaviour:
   sceneId: 0
   serverOnly: 0
   m_AssetId: 
---- !u!114 &114673595849934070
+--- !u!114 &114994312449875408
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -58804,25 +58804,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2406667163718774835}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
-  clientAuthority: 1
-  localPositionSensitivity: 0.01
-  localRotationSensitivity: 0.01
-  localScaleSensitivity: 0.01
---- !u!114 &114702755722463646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2406667163718774835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9a6f576a8cf4814f86924e3f2cb693b, type: 3}
+  m_Script: {fileID: 11500000, guid: bd7fcc55b5cc7ab4da76486f59ac777b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0

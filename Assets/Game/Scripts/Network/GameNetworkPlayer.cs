@@ -202,8 +202,8 @@ namespace Game.Scripts.Network
             _hoveringDetails.Player = this;
             _hoveringDetails.DisplayScore(score);
             _hoveringDetails.DisplayHealth(health);
-            var healthAndScores = car.GetComponent<HealthAndScores>();
-            healthAndScores.Player = this;
+            //var healthAndScores = car.GetComponent<HealthAndScores>();
+            //healthAndScores.Player = this;
             car.GetComponent<VehiclePhysics>().Player = this;
         }
 

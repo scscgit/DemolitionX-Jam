@@ -1663,7 +1663,7 @@ public class VehiclePhysics : MonoBehaviour
 		//Debug.Log("Health Lost : " + healthLost.ToString() + " Score Gained : " + scoreGained.ToString());
 
         
-		if (Player.isServer)
+		/*if (Player.isServer)
         {
             Player.SetHealth(health);
             if (!ReferenceEquals(targetVehicle, null))
@@ -1675,7 +1675,7 @@ public class VehiclePhysics : MonoBehaviour
             {
                 Player.RpcDisplayObjectHitEvent("object", damageFactor * 5f);
             }
-        }
+        }*/
 
 		//Deform meshes
 		for (int i = 0; i < deformMeshes.Length; i++)
