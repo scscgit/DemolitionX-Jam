@@ -306,7 +306,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1842022416}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7424c1070fad4ba2a7a96b02fbeb4bb, type: 3}
+  m_Script: {fileID: 11500000, guid: 5f039183eda8945448b822a77e2a9d0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   OnClientConnected:
@@ -333,10 +333,11 @@ MonoBehaviour:
   OnServerDisconnected:
     m_PersistentCalls:
       m_Calls: []
-  port: 7777
+  port: 7778
+  Secure: 0
+  CertificatePath: certificate.pfx
+  CertificatePassword: 
   NoDelay: 1
-  serverMaxMessageSize: 16384
-  clientMaxMessageSize: 16384
 --- !u!4 &1842022420
 Transform:
   m_ObjectHideFlags: 0
@@ -489,7 +490,7 @@ MonoBehaviour:
   serverTickRate: 30
   offlineScene: Assets/Game/Scenes/MainMenu.unity
   onlineScene: Assets/Game/Scenes/Arena.unity
-  transport: {fileID: 1842022418}
+  transport: {fileID: 0}
   networkAddress: 
   maxConnections: 48
   authenticator: {fileID: 0}

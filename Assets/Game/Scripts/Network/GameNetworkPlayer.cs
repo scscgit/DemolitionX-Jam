@@ -34,12 +34,12 @@ namespace Game.Scripts.Network
 
         [SyncVar] private GameObject _car;
         private int _carIndex;
+        private VehiclePhysics _vehiclePhysics;
 
         public GameObject Car => _car;
 
         public void Start()
         {
-            //Debug.LogWarning("Fuck");
             CmdInitialize(MainMenu.PlayerName);
             _identity = GetComponent<NetworkIdentity>();
             _arenaUi = GameObject.Find("ArenaUI").GetComponent<ArenaUi>();
@@ -59,12 +59,6 @@ namespace Game.Scripts.Network
 
             // If the car wasn't spawned yet, then wait for the RPC callback
         }
-
-        /*private void Update() {
-            if(_car){
-                _car.GetComponent<VehicleSync>().l = isLocalPlayer;
-            }
-        }*/
 
         [Command]
         public void CmdInitialize(string playerName)
@@ -213,7 +207,8 @@ namespace Game.Scripts.Network
             _hoveringDetails.DisplayHealth(health);
             //var healthAndScores = car.GetComponent<HealthAndScores>();
             //healthAndScores.Player = this;
-            ///car.GetComponent<VehiclePhysics>().Player = this;
+            _vehiclePhysics = car.GetComponent<VehiclePhysics>();
+            _vehiclePhysics.Player = this;
         }
 
         public void SetScore(int setScore)
@@ -225,6 +220,7 @@ namespace Game.Scripts.Network
         public void SetHealth(float setHealth)
         {
             health = setHealth;
+            _vehiclePhysics.health = setHealth;
             RpcDisplayHealth(setHealth);
         }
 

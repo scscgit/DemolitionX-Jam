@@ -10,11 +10,12 @@ public class Explosivebarrel : NetworkBehaviour
     public const float Damage = 20;
 
     public float radius = 5;
-    public float force = 2000;
+    public float force = 800;
 
     private bool _exploded;
-    Rigidbody r;
+    private readonly HashSet<uint> _alreadyHitPlayers = new HashSet<uint>();
 
+    [ServerCallback]
     private void OnCollisionEnter(Collision collision)
     {
         if (!_exploded && !collision.gameObject.CompareTag(gameObject.tag) && collision.rigidbody)
@@ -22,35 +23,32 @@ public class Explosivebarrel : NetworkBehaviour
             var hits = Physics.SphereCastAll(transform.position, radius, transform.forward, radius);
             if (hits.Length > 0)
             {
-                //var hitPlayers = new HashSet<uint>();
+                _alreadyHitPlayers.Clear();
                 foreach (var hit in hits)
                 {
+                    if (!hit.collider.transform.FindComponentIncludingParents<Rigidbody>())
+                    {
+                        // Only the static environment was hit, ignore it
+                        continue;
+                    }
+
                     var hitPlayer = hit.collider.transform.FindComponentIncludingParents<GameNetworkPlayer>();
                     if (hitPlayer)
                     {
-                        //if (!hitPlayers.Contains(hitPlayer.netId))
-                        //{
-                            //hitPlayers.Add(hitPlayer.netId);
-                            //continue;
-                        //}
-                       // else
-                       // {
-                            //hitPlayer.RpcDisplayHealth(hitPlayer.health - Damage);
-                            hitPlayer.RpcDisplayObjectHitEvent(HitName, Damage);
-                            // Hit the vehicle parent rigidbody, which has an identity
-                            if(hitPlayer.Car)
-                            {
-                                RpcAddForce(hitPlayer.Car);
-                            }
-                            else
-                            {
-                                Debug.LogError("Where the fuck is car?");
-                            }
-                       // }
+                        if (_alreadyHitPlayers.Contains(hitPlayer.netId))
+                        {
+                            continue;
+                        }
+
+                        _alreadyHitPlayers.Add(hitPlayer.netId);
+                        hitPlayer.SetHealth(hitPlayer.health - Damage);
+                        hitPlayer.RpcDisplayObjectHitEvent(HitName, Damage);
+                        // Hit the vehicle parent rigidbody, which has an identity
+                        RpcAddForce(hitPlayer.Car);
                     }
                     else
                     {
-                        RpcAddForce(collision.gameObject);
+                        RpcAddForce(hit.collider.gameObject);
                     }
                 }
             }
@@ -63,19 +61,12 @@ public class Explosivebarrel : NetworkBehaviour
     [ClientRpc]
     public void RpcAddForce(GameObject go)
     {
-        if(!go)
+        if (!go)
         {
-            Debug.Log("Where's the argument?");
-        }
-        
-        if(go.GetComponent<Rigidbody>())
-        {
-            r = go.GetComponent<Rigidbody>();
+            return;
         }
 
-        if(r)
-        {
-            r.AddExplosionForce(r.mass * force, transform.position, radius);
-        }
+        var rigidbody = go.GetComponent<Rigidbody>();
+        rigidbody.AddExplosionForce(rigidbody.mass * force, transform.position, radius);
     }
 }

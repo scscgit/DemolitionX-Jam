@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using Game.Scripts.Network;
 //using Game.Scripts.Network;
 using Game.Scripts.Util;
 
@@ -430,7 +431,7 @@ public class VehiclePhysics : MonoBehaviour
 	
 
 								// Maximum Speed For Current Gear.
-    //public GameNetworkPlayer Player { protected get; set; }
+    public GameNetworkPlayer Player { protected get; set; }
 	private bool permanentGas = false;
 	#endregion
 
@@ -1663,7 +1664,7 @@ public class VehiclePhysics : MonoBehaviour
 		//Debug.Log("Health Lost : " + healthLost.ToString() + " Score Gained : " + scoreGained.ToString());
 
         
-		/*if (Player.isServer)
+		if (Player.isServer)
         {
             Player.SetHealth(health);
             if (!ReferenceEquals(targetVehicle, null))
@@ -1675,7 +1676,7 @@ public class VehiclePhysics : MonoBehaviour
             {
                 Player.RpcDisplayObjectHitEvent("object", damageFactor * 5f);
             }
-        }*/
+        }
 
 		//Deform meshes
 		for (int i = 0; i < deformMeshes.Length; i++)
