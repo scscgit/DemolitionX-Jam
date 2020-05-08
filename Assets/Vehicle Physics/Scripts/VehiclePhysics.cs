@@ -20,6 +20,7 @@ public class VehiclePhysics : MonoBehaviour
     [Tooltip("How must the vehicle behave?")]	
 	public BehaviorType behaviorType = BehaviorType.SportsMuscle;
 	public enum BehaviorType{CivilianCars, SuperCars, Jeeps, SportsMuscle, Rovers, Custom}
+	public CarProperties carProperties;
 
 	[Header("Wheel Type")]
 	public WheelType _wheelTypeChoise = WheelType.RWD;
@@ -430,10 +431,16 @@ public class VehiclePhysics : MonoBehaviour
 
 								// Maximum Speed For Current Gear.
     public GameNetworkPlayer Player { protected get; set; }
+	private bool permanentGas = false;
 	#endregion
 
     #region Unity Methods
 	void Awake (){
+
+		#if UNITY_EDITOR
+		if(!carProperties)
+		Debug.LogError("Assign Car Properties");
+		#endif
 
 		// Getting Rigidbody and settings.
 		rigid = GetComponent<Rigidbody>();
@@ -759,6 +766,8 @@ public class VehiclePhysics : MonoBehaviour
 					GearShiftDown();	
 
 			}
+
+			if(permanentGas) gasInput = 1f;
 
 
 	}
@@ -2040,4 +2049,15 @@ public class VehiclePhysics : MonoBehaviour
 		
 	}
 	#endregion
+
+    #region Preview
+	public void PreviewSmokeParticle(bool state){
+
+		canControl = state;
+		permanentGas = state;
+		rigid.isKinematic = state;
+
+	}
+	#endregion
+
 } 

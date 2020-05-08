@@ -1,0 +1,271 @@
+fileFormatVersion: 2
+guid: b4941803b950b594e9115068647e9a5d
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Cast_okna
+    100002: Cast_okna.2
+    100004: Krychle
+    100006: Krychle.1
+    100008: Krychle.1.2
+    100010: Krychle.10
+    100012: Krychle.2
+    100014: Krychle.2.2
+    100016: Krychle.2.3
+    100018: Krychle.3
+    100020: Krychle.3.2
+    100022: Krychle.4
+    100024: Krychle.5
+    100026: Krychle.6
+    100028: Krychle.7
+    100030: Krychle.8
+    100032: Krychle.9
+    100034: okno
+    100036: okno.2
+    100038: //RootNode
+    100040: Osy
+    100042: Osy.2
+    100044: Osy.3
+    100046: Osy.4
+    100048: Osy.5
+    100050: Osy.6
+    100052: Polygon
+    100054: Polygon.1
+    100056: "p\u0159edn\xED/zadn\xED st\u011Bna"
+    100058: Rovina
+    100060: Rovina.1
+    100062: Rovina.1.2
+    100064: Rovina.2
+    100066: "skladi\u0161t\u011B"
+    100068: strecha
+    100070: "str\u011Bcha"
+    100072: "st\u011Bna 1"
+    100074: "st\u011Bna 2"
+    100076: "st\u011Bna1"
+    100078: "st\u011Bna1.2"
+    100080: "Sv\u011Btlo"
+    100082: "Sv\u011Btlo.1"
+    100084: "Sv\u011Btlo.2"
+    100086: "Sv\u011Btlo.3"
+    100088: torso
+    100090: vrata
+    400000: Cast_okna
+    400002: Cast_okna.2
+    400004: Krychle
+    400006: Krychle.1
+    400008: Krychle.1.2
+    400010: Krychle.10
+    400012: Krychle.2
+    400014: Krychle.2.2
+    400016: Krychle.2.3
+    400018: Krychle.3
+    400020: Krychle.3.2
+    400022: Krychle.4
+    400024: Krychle.5
+    400026: Krychle.6
+    400028: Krychle.7
+    400030: Krychle.8
+    400032: Krychle.9
+    400034: okno
+    400036: okno.2
+    400038: //RootNode
+    400040: Osy
+    400042: Osy.2
+    400044: Osy.3
+    400046: Osy.4
+    400048: Osy.5
+    400050: Osy.6
+    400052: Polygon
+    400054: Polygon.1
+    400056: "p\u0159edn\xED/zadn\xED st\u011Bna"
+    400058: Rovina
+    400060: Rovina.1
+    400062: Rovina.1.2
+    400064: Rovina.2
+    400066: "skladi\u0161t\u011B"
+    400068: strecha
+    400070: "str\u011Bcha"
+    400072: "st\u011Bna 1"
+    400074: "st\u011Bna 2"
+    400076: "st\u011Bna1"
+    400078: "st\u011Bna1.2"
+    400080: "Sv\u011Btlo"
+    400082: "Sv\u011Btlo.1"
+    400084: "Sv\u011Btlo.2"
+    400086: "Sv\u011Btlo.3"
+    400088: torso
+    400090: vrata
+    2100000: rust
+    2100002: "st\u011Bna"
+    2100004: "st\u0159echa"
+    2100006: vrata
+    2100008: okno
+    2100010: okno_cast
+    2300000: Krychle
+    2300002: Krychle.1
+    2300004: Krychle.1.2
+    2300006: Krychle.10
+    2300008: Krychle.2
+    2300010: Krychle.2.2
+    2300012: Krychle.2.3
+    2300014: Krychle.3
+    2300016: Krychle.3.2
+    2300018: Krychle.4
+    2300020: Krychle.5
+    2300022: Krychle.6
+    2300024: Krychle.7
+    2300026: Krychle.8
+    2300028: Krychle.9
+    2300030: okno
+    2300032: okno.2
+    2300034: Polygon
+    2300036: Polygon.1
+    2300038: Rovina
+    2300040: Rovina.1
+    2300042: Rovina.1.2
+    2300044: Rovina.2
+    2300046: "st\u011Bna1"
+    2300048: "st\u011Bna1.2"
+    2300050: vrata
+    3300000: Krychle
+    3300002: Krychle.1
+    3300004: Krychle.1.2
+    3300006: Krychle.10
+    3300008: Krychle.2
+    3300010: Krychle.2.2
+    3300012: Krychle.2.3
+    3300014: Krychle.3
+    3300016: Krychle.3.2
+    3300018: Krychle.4
+    3300020: Krychle.5
+    3300022: Krychle.6
+    3300024: Krychle.7
+    3300026: Krychle.8
+    3300028: Krychle.9
+    3300030: okno
+    3300032: okno.2
+    3300034: Polygon
+    3300036: Polygon.1
+    3300038: Rovina
+    3300040: Rovina.1
+    3300042: Rovina.1.2
+    3300044: Rovina.2
+    3300046: "st\u011Bna1"
+    3300048: "st\u011Bna1.2"
+    3300050: vrata
+    4300000: Krychle.10
+    4300002: Krychle.9
+    4300004: Krychle.8
+    4300006: Krychle.7
+    4300008: Krychle.6
+    4300010: Krychle.5
+    4300012: Krychle.4
+    4300014: Krychle.3
+    4300016: Krychle.2
+    4300018: Krychle.1
+    4300020: Krychle
+    4300022: Polygon.1
+    4300024: Polygon
+    4300026: Krychle.3.2
+    4300028: Krychle.2.2
+    4300030: vrata
+    4300032: Krychle.1.2
+    4300034: Krychle.2.3
+    4300036: okno
+    4300038: Rovina.1
+    4300040: Rovina
+    4300042: "st\u011Bna1"
+    4300044: okno.2
+    4300046: Rovina.1.2
+    4300048: Rovina.2
+    4300050: "st\u011Bna1.2"
+    10800000: "Sv\u011Btlo"
+    10800002: "Sv\u011Btlo.1"
+    10800004: "Sv\u011Btlo.2"
+    10800006: "Sv\u011Btlo.3"
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
