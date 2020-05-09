@@ -13,14 +13,23 @@ public class HealthAndScores : NetworkBehaviour
 
     private Rigidbody _rigidbody;
 
+    public float health;
+    public int scores;
+    float prevHealth;
+    int prevScore;
+
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        health = GetComponent<VehiclePhysics>().health;
+        scores = 0;
+        prevHealth = health;
+        prevScore = scores;
     }
 
     //[ServerCallback]
     //private void OnCollisionEnter(Collision other)
-    [Obsolete]
+    /*[Obsolete]
     private void OnCollisionEnterDisabled(Collision other)
     {
         if (Player == null)
@@ -78,5 +87,26 @@ public class HealthAndScores : NetworkBehaviour
             //Player.SetHealth(Player.health - hp);
             // TODO: should we give score to the other one?
         }
+    }*/
+
+
+
+    private void Update() {
+
+        if(Player == null){
+            Player = GetComponentInParent<GameNetworkPlayer>();
+        }
+
+        if (health != prevHealth){
+            Player.SetHealth(health);
+        }
+
+        if(scores != prevScore){
+            Player.SetScore(scores);
+        }
+
+        prevScore = scores;
+        prevHealth = health;
+
     }
 }

@@ -761,6 +761,8 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 	{
 		
 		detached = true;
+		
+		detachedWheel.transform.parent = null;
 		detachedWheel.SetActive(true);
 		detachedWheel.transform.position = wheelModel.position;
 		detachedWheel.transform.rotation = wheelModel.rotation;

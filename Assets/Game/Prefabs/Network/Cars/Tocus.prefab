@@ -58297,6 +58297,7 @@ GameObject:
   - component: {fileID: 2406667163718774832}
   - component: {fileID: 3618715708367319740}
   - component: {fileID: 3721055198922952673}
+  - component: {fileID: 114833574501757508}
   m_Layer: 0
   m_Name: Tocus
   m_TagString: Untagged
@@ -58813,6 +58814,22 @@ MonoBehaviour:
   wheelColliders: []
   rigid: {fileID: 0}
   l: 0
+--- !u!114 &114833574501757508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2406667163718774835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9a6f576a8cf4814f86924e3f2cb693b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  health: 0
+  scores: 0
 --- !u!1 &2406677604163444581
 GameObject:
   m_ObjectHideFlags: 0

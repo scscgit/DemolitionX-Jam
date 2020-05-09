@@ -45,6 +45,8 @@ public class DetachablePart : MonoBehaviour
         if (!detached)
         {
             detached = true;
+            
+            transform.parent = null;
             //tr.parent = null;
             rb = gameObject.AddComponent<Rigidbody>();
             rb.mass = mass;
