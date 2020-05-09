@@ -1,11 +1,12 @@
 using UnityEngine;
+using Mirror;
 
 
 [DisallowMultipleComponent]
 [AddComponentMenu("Detachable Part", 1)]
 
 //Class for parts that can detach
-public class DetachablePart : MonoBehaviour
+public class DetachablePart : NetworkBehaviour
 {
     //Transform tr;
     Rigidbody rb;
@@ -31,20 +32,100 @@ public class DetachablePart : MonoBehaviour
     //Vector3 initialAnchor;
     //[System.NonSerialized]
     //public Vector3 displacedAnchor;
+    Vector3 initPos;
+    Quaternion initRot;
+    float linearVel;
+    float angularVel;
+    Vector3 projectedPosition;
+    Quaternion projectedRot;
+    float updateTime = 0;
 
-    void Update()
-    {
-        if(detached)
-        {
-            Destroy(gameObject, 10f);
+    private void Start() {
+        initPos = transform.position;
+        initRot = transform.rotation;
+    }
+
+    void FixedUpdate(){
+
+        if(detached){
+
+            projectedPosition = transform.position + GetComponent<Rigidbody>().velocity * (Time.time - updateTime);
+            projectedRot = transform.rotation;
+
+            if(PositionChanged()){
+
+                CmdSyncPosition();
+
+            } 
+
+            if(RotationChanged()) {
+
+                CmdSyncRotation();
+
+            }
+
+            updateTime = Time.time;           
         }
+    }
+
+    bool PositionChanged(){
+
+        bool changed = (transform.position - initPos).sqrMagnitude > 0.01f;
+        
+        if(changed) {
+
+            initPos = transform.position;
+
+        }
+
+        return changed;
+
+    }
+
+    bool RotationChanged(){
+
+        bool changed = Quaternion.Angle(initRot, transform.localRotation) > 0.01f;
+
+        if(changed) {
+
+            initRot = transform.rotation;
+
+        }
+
+        return changed;
+
+    }
+
+    [Command]
+    void CmdSyncPosition(){
+        
+        if((transform.position - initPos).sqrMagnitude < 10) {
+
+            transform.position = Vector3.Lerp(transform.position, projectedPosition, Time.deltaTime * 5f);
+
+        }
+        else {
+
+            transform.position = projectedPosition;
+            
+        }
+
+    }
+
+    [Command]
+    void CmdSyncRotation() {
+
+        transform.rotation = Quaternion.Lerp(transform.rotation, projectedRot, Time.deltaTime * 5f);
+
     }
 
     public void Detach()
     {
         if (!detached)
         {
-            detached = true;
+            var net = gameObject.AddComponent<NetworkIdentity>();
+            gameObject.name = gameObject.name + net.netId;
+            
             
             transform.parent = null;
             //tr.parent = null;
@@ -52,6 +133,7 @@ public class DetachablePart : MonoBehaviour
             rb.mass = mass;
             rb.drag = drag;
             rb.angularDrag = angularDrag;
+            detached = true;
 
             /*if (parentBody)
             {

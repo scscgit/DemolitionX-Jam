@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44c02e7d0d0c62c4f802391b515d95e3, type: 3}
   m_Name: Classic
   m_EditorClassIdentifier: 
-  name: 
-  carMaterial: {fileID: 0}
+  name: Classic
+  carMaterial: {fileID: 2100000, guid: 25a605f6ab7c8c143bd68f767cf2b256, type: 2}
   TyreMaterial: {fileID: 0}
   rimMaterial: {fileID: 0}
