@@ -8,6 +8,15 @@ namespace Game.Scripts.UI
 {
     public class ArenaUi : MonoBehaviour
     {
+        private enum EventType
+        {
+            PlayerHit,
+            ObjectHit,
+            Positive,
+        }
+
+        private static readonly TimeSpan GroupEventsWithinInterval = TimeSpan.FromSeconds(1.5f);
+
         public GameObject[] enableOnStart;
         public GameObject[] toggleOnEscape;
         public GameObject canvas;
@@ -17,6 +26,13 @@ namespace Game.Scripts.UI
 
         private GameNetworkPlayer _activePlayer;
         private readonly LinkedList<GameObject> _childrenEvents = new LinkedList<GameObject>();
+        private Tuple<EventType?, float> _lastEventTypeAndTime = new Tuple<EventType?, float>(null, 0);
+
+        private Tuple<string, string, float, int> _lastPlayerHitEvent =
+            new Tuple<string, string, float, int>(null, null, 0, 0);
+
+        private Tuple<string, string, float> _lastObjectHitEvent =
+            new Tuple<string, string, float>(null, null, 0);
 
         void Start()
         {
@@ -66,6 +82,23 @@ namespace Game.Scripts.UI
 
         public void DisplayPlayerHitEvent(string player1, string player2, float hp, int score)
         {
+            var eventTime = Time.time;
+            // Group with the last event
+            if (_lastEventTypeAndTime.Item1 == EventType.PlayerHit
+                && Time.time - _lastEventTypeAndTime.Item2 < GroupEventsWithinInterval.Milliseconds / 1000f
+                && _lastPlayerHitEvent.Item1.Equals(player1)
+                && _lastPlayerHitEvent.Item2.Equals(player2))
+            {
+                Destroy(_childrenEvents.Last.Value);
+                _childrenEvents.RemoveLast();
+                eventTime = _lastEventTypeAndTime.Item2;
+                hp += _lastPlayerHitEvent.Item3;
+                score += _lastPlayerHitEvent.Item4;
+            }
+
+            _lastPlayerHitEvent = new Tuple<string, string, float, int>(player1, player2, hp, score);
+            _lastEventTypeAndTime = new Tuple<EventType?, float>(EventType.PlayerHit, eventTime);
+
             var add = Instantiate(eventRedPrefab, events.transform);
             add.transform.SetSiblingIndex(0);
             add.GetComponentInChildren<Text>().text =
@@ -75,6 +108,22 @@ namespace Game.Scripts.UI
 
         public void DisplayObjectHitEvent(string player, string target, float hp)
         {
+            var eventTime = Time.time;
+            // Group with the last event
+            if (_lastEventTypeAndTime.Item1 == EventType.ObjectHit
+                && Time.time - _lastEventTypeAndTime.Item2 < GroupEventsWithinInterval.Milliseconds / 1000f
+                && _lastObjectHitEvent.Item1.Equals(player)
+                && _lastObjectHitEvent.Item2.Equals(target))
+            {
+                Destroy(_childrenEvents.Last.Value);
+                _childrenEvents.RemoveLast();
+                eventTime = _lastEventTypeAndTime.Item2;
+                hp += _lastObjectHitEvent.Item3;
+            }
+
+            _lastObjectHitEvent = new Tuple<string, string, float>(player, target, hp);
+            _lastEventTypeAndTime = new Tuple<EventType?, float>(EventType.ObjectHit, eventTime);
+
             var add = Instantiate(eventRedPrefab, events.transform);
             add.transform.SetSiblingIndex(0);
             add.GetComponentInChildren<Text>().text =
@@ -84,6 +133,8 @@ namespace Game.Scripts.UI
 
         public void DisplayPositiveEvent(string positiveMessage)
         {
+            _lastEventTypeAndTime = new Tuple<EventType?, float>(EventType.Positive, Time.time);
+
             var add = Instantiate(eventGreenPrefab, events.transform);
             add.transform.SetSiblingIndex(0);
             add.GetComponentInChildren<Text>().text =

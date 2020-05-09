@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Mirror.Websocket;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
@@ -235,6 +236,17 @@ namespace Mirror
             // (tick rate is applied in StartServer!)
             if (isHeadless && startOnHeadless)
             {
+                var args = Environment.GetCommandLineArgs();
+                if (args.Length == 3 && new[] {"port", "-port", "--port"}.Contains(args[1]))
+                {
+                    Debug.Log(
+                        $"Switching {(int.TryParse(args[2], out var port) ? $"to port {(GetComponent<WebsocketTransport>().port = port).ToString()}" : $"port failed, cannot recognize {args[2]}")}");
+                }
+                else
+                {
+                    Debug.Log("If you need to change the listening port, consider using a \"port\" parameter");
+                }
+
                 StartHost();
             }
         }
