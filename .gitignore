@@ -48,6 +48,16 @@ sysinfo.txt
 # Doxygen Documentation
 /[Dd]ocs/*
 !/[Dd]ocs/[Dd]oxyfile*
+
+# NuGet restored packages
+/Packages/*
+!/Packages/manifest.json
+
+# Certificate
+/Assets/certificate.pfx
+/Assets/certificate.pfx.meta
+
+# Other
 Assets/Samples/Terrain Tools/0.1.0-preview/Terrain Assets/TerrainBrushes/
 Assets/Samples/Terrain Tools/0.1.0-preview/Terrain Assets/BrushTextures/
 ProjectSettings/Packages/com.unity.probuilder/Settings.json
@@ -56,5 +66,3 @@ Assets/Samples/Terrain Tools/0.1.0-preview/Terrain Assets/TerrainBrushes.meta
 ProjectSettings/Packages/com.unity.probuilder/Settings.json
 Assets/Samples/Terrain Tools/0.1.0-preview/Terrain Assets/BrushTextures.meta
 Assets/Game/Scenes/MainMenu.meta
-Assets/certificate.pfx
-Assets/certificate.pfx.meta
