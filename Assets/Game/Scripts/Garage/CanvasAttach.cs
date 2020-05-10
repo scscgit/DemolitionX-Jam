@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -58,6 +59,11 @@ public class CanvasAttach : MonoBehaviour {
 		CheckUIs ();
 
 	}
+
+    public void BackToCarSelection()
+    {
+        SceneManager.UnloadSceneAsync("Game/Scenes/Garage");
+    }
 
 	public void CheckUIs (){
 

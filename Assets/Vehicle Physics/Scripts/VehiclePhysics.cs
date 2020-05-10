@@ -5,12 +5,13 @@ using System;
 using Game.Scripts.Network;
 //using Game.Scripts.Network;
 using Game.Scripts.Util;
+using Mirror;
 
 [RequireComponent (typeof(Rigidbody))]
 /// <summary>
 /// Main vehicle controller that includes Wheels, Steering, Suspensions, Mechanic Configuration, Stability, Lights, Sounds, and Damage.
 /// </summary>
-public class VehiclePhysics : MonoBehaviour 
+public class VehiclePhysics : NetworkBehaviour
 {
 	#region Variables
 
@@ -1752,10 +1753,7 @@ public class VehiclePhysics : MonoBehaviour
 							
 							if (colMag * surfaceDot * massFactor > detachedPart.breakForce)
 							{
-								detachedPart.Detach();
-                                var healthLostByComponent = detachedPart.mass / 5;
-                                Player.SetHealth(health - healthLostByComponent);
-                                Player.RpcDisplayObjectHitEvent("losing a component", healthLostByComponent);
+                                CmdLosePart(i, detachedPart.mass / 5);
 							}
 						}
 						
@@ -1766,18 +1764,43 @@ public class VehiclePhysics : MonoBehaviour
 					{
 						
 
-						if ((clampedColMag * surfaceDot * distClamp * 10 * massFactor > wheelCol.detachForce))
+						if (clampedColMag * surfaceDot * distClamp * 10 * massFactor > wheelCol.detachForce)
 						{							
-							wheelCol.Detach();
-                            var healthLostByWheel = 20;
-                            Player.SetHealth(health - healthLostByWheel);
-                            Player.RpcDisplayObjectHitEvent("losing a wheel", healthLostByWheel);
+							CmdLoseWheel(i, 20);
 						}						
 					}
 				}
 			}
 		}
 	}
+
+    [Command]
+    public void CmdLosePart(int partIndex, float healthLost)
+    {
+        RpcLosePart(partIndex);
+        Player.SetHealth(health - healthLost);
+        Player.RpcDisplayObjectHitEvent("losing a component", healthLost);
+    }
+
+    [ClientRpc]
+    public void RpcLosePart(int partIndex)
+    {
+        displaceParts[partIndex].GetComponent<DetachablePart>().Detach();
+    }
+
+    [Command]
+    public void CmdLoseWheel(int partIndex, float healthLost)
+    {
+        RpcLoseWheel(partIndex);
+        Player.SetHealth(health - healthLost);
+        Player.RpcDisplayObjectHitEvent("losing a wheel", healthLost);
+    }
+
+    [ClientRpc]
+    public void RpcLoseWheel(int partIndex)
+    {
+        displaceParts[partIndex].GetComponent<VehiclePhysicsWheelCollider>().Detach();
+    }
 
 	void FinalizeDamage()
 	{

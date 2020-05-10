@@ -90,4 +90,9 @@ public class CarSelection : MonoBehaviour
     {
         NetworkSettingsUi.DisconnectStatic(FindObjectOfType<NetworkManager>());
     }
+
+    public void EnterGarage()
+    {
+        SceneManager.LoadScene("Game/Scenes/Garage", LoadSceneMode.Additive);
+    }
 }
