@@ -1,0 +1,12 @@
+newmtl Tocus_Wheel
+map_Kd Tocus_Wheel.png
+bump Tocus_Wheel_b.png
+Kd 1 1 1
+d 1
+
+newmtl Tocus_Rim
+map_Kd Tocus_Wheel.png
+bump Tocus_Wheel_b.png
+Kd 1 1 1
+d 1
+

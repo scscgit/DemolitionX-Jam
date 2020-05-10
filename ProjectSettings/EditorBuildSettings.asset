@@ -5,13 +5,22 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Game/Scenes/MainMenu.unity
     guid: 3fe51eaff921c934ca764a224825a30f
-  - enabled: 1
+  - enabled: 0
     path: Assets/Game/Scenes/CarSelection.unity
     guid: a13d799d7b6f9c74e987bc00033df327
-  - enabled: 1
+  - enabled: 0
     path: Assets/Game/Scenes/Arena.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Game/Scenes/LoginMenu.unity
+    guid: 9b3408507d9fe3a4ba8725893171cf9f
+  - enabled: 1
+    path: Assets/Game/Scenes/Lobby.unity
+    guid: 6fc26646f2b4f174b96e4e976d8498e0
+  - enabled: 1
+    path: Assets/Game/Scenes/Derby.unity
+    guid: e6cc9e0cbd94f2c418fa0e90c83841be
   m_configObjects: {}

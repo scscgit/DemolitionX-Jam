@@ -1,0 +1,46 @@
+[0509/170024.012:VERBOSE1:pref_proxy_config_tracker_impl.cc(151)] 000000005C5BA0D0: set chrome proxy config service to 000000005C5FB7B0
+[0509/170024.012:VERBOSE1:pref_proxy_config_tracker_impl.cc(278)] 000000005C5BA0D0: Done pushing proxy to UpdateProxyConfig
+[0509/170024.017:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Pilot' log
+[0509/170024.017:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Aviator' log
+[0509/170024.018:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: DigiCert Log Server
+[0509/170024.018:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Rocketeer' log
+[0509/170024.018:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Symantec log
+[0509/170024.018:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Venafi log
+[0509/170024.019:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Symantec 'Vega' log
+[0509/170024.019:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: CNNIC CT log
+[0509/170024.019:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: WoSign log
+[0509/170024.019:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: StartCom CT log
+[0509/170024.019:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Skydiver' log
+[0509/170024.019:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Icarus' log
+[0509/170024.020:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Izenpe log
+[0509/170024.020:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Certly.IO log
+[0509/170024.020:ERROR:proxy_service_factory.cc(116)] Cannot use V8 Proxy resolver in single process mode.
+[0509/170024.100:ERROR:child_thread_impl.cc(762)] Request for unknown Channel-associated interface: ui::mojom::GpuMain
+[0509/170024.118:VERBOSE1:webrtc_internals.cc(99)] Could not get the download directory.
+[0509/170024.194:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0509/170024.273:WARNING:histograms.cc(40)] Started multiple compositor clients (Browser, Renderer) in one process. Some metrics will be disabled.
+[0509/170024.357:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0509/170024.366:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0509/170024.653:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0509/170027.272:VERBOSE1:script_context.cc(111)] Created context:
+  extension id:           (none)
+  frame:                  0000033D88F01DC8
+  URL:                    
+  context_type:           WEB_PAGE
+  effective extension id: (none)
+  effective context type: WEB_PAGE
+[0509/170027.277:VERBOSE1:script_context.cc(111)] Created context:
+  extension id:           (none)
+  frame:                  0000000000000000
+  URL:                    
+  context_type:           UNSPECIFIED
+  effective extension id: (none)
+  effective context type: UNSPECIFIED
+[0509/170027.280:VERBOSE1:dispatcher.cc(396)] Num tracked contexts: 1
+[0509/170147.118:VERBOSE1:dispatcher.cc(527)] Num tracked contexts: 0
+[0509/170147.120:VERBOSE1:script_context.cc(120)] Destroyed context for extension
+  extension id: 
+  effective extension id: 
+[0509/170147.120:VERBOSE1:script_context.cc(120)] Destroyed context for extension
+  extension id: 
+  effective extension id: 
