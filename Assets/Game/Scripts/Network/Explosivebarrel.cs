@@ -6,7 +6,7 @@ using Game.Scripts.Util;
 
 public class Explosivebarrel : NetworkBehaviour
 {
-    public const string HitName = "barrel";
+    public const string HitName = "a barrel explosion";
     public const float Damage = 20;
 
     public float radius = 5;

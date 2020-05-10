@@ -585,12 +585,6 @@ public class VehiclePhysics : MonoBehaviour
 			launched -= Time.deltaTime;
 		
 		launched = Mathf.Clamp01 (launched);
-
-		if(health < 0)
-		{
-			health = 0;
-		}
-		
 	}
 
 	void FixedUpdate (){
@@ -1652,33 +1646,22 @@ public class VehiclePhysics : MonoBehaviour
 		}
 
 		surfaceDot = Mathf.Clamp01(Vector3.Dot(surfaceNormal, normalizedVel)) * (Vector3.Dot((transform.position - damagePoint).normalized, normalizedVel) + 1) * 0.5f;
-        damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.1f, (clampedColMag * 0.01f) / Mathf.Pow(Vector3.Distance(transform.position, damagePoint), clampedColMag/10));
-        var healthLost = damagePartFactor * 10f;
-
-		if(healthLost < 0.5) healthLost = 0;
-		else if(healthLost < 1) healthLost = 1;
-
-        var scoreGained = (int) (speed/maxspeed * colMag * massFactor * clampedVel.magnitude);
-        health = health < 0 ? 0 : health - healthLost;
-		
-		
-		Debug.Log("Health Lost : " + healthLost.ToString() + " Score Gained : " + scoreGained.ToString());
-
-        
-		if (Player.isServer)
+        if (Player.isServer)
         {
-			GetComponent<HealthAndScores>().health = health;
-			GetComponent<HealthAndScores>().scores += scoreGained;
-            //Player.SetHealth(health);
-            /*if (!ReferenceEquals(targetVehicle, null))
+            damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.1f, (clampedColMag * 0.01f) / Mathf.Pow(Vector3.Distance(transform.position, damagePoint), clampedColMag / 10));
+            var healthLost = damagePartFactor * 10f;
+            healthLost = healthLost < 0.5 ? 0 : healthLost < 1 ? 1 : healthLost;
+            Player.SetHealth(health - healthLost);
+            if (!ReferenceEquals(targetVehicle, null))
             {
+                var scoreGained = (int) (speed / maxspeed * colMag * massFactor * clampedVel.magnitude);
                 Player.SetScore(Player.score + scoreGained);
                 Player.RpcDisplayPlayerHitEvent(targetVehicle.Player.playerName, healthLost, scoreGained);
             }
             else
             {
-                Player.RpcDisplayObjectHitEvent("object", damageFactor * 5f);
-            }*/
+                Player.RpcDisplayObjectHitEvent("a random collision", healthLost);
+            }
         }
 
 		//Deform meshes
@@ -1770,7 +1753,9 @@ public class VehiclePhysics : MonoBehaviour
 							if (colMag * surfaceDot * massFactor > detachedPart.breakForce)
 							{
 								detachedPart.Detach();
-								health = (health < 0) ? 0 : (health - detachedPart.mass/5);
+                                var healthLostByComponent = detachedPart.mass / 5;
+                                Player.SetHealth(health - healthLostByComponent);
+                                Player.RpcDisplayObjectHitEvent("losing a component", healthLostByComponent);
 							}
 						}
 						
@@ -1784,7 +1769,9 @@ public class VehiclePhysics : MonoBehaviour
 						if ((clampedColMag * surfaceDot * distClamp * 10 * massFactor > wheelCol.detachForce))
 						{							
 							wheelCol.Detach();
-							health = (health < 0) ? 0 : (health - 20);
+                            var healthLostByWheel = 20;
+                            Player.SetHealth(health - healthLostByWheel);
+                            Player.RpcDisplayObjectHitEvent("losing a wheel", healthLostByWheel);
 						}						
 					}
 				}

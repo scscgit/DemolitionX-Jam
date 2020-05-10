@@ -106,14 +106,14 @@ namespace Game.Scripts.UI
             AddEvent(add);
         }
 
-        public void DisplayObjectHitEvent(string player, string target, float hp)
+        public void DisplayObjectHitEvent(string player, string by, float hp)
         {
             var eventTime = Time.time;
             // Group with the last event
             if (_lastEventTypeAndTime.Item1 == EventType.ObjectHit
                 && Time.time - _lastEventTypeAndTime.Item2 < GroupEventsWithinInterval.Milliseconds / 1000f
                 && _lastObjectHitEvent.Item1.Equals(player)
-                && _lastObjectHitEvent.Item2.Equals(target))
+                && _lastObjectHitEvent.Item2.Equals(by))
             {
                 Destroy(_childrenEvents.Last.Value);
                 _childrenEvents.RemoveLast();
@@ -121,13 +121,13 @@ namespace Game.Scripts.UI
                 hp += _lastObjectHitEvent.Item3;
             }
 
-            _lastObjectHitEvent = new Tuple<string, string, float>(player, target, hp);
+            _lastObjectHitEvent = new Tuple<string, string, float>(player, by, hp);
             _lastEventTypeAndTime = new Tuple<EventType?, float>(EventType.ObjectHit, eventTime);
 
             var add = Instantiate(eventRedPrefab, events.transform);
             add.transform.SetSiblingIndex(0);
             add.GetComponentInChildren<Text>().text =
-                $"[{DateTime.Now:mm:ss}] {player} lost {hp:0.0} HP by {target} collision";
+                $"[{DateTime.Now:mm:ss}] {player} lost {hp:0.0} HP by {by}";
             AddEvent(add);
         }
 

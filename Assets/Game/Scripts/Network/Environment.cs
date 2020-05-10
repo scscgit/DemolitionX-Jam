@@ -27,7 +27,6 @@ namespace Game.Scripts.Network
 
         private void SpawnAll()
         {
-            _spawnedObjects.Clear();
             foreach (var identity in spawnObjects.GetComponentsInChildren<NetworkIdentity>())
             {
                 // TODO: generic way of determining which prefab is it. Only a prefab can be spawned.
@@ -50,6 +49,7 @@ namespace Game.Scripts.Network
                 Destroy(spawnedObject);
             }
 
+            _spawnedObjects.Clear();
             SpawnAll();
         }
     }

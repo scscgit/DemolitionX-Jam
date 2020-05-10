@@ -70,7 +70,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   port: 7778
-  Secure: 1
+  Secure: 0
   CertificatePath: certificate.pfx
   CertificatePassword: 
   NoDelay: 1
@@ -115,7 +115,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 8695240316343602707, guid: ea189b9a90a94a54b947ed6472160350,
     type: 3}
   autoCreatePlayer: 1
-  playerSpawnMethod: 0
+  playerSpawnMethod: 1
   spawnPrefabs:
   - {fileID: 8661405591729687195, guid: 8243eb0c9c9235e45b3dd53a82209659, type: 3}
   - {fileID: 2406667163718774835, guid: 544cd6409f5a0684aa2ad5bb6ef30df4, type: 3}

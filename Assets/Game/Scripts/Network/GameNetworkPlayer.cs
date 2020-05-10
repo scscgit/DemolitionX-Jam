@@ -219,7 +219,12 @@ namespace Game.Scripts.Network
 
         public void SetHealth(float setHealth)
         {
-            health = setHealth;
+            if (ReferenceEquals(_car, null))
+            {
+                return;
+            }
+
+            health = setHealth < 0 ? 0 : setHealth;
             _vehiclePhysics.health = setHealth;
             RpcDisplayHealth(setHealth);
         }
@@ -249,9 +254,9 @@ namespace Game.Scripts.Network
         }
 
         [ClientRpc]
-        public void RpcDisplayObjectHitEvent(string target, float hp)
+        public void RpcDisplayObjectHitEvent(string by, float hp)
         {
-            _arenaUi.DisplayObjectHitEvent(playerName, target, hp);
+            _arenaUi.DisplayObjectHitEvent(playerName, by, hp);
         }
 
         [ClientRpc]
