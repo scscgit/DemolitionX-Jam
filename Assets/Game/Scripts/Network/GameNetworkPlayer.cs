@@ -24,7 +24,7 @@ namespace Game.Scripts.Network
 
         [Header("Synced vars")] [SyncVar] public string playerName;
         [SyncVar] public int score;
-        [SyncVar] public float health;
+        [SyncVar(hook = nameof(OnSyncHealth))] public float health;
 
         private NetworkIdentity _identity;
         private ArenaUi _arenaUi;
@@ -227,6 +227,15 @@ namespace Game.Scripts.Network
             health = setHealth < 0 ? 0 : setHealth;
             _vehiclePhysics.health = setHealth;
             RpcDisplayHealth(setHealth);
+        }
+
+        private void OnSyncHealth(float oldHealth, float newHealth)
+        {
+            //  Hook gets invoked before Start configures _vehiclePhysics
+            if (!ReferenceEquals(_vehiclePhysics, null))
+            {
+                _vehiclePhysics.health = newHealth;
+            }
         }
 
         [ClientRpc]
