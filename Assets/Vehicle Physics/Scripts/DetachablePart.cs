@@ -1,3 +1,4 @@
+using Game.Scripts.Network;
 using UnityEngine;
 using Mirror;
 
@@ -46,7 +47,7 @@ public class DetachablePart : NetworkBehaviour
     }
 
     void FixedUpdate(){
-
+/*
         if(detached){
 
             projectedPosition = transform.position + GetComponent<Rigidbody>().velocity * (Time.time - updateTime);
@@ -65,7 +66,7 @@ public class DetachablePart : NetworkBehaviour
             }
 
             updateTime = Time.time;           
-        }
+        }*/
     }
 
     bool PositionChanged(){
@@ -123,10 +124,13 @@ public class DetachablePart : NetworkBehaviour
     {
         if (!detached)
         {
-            var net = gameObject.AddComponent<NetworkIdentity>();
-            gameObject.name = gameObject.name + net.netId;
-            
-            
+            // TODO: spawn the object as a persistent copy visible by newly connected clients
+            // var net = gameObject.AddComponent<NetworkIdentity>();
+            // gameObject.name = gameObject.name + net.netId;
+
+            // Both server and client will remove the object for themselves after the match ends, without syncing that
+            Environment.Instance.RegisterObjectForCleanup(gameObject);
+
             transform.parent = null;
             //tr.parent = null;
             rb = gameObject.AddComponent<Rigidbody>();

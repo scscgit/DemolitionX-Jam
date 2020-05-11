@@ -11,6 +11,7 @@ namespace Game.Scripts.UI
     public class MainMenu : MonoBehaviour
     {
         public static string PlayerName;
+        public static bool ShouldReconnect;
 
         [Header("Settings pages")] public GameObject menuPage;
         public GameObject settingsPage;
@@ -35,6 +36,10 @@ namespace Game.Scripts.UI
         {
             // Initialization & Hot-swap
             InitializePlayerName();
+            if (ShouldReconnect)
+            {
+                ConnectClient();
+            }
         }
 
         private void InitializePlayerName()
@@ -152,6 +157,7 @@ namespace Game.Scripts.UI
 
         public void ConnectClient()
         {
+            ShouldReconnect = true;
             _networkManager.StartClient();
         }
 

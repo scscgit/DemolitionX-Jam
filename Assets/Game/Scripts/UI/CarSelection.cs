@@ -1,4 +1,5 @@
 using Game.Scripts.Network;
+using Game.Scripts.UI;
 using Mirror;
 using UnityEngine;
 using UnityEngine.Events;
@@ -88,6 +89,7 @@ public class CarSelection : MonoBehaviour
 
     public void ExitToMenu()
     {
+        MainMenu.ShouldReconnect = false;
         NetworkSettingsUi.DisconnectStatic(FindObjectOfType<NetworkManager>());
     }
 

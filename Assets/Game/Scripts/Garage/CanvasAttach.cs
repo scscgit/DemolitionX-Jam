@@ -55,7 +55,8 @@ public class CanvasAttach : MonoBehaviour {
 	public Dropdown drivetrainMode;
 
 	void Start(){
-
+        // This vehicle is practically always disabled on start due to being a NetworkIdentity without any server
+        activePlayerVehicle?.gameObject.SetActive(true);
 		CheckUIs ();
 
 	}

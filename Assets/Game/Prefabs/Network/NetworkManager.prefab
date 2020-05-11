@@ -119,5 +119,5 @@ MonoBehaviour:
   spawnPrefabs:
   - {fileID: 8661405591729687195, guid: 8243eb0c9c9235e45b3dd53a82209659, type: 3}
   - {fileID: 2406667163718774835, guid: 544cd6409f5a0684aa2ad5bb6ef30df4, type: 3}
-  - {fileID: 9041156697621499078, guid: 619004bbfc51dd245b448b32b8361bfd, type: 3}
+  - {fileID: 3519340170442121768, guid: fa4c1de33d4c31c47bec6ce7f008bd8d, type: 3}
   - {fileID: 3735417826791522069, guid: 4c70e2023d9bab548a7234e5f8daf5a4, type: 3}

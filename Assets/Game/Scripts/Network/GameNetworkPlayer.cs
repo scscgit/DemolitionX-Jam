@@ -71,7 +71,7 @@ namespace Game.Scripts.Network
         /// </summary>
         public void ChangeCarByLocalPlayer()
         {
-            // Inform the server of the car change, so that respawning on new round start stops
+            // Inform the server of the car change, so that re-spawning on new round start stops
             if (!ReferenceEquals(_car, null))
             {
                 CmdDestroyCar();
@@ -118,7 +118,7 @@ namespace Game.Scripts.Network
             {
                 _carIndex = carIndex;
                 var car = Instantiate(cars[carIndex], transform);
-                // Spawning without parent is necessary, otherwise stacked cars collide on client at the respawn moment
+                // Spawning without parent is necessary, otherwise stacked cars collide on client at the re-spawn moment
                 car.ExecuteWithoutParent(o => NetworkServer.Spawn(o, _identity.connectionToClient));
                 _car = car;
                 RpcOnSpawnedCar(car, byNewRound);

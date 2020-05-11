@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using Game.Scripts.Network;
 
 /// <summary>
 /// Based on Unity's WheelCollider. Modifies few curves, settings in order to get stable and realistic physics.
@@ -759,6 +760,7 @@ public class VehiclePhysicsWheelCollider : MonoBehaviour {
 
 	public void Detach()
 	{
+        Environment.Instance.RegisterObjectForCleanup(gameObject);
 		
 		detached = true;
 		
