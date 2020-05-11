@@ -1,37 +1,33 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using Mirror;
 using UnityEngine.UI;
-using System.Diagnostics;
 
 public class Ping : NetworkBehaviour
 {
     public Text pingText;
-    public static float ping;
-    [SyncVar]
-    public float lastms;
-    public Stopwatch stopwatch = new Stopwatch();
-    // Update is called once per frame
-    public void Start()
+    [Range(0, 10)] public float intervalByServer = 0.5f;
+    public float ping;
+    private float _lastSync;
+
+    private void Start()
     {
-        stopwatch.Start();
-        DontDestroyOnLoad(gameObject);
+        transform.parent = GameObject.Find("Managers").transform;
     }
 
     void Update()
     {
-        if (isServer)
+        if (isServer && Time.time - _lastSync > intervalByServer)
         {
-            lastms = stopwatch.ElapsedMilliseconds;
-            RpcRecivePacket();
+            _lastSync = Time.time;
+            RpcReceivePacket(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
-        pingText.text = "Ping : " + ping + "ms";
     }
 
     [ClientRpc]
-    public void RpcRecivePacket()
+    public void RpcReceivePacket(long unixTimeMillis)
     {
-        ping = stopwatch.ElapsedMilliseconds - lastms;
+        ping = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - unixTimeMillis;
+        pingText.text = $"Ping : {ping}ms";
     }
 }
