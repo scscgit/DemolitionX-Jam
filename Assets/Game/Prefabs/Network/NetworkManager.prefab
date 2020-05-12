@@ -103,7 +103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  startOnHeadless: 1
+  startOnHeadless: 0
   showDebugMessages: 0
   serverTickRate: 30
   offlineScene: Assets/Game/Scenes/MainMenu.unity

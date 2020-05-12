@@ -25,7 +25,8 @@ public class ShatterPart : MonoBehaviour
 
     void Update()
     {
-        if(shattered)
+        // parentBody can be destroyed if the car re-spawns
+        if(shattered && parentBody)
         {
             //Destroy(shatterParticles.gameObject, 2.02f);
             if(parentBody.GetComponent<VehiclePhysics>().hasPivotIssues) 

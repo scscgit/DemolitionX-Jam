@@ -8,6 +8,8 @@ namespace Game.Scripts.UI
 {
     public class ArenaUi : MonoBehaviour
     {
+        public static ArenaUi Instance;
+
         private enum EventType
         {
             PlayerHit,
@@ -33,6 +35,11 @@ namespace Game.Scripts.UI
 
         private Tuple<string, string, float> _lastObjectHitEvent =
             new Tuple<string, string, float>(null, null, 0);
+
+        private void Awake()
+        {
+            Instance = this;
+        }
 
         void Start()
         {

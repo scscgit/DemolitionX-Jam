@@ -1,3 +1,4 @@
+using Game.Scripts.Network;
 using UnityEngine;
 using Mirror;
 using UnityEngine.UI;
@@ -8,11 +9,12 @@ public class Ping : NetworkBehaviour
 
     private void Start()
     {
-        transform.parent = GameObject.Find("Managers").transform;
+        transform.SetParent(GameObject.Find("Managers").transform);
     }
 
     void Update()
     {
-        pingText.text = $"Ping : {(int) (NetworkTime.rtt * 1000 / 2)}ms";
+        var playerCount = GameNetworkPlayer.PlayerCount - 1;
+        pingText.text = $"Ping: {(int) (NetworkTime.rtt * 1000 / 2)}ms ({playerCount} player{(playerCount == 1 ? "" : "s")})";
     }
 }

@@ -73,7 +73,8 @@ public class VehicleSync : NetworkBehaviour {
 
 	VehicleInput currentVehicleInputs = new VehicleInput ();
 	VehicleTransform currentVehicleTransform = new VehicleTransform ();
-	VehicleLights currentVehicleLights = new VehicleLights ();
+    // TODO: there was = new VehicleLights();
+	VehicleLights currentVehicleLights;
 
 	bool CB_running = false;
 

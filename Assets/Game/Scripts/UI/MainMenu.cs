@@ -2,6 +2,7 @@
 using System.Linq;
 using Game.Scripts.Network;
 using Mirror;
+using Mirror.Websocket;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = System.Random;
@@ -12,10 +13,12 @@ namespace Game.Scripts.UI
     {
         public static string PlayerName;
         public static bool ShouldReconnect;
+        public static string RemoteAdminPassword;
 
         [Header("Settings pages")] public GameObject menuPage;
         public GameObject settingsPage;
         [Header("Text callbacks")] public InputField playerInput;
+        private bool _headlessServerStarted;
 
         private NetworkManager _networkManager;
 
@@ -40,6 +43,32 @@ namespace Game.Scripts.UI
             {
                 ConnectClient();
             }
+        }
+
+        private void HeadlessServerStart()
+        {
+            Debug.Log("Running server in a headless mode. Following command line argument formats are supported:\n* Change the listening port:\n    port 7778\n* Enable remote administration using password:\n    admin MySecretPassword");
+            var args = System.Environment.GetCommandLineArgs();
+            for (int argsIndex = 2; argsIndex < args.Length - 1; argsIndex += 2)
+            {
+                switch (args[argsIndex])
+                {
+                    case "port":
+                    case "-port":
+                    case "--port":
+                        Debug.Log(
+                            $"Switching {(int.TryParse(args[argsIndex + 1], out var port) ? $"to port {(_networkManager.GetComponent<WebsocketTransport>().port = port).ToString()}" : $"port failed, cannot recognize {args[argsIndex + 1]}")}");
+                        break;
+                    case "admin":
+                    case "-admin":
+                    case "--admin":
+                        Debug.Log(
+                            $"Setting remote administration password to: ${RemoteAdminPassword = args[argsIndex + 1]}");
+                        break;
+                }
+            }
+
+            _networkManager.StartHost();
         }
 
         private void InitializePlayerName()
@@ -141,6 +170,16 @@ namespace Game.Scripts.UI
 
         private void Update()
         {
+            // Called when running using server build, or after invoking command GameNetworkPlayer.CmdRestartServer
+            // This has to be called from Update instead of Start or OnEnable in order to properly initialize
+            if (NetworkManager.isHeadless && !_headlessServerStarted)
+            {
+                _headlessServerStarted = true;
+                PlayerName = "Server";
+                HeadlessServerStart();
+                return;
+            }
+
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 if (menuPage.activeInHierarchy)

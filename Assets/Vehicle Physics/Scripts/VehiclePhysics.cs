@@ -1651,7 +1651,7 @@ public class VehiclePhysics : NetworkBehaviour
         {
             damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.1f, (clampedColMag * 0.01f) / Mathf.Pow(Vector3.Distance(transform.position, damagePoint), clampedColMag / 10));
             var healthLost = damagePartFactor * 10f;
-            healthLost = healthLost < 0.5 ? 0 : healthLost < 1 ? 1 : healthLost;
+            healthLost = healthLost < 0.5 ? 0.5f : healthLost < 1 ? 1 : healthLost;
             Player.SetHealth(health - healthLost);
             if (!ReferenceEquals(targetVehicle, null))
             {

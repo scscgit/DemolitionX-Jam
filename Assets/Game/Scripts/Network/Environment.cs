@@ -52,20 +52,35 @@ namespace Game.Scripts.Network
 
         public void RespawnAll()
         {
-            RpcDespawnAll();
+            RpcDespawnAllOnClient();
+            DespawnAll();
             SpawnAll();
+        }
+
+        [ClientRpc]
+        public void RpcDespawnAllOnClient()
+        {
+            // Clients need to clean up their locally spawned objects
+            if (isServer)
+            {
+                return;
+            }
+
+            DespawnAll();
         }
 
         /// <summary>
         /// When called on server, de-spawns all barrels.
         /// When called on a client, de-spawns all dynamically registered local detachable objects.
         /// </summary>
-        [ClientRpc]
-        public void RpcDespawnAll()
+        private void DespawnAll()
         {
             foreach (var spawnedObject in _spawnedObjects)
             {
-                Destroy(spawnedObject);
+                if (spawnedObject)
+                {
+                    Destroy(spawnedObject);
+                }
             }
 
             _spawnedObjects.Clear();
