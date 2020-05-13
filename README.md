@@ -2,13 +2,13 @@ Demolition X
 
 Fun multiplayer game where you wreck each other to socre more points to win...
 
+Discord usernames
+
 Repo admin
 
     @scsc#4746
 
 Contributors
-
-Discord usernames
 
     @Shrek#8586
 
