@@ -27,6 +27,8 @@ public class CoreManager : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isServer && !PlayerDatabase.Loaded)
+            PlayerDatabase.StartDataBase();
         if (isServer)
             if (FreeIDList.Count < 100)
             {
@@ -36,12 +38,7 @@ public class CoreManager : NetworkBehaviour
                     FreeIDList.Add(tmpid);
                 }
             }
-
-    }
-
-    public void InitLogin()
-    {
-
+        print(isClient);
     }
 
     [Command]
@@ -50,8 +47,43 @@ public class CoreManager : NetworkBehaviour
         PlayerDatabase.LoadPlayerData(PlayerID);
     }
 
-    [Command]
-    public void CmdInitNewAccoutLogin(string email, string username, string Password)
+    public void CallLoginCmd(AuthenticatorMessage message)
+    {
+        var id = NetworkClient.connection.connectionId;
+        CmdSendLoginMessage(id, message);
+    }
+
+    public override void OnServerReceiveLoginMessage(int id, AuthenticatorMessage message)
+    {
+        if (message.newLogin)
+            InitNewAccoutLogin(id, message.email, message.username, message.password);
+        else
+            InitLogin(id, message.username, message.password);
+    }
+
+
+
+    public void InitLogin(int connectionID, string username, string Password)
+    {
+        var pair = PlayerDatabase.SignPlayerIn(username, Password);
+        if (pair.Key)
+        {
+            RpcEnterLobby(connectionID, pair.Value);
+        }
+        else
+        {
+            RpcUsernameNotFoundError();
+            return;
+        }
+    }
+
+    [ClientRpc]
+    public void RpcUsernameNotFoundError()
+    {
+        AccountLogin.Login.ErrorUsernameNotExist();
+    }
+
+    public void InitNewAccoutLogin(int connectionID, string email, string username, string Password)
     {
         int ErrorCount = 0;
         if (PlayerDatabase.PlayerExist(username))
@@ -69,7 +101,8 @@ public class CoreManager : NetworkBehaviour
         var id = FreeIDList[0];
         PlayerDatabase.AddPlayer(id, username, email, Password);
         FreeIDList.Remove(id);
-        RpcEnterLobby(netId,id);
+        
+        RpcEnterLobby(connectionID, id);
     }
 
     public void Logout()
@@ -95,9 +128,10 @@ public class CoreManager : NetworkBehaviour
         AccountLogin.Login.ErrorUsernameExist();
     }
     [ClientRpc]
-    public void RpcEnterLobby(uint id, long PlayerID)
+    public void RpcEnterLobby(int connectionID, long PlayerID)
     {
-        if (netId == id)
+        print("new scene");
+        if (NetworkClient.connection.connectionId == connectionID)
         {
             this.PlayerID = PlayerID;
             PlayerPrefs.SetString("UPlayerID",PlayerID.ToString());

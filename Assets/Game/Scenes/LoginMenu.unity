@@ -2215,7 +2215,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 20473515}
+  m_TargetGraphic: {fileID: 534959682}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -2793,7 +2793,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   port: 7777
-  Secure: 1
+  Secure: 0
   CertificatePath: certificate.pfx
   CertificatePassword: 
   NoDelay: 1
@@ -2812,7 +2812,7 @@ MonoBehaviour:
   dontDestroyOnLoad: 1
   runInBackground: 1
   startOnHeadless: 1
-  showDebugMessages: 0
+  showDebugMessages: 1
   serverTickRate: 30
   offlineScene: 
   onlineScene: 
@@ -2826,6 +2826,7 @@ MonoBehaviour:
   spawnPrefabs:
   - {fileID: 8661405591729687195, guid: 8243eb0c9c9235e45b3dd53a82209659, type: 3}
   - {fileID: 2406667163718774835, guid: 544cd6409f5a0684aa2ad5bb6ef30df4, type: 3}
+  - {fileID: 5158320813979827083, guid: f09aaf24c7b2aa5478563a66d39ddf7f, type: 3}
 --- !u!4 &693761801
 Transform:
   m_ObjectHideFlags: 0
@@ -2854,6 +2855,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NetManager: {fileID: 693761800}
   telepathyTransport: {fileID: 693761799}
+  ManagerCore: {fileID: 5158320813979827083, guid: f09aaf24c7b2aa5478563a66d39ddf7f,
+    type: 3}
 --- !u!1 &694183272
 GameObject:
   m_ObjectHideFlags: 0
@@ -3083,8 +3086,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 731390572}
   m_TextComponent: {fileID: 1867333297}
   m_Placeholder: {fileID: 3541327}
-  m_ContentType: 0
-  m_InputType: 0
+  m_ContentType: 7
+  m_InputType: 2
   m_AsteriskChar: 42
   m_KeyboardType: 0
   m_LineType: 0
@@ -3414,7 +3417,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 20473515}
+  m_TargetGraphic: {fileID: 852294541}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -3774,13 +3777,13 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 976324187}
   m_TextComponent: {fileID: 258196960}
   m_Placeholder: {fileID: 1599664538}
-  m_ContentType: 0
+  m_ContentType: 5
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 0
+  m_KeyboardType: 6
   m_LineType: 0
   m_HideMobileInput: 0
-  m_CharacterValidation: 0
+  m_CharacterValidation: 4
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
@@ -3909,13 +3912,13 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1005430635}
   m_TextComponent: {fileID: 330121763}
   m_Placeholder: {fileID: 1424432333}
-  m_ContentType: 0
+  m_ContentType: 6
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 0
+  m_KeyboardType: 7
   m_LineType: 0
   m_HideMobileInput: 0
-  m_CharacterValidation: 0
+  m_CharacterValidation: 5
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
@@ -5854,8 +5857,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1521896395}
   m_TextComponent: {fileID: 821962406}
   m_Placeholder: {fileID: 1784698288}
-  m_ContentType: 0
-  m_InputType: 0
+  m_ContentType: 7
+  m_InputType: 2
   m_AsteriskChar: 42
   m_KeyboardType: 0
   m_LineType: 0
@@ -5989,8 +5992,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1570901604}
   m_TextComponent: {fileID: 42581443}
   m_Placeholder: {fileID: 630272685}
-  m_ContentType: 0
-  m_InputType: 0
+  m_ContentType: 7
+  m_InputType: 2
   m_AsteriskChar: 42
   m_KeyboardType: 0
   m_LineType: 0
@@ -7360,70 +7363,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1872051172}
   m_CullTransparentMesh: 0
---- !u!1 &1897708886
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1897708888}
-  - component: {fileID: 1897708887}
-  - component: {fileID: 1897708889}
-  m_Layer: 0
-  m_Name: Core
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1897708887
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1897708886}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3684706f8e2b66419efd658c4791069, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
-  CurrentCar: {fileID: 0}
-  PlayerID: 0
-  FreeIDList: 
---- !u!4 &1897708888
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1897708886}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 555.552, y: 178.49861, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1897708889
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1897708886}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneId: 2137925530
-  serverOnly: 0
-  m_AssetId: 
 --- !u!1 &1905110297
 GameObject:
   m_ObjectHideFlags: 0
@@ -7503,13 +7442,13 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1905110300}
   m_TextComponent: {fileID: 315537101}
   m_Placeholder: {fileID: 1831387688}
-  m_ContentType: 0
+  m_ContentType: 6
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 0
+  m_KeyboardType: 7
   m_LineType: 0
   m_HideMobileInput: 0
-  m_CharacterValidation: 0
+  m_CharacterValidation: 5
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
@@ -8431,10 +8370,21 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 20473515}
+  m_TargetGraphic: {fileID: 2139639614}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 574086566}
+        m_MethodName: LoginAccount
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2139639614
 MonoBehaviour:
   m_ObjectHideFlags: 0

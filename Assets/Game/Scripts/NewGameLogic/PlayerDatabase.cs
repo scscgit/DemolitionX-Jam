@@ -11,22 +11,24 @@ public class PlayerDatabase : IDisposable
 {
     private static SQLiteConnection con;
     private static List<long> PlayerIds = new List<long>();
-    private static Dictionary<string,string> Usernames = new Dictionary<string, string>();
+    private static Dictionary<string, string> Usernames = new Dictionary<string, string>();
     private static Dictionary<long, PlayerData> playerDatabase = new Dictionary<long, PlayerData>();
-
+    public static bool Loaded { get; private set; }
     public static void StartDataBase()
     {
         string dir = Directory.GetCurrentDirectory() + "/.Database";
-        string path = string.Format(@"URI=file:{0}/PlayerList.db", dir);
+        string path = dir + @"/PlayerList.db";
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
         con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
-        if(con.GetTableInfo("PlayersData").Count == 0)
+        if(con.GetTableInfo(nameof(PlayerData)).Count == 0)
             con.CreateTable<PlayerData>();
         PlayerIds = con.Table<PlayerData>().Select(x => x.PlayerID).ToList();
-        Usernames = con.Table<PlayerData>().Where(x => !string.IsNullOrEmpty(x.DemolitionID)).ToDictionary(x =>x.DemolitionID,x=> x.DemolitionEmail);
+        Usernames = con.Table<PlayerData>().Where(x => x.DemolitionID != string.Empty).ToDictionary(x =>x.DemolitionID,x=> x.DemolitionEmail);
+        Debug.Log("DataBase Started");
+        Loaded = true;
     }
 
     internal static void InsertPlayerData(PlayerData data)
@@ -92,25 +94,25 @@ public class PlayerDatabase : IDisposable
     }
 
     /// <summary>
-    /// Returns key pair with bool state true if player is signed and a message if not.....
+    /// Returns key pair with bool state true if player is signed and plsyer id is returned.....
     /// </summary>
-    public static KeyValuePair<bool, string> SignPlayerIn(string Userid, string Email, string DemolitionPaasword)
+    public static KeyValuePair<bool, long> SignPlayerIn(string Userid, string DemolitionPaasword)
     {
         if (Usernames.ContainsKey(Userid))
         {
             var id = GetPlayerID(Userid);
             if(!Authorise(id, DemolitionPaasword))
-                return new KeyValuePair<bool, string>(false, "Failed Invalid Password");
-            return new KeyValuePair<bool, string>(LoadPlayerData(id),"Success");
+                return new KeyValuePair<bool, long>(false, 0);
+            return new KeyValuePair<bool, long>(LoadPlayerData(id), id);
         }
-        if (Usernames.ContainsValue(Email))
+        if (Usernames.ContainsValue(Userid))
         {
-            var id = GetPlayerID(Usernames.Where(x => x.Value == Email).FirstOrDefault().Key);
+            var id = GetPlayerID(Usernames.Where(x => x.Value == Userid).FirstOrDefault().Key);
             if (!Authorise(id, DemolitionPaasword))
-                return new KeyValuePair<bool, string>(false, "Failed Invalid Password");
-            return new KeyValuePair<bool, string>(LoadPlayerData(id), "Success");
+                return new KeyValuePair<bool, long>(false, 0);
+            return new KeyValuePair<bool, long>(LoadPlayerData(id), id);
         }
-        return new KeyValuePair<bool, string>(false, "Failed Invalid Username or Password");
+        return new KeyValuePair<bool, long>(false, 0);
     }
 
     public static void SignPlayerOut(long PlayerID)
@@ -163,7 +165,7 @@ public class PlayerDatabase : IDisposable
     }
 }
 
-[Serializable]
+[Table(nameof(PlayerData))]
 public class PlayerData
 {
     [PrimaryKey]

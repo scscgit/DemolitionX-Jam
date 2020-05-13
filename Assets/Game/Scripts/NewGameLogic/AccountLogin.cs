@@ -30,11 +30,36 @@ public class AccountLogin : MonoBehaviour
 
     }
 
+    public void LoginAccount()
+    {
+        if (!IsAccountVaild())
+            return;
+        CoreManager.Core.CallLoginCmd(new Mirror.AuthenticatorMessage() { username = username.text, password = Password.text, newLogin = false });
+    }
+
     public void NewLogin()
     {
         if (!IsNewAccountVaild())
             return;
-        CoreManager.Core.CmdInitNewAccoutLogin(email.text, newusername.text, newPassword.text);
+        CoreManager.Core.CallLoginCmd(new Mirror.AuthenticatorMessage(){ email = email.text, username= newusername.text, password = newPassword.text, newLogin = true});
+    }
+
+    public bool IsAccountVaild()
+    {
+        int ErrorCount = 0;
+        if (string.IsNullOrEmpty(username.text))
+        {
+            nullnewusernameError.SetActive(true);
+            ErrorCount++;
+        }
+        if (string.IsNullOrEmpty(Password.text))
+        {
+            nullnewPasswordError.SetActive(true);
+            ErrorCount++;
+        }
+        if (ErrorCount > 0)
+            return false;
+        return true;
     }
 
     public bool IsNewAccountVaild()
@@ -78,5 +103,15 @@ public class AccountLogin : MonoBehaviour
     public void ErrorUsernameExist()
     {
         usernameExistError.SetActive(true);
+    }
+
+    public void ErrorUsernameNotExist()
+    {
+        usernameNotExistError.SetActive(true);
+    }
+
+    public void ErrorIncorrectPassword()
+    {
+        incorrectPasswordError.SetActive(true);
     }
 }
