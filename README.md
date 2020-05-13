@@ -14,4 +14,4 @@ Contributors
 
     (redacted)
 
-Discord link: https://discord.gg/aYufX7
+Discord link: https://discord.gg/EZndaCb
