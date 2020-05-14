@@ -7,15 +7,18 @@ using System.IO;
 using Mirror;
 using SQLite4Unity3d;
 
-public class PlayerDatabase : IDisposable
+public class PlayerDatabase
 {
     private static SQLiteConnection con;
-    private static List<long> PlayerIds = new List<long>();
-    private static Dictionary<string, string> Usernames = new Dictionary<string, string>();
-    private static Dictionary<long, PlayerData> playerDatabase = new Dictionary<long, PlayerData>();
+    private static List<long> PlayerIds;
+    private static Dictionary<string, string> Usernames;
+    private static Dictionary<long, PlayerData> playerDatabase;
     public static bool Loaded { get; private set; }
     public static void StartDataBase()
     {
+        PlayerIds = new List<long>();
+        Usernames = new Dictionary<string, string>();
+        playerDatabase = new Dictionary<long, PlayerData>();
         string dir = Directory.GetCurrentDirectory() + "/.Database";
         string path = dir + @"/PlayerList.db";
         if (!Directory.Exists(dir))
@@ -152,8 +155,7 @@ public class PlayerDatabase : IDisposable
             playerDatabase.Remove(PlayerID);
         con.Delete<PlayerData>(PlayerID);
     }
-
-    public void Dispose()
+    public static void Dispose()
     {
         foreach (var data in playerDatabase)
             UpdatePlayerData(data.Value);

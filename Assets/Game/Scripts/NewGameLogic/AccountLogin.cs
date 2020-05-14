@@ -1,23 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using Facebook;
+using Mirror;
 
 public class AccountLogin : MonoBehaviour
 {
     public static AccountLogin Login;
     public InputField username, Password, email, newusername, newPassword, ComfirmPassword;
-    public GameObject nullusernameerror;
-    public GameObject nullPasswordError;
-    public GameObject nullemailError;
-    public GameObject nullnewusernameError;
-    public GameObject nullnewPasswordError;
-    public GameObject nullComfirmPasswordError;
-    public GameObject passwordMisMatchError;
-    public GameObject emailExistError;
-    public GameObject usernameExistError;
-    public GameObject incorrectPasswordError;
-    public GameObject usernameNotExistError;
+    public Text AccountError;
+    public Text NewAccountError;
     // Use this for initialization
     void Start()
     {
@@ -32,86 +25,122 @@ public class AccountLogin : MonoBehaviour
 
     public void LoginAccount()
     {
-        if (!IsAccountVaild())
-            return;
-        CoreManager.Core.CallLoginCmd(new Mirror.AuthenticatorMessage() { username = username.text, password = Password.text, newLogin = false });
+        NetworkClient.Send(new AuthRequestMessage() { username = username.text, password = Password.text, newLogin = false });
     }
 
     public void NewLogin()
     {
-        if (!IsNewAccountVaild())
-            return;
-        CoreManager.Core.CallLoginCmd(new Mirror.AuthenticatorMessage(){ email = email.text, username= newusername.text, password = newPassword.text, newLogin = true});
+        NetworkClient.Send(new AuthRequestMessage(){ email = email.text, username= newusername.text, password = newPassword.text, comfirmPassword = ComfirmPassword.text, newLogin = true});
     }
 
-    public bool IsAccountVaild()
+    public void OnServerReceiveLoginMessage(NetworkConnection conn, AuthRequestMessage message)
     {
-        int ErrorCount = 0;
-        if (string.IsNullOrEmpty(username.text))
+        if (message.newLogin)
+            InitNewAccoutLogin(conn, message.email, message.username, message.password, message.comfirmPassword);
+        else
+            InitLogin(conn, message.username, message.password);
+    }
+
+    public void OnClientReceiveLoginResponseMessage(NetworkConnection conn, AuthResponseMessage message)
+    {
+        if (message.success)
         {
-            nullnewusernameError.SetActive(true);
+            RpcEnterLobby(message.PlayerID);
+        }
+        else
+            ShowErrors(message.errors);
+    }
+
+    public void ShowErrors(string error)
+    {
+        AccountError.text = error;
+        NewAccountError.text = error;
+    }
+
+    public void InitLogin(NetworkConnection conn, string username, string Password)
+    {
+        var pair = PlayerDatabase.SignPlayerIn(username, Password);
+        string error = string.Empty;
+        bool _success = true;
+        int ErrorCount = 0;
+        if (string.IsNullOrEmpty(username) ||
+            string.IsNullOrEmpty(Password))
+        {
+            error = "*All fields must be filled";
             ErrorCount++;
         }
-        if (string.IsNullOrEmpty(Password.text))
+        if (!PlayerDatabase.PlayerExist(username) || !PlayerDatabase.PlayerEmailExist(username))
         {
-            nullnewPasswordError.SetActive(true);
+            if (error != string.Empty)
+                error += "   *Username not Found";
+            else
+                error += "*Username not Found";
+            ErrorCount++;
+        }
+        if (!pair.Key)
+        {
+            if (error != string.Empty)
+                error += "   *Incorrect Password";
+            else
+                error += "*Incorrect Password";
             ErrorCount++;
         }
         if (ErrorCount > 0)
-            return false;
-        return true;
+            _success = false;
+        conn.Send(new AuthResponseMessage() {errors = error ,PlayerID = pair.Value, success = _success });
     }
 
-    public bool IsNewAccountVaild()
+    public void InitNewAccoutLogin(NetworkConnection conn, string email, string username, string Password, string comfirmPassword)
     {
+        string error = string.Empty;
+        bool _success = true;
         int ErrorCount = 0;
-        if (string.IsNullOrEmpty(email.text))
+        if (string.IsNullOrEmpty(email) ||
+            string.IsNullOrEmpty(username) ||
+            string.IsNullOrEmpty(Password) ||
+            string.IsNullOrEmpty(comfirmPassword))
         {
-            nullemailError.SetActive(true);
+            error = "*All fields must be filled";
             ErrorCount++;
         }
-        if (string.IsNullOrEmpty(newusername.text))
+        if (Password != comfirmPassword)
         {
-            nullnewusernameError.SetActive(true);
+            if (error != string.Empty)
+                error += "   *Comfirm Password Dosent Match";
+            else
+                error += "*Comfirm Password Dosent Match";
             ErrorCount++;
         }
-        if (string.IsNullOrEmpty(newPassword.text))
+        if (PlayerDatabase.PlayerExist(username))
         {
-            nullnewPasswordError.SetActive(true);
+            if (error != string.Empty)
+                error += "   *Username is already used";
+            else
+                error += "*Username is already used";
             ErrorCount++;
         }
-        if (string.IsNullOrEmpty(ComfirmPassword.text))
+        if (PlayerDatabase.PlayerEmailExist(email))
         {
-            nullComfirmPasswordError.SetActive(true);
-            ErrorCount++;
-        }
-        if (newPassword.text != ComfirmPassword.text)
-        {
-            passwordMisMatchError.SetActive(true);
+            if (error != string.Empty)
+                error += "   *Email is already used";
+            else
+                error += "*Email is already used";
             ErrorCount++;
         }
         if (ErrorCount > 0)
-            return false;
-        return true;
+            _success = false;
+        var id = CoreManager.Core.FreeIDList[0];
+        PlayerDatabase.AddPlayer(id, username, email, Password);
+        CoreManager.Core.FreeIDList.Remove(id);
+        
+        conn.Send(new AuthResponseMessage() { errors = error, PlayerID = id, success = _success });
     }
 
-    public void ErrorEmailExist()
+    public void RpcEnterLobby(long PlayerID)
     {
-        emailExistError.SetActive(true);
-    }
-
-    public void ErrorUsernameExist()
-    {
-        usernameExistError.SetActive(true);
-    }
-
-    public void ErrorUsernameNotExist()
-    {
-        usernameNotExistError.SetActive(true);
-    }
-
-    public void ErrorIncorrectPassword()
-    {
-        incorrectPasswordError.SetActive(true);
+        print("new scene");
+        CoreManager.Core.PlayerID = PlayerID;
+        PlayerPrefs.SetString("UPlayerID", PlayerID.ToString());
+        CoreManager.Core.LoadScene("Lobby");
     }
 }

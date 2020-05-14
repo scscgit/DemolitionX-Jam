@@ -7,7 +7,6 @@ public class CoreNetwork : MonoBehaviour
     public static CoreNetwork Core;
     public NetworkManager NetManager;
     public WebsocketTransport telepathyTransport;
-    public GameObject ManagerCore;
     void Awake()
     {
         DontDestroyOnLoad(this);
@@ -23,10 +22,6 @@ public class CoreNetwork : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!CoreManager.Core && NetworkServer.active)
-        {
-            NetworkServer.Spawn(Instantiate(ManagerCore));
-        }
     }
     public void AddPlayer(AsyncOperation obj)
     {

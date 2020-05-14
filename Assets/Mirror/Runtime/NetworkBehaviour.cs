@@ -177,14 +177,6 @@ namespace Mirror
             }
         }
 
-        [Command]
-        public void CmdSendLoginMessage(int id, AuthenticatorMessage message)
-        {
-            OnServerReceiveLoginMessage(id, message);
-        }
-
-        public virtual void OnServerReceiveLoginMessage(int id, AuthenticatorMessage message) { }
-
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
         {
@@ -197,7 +189,7 @@ namespace Mirror
                 return;
             }
             // local players can always send commands, regardless of authority, other objects must have authority.
-            if (!(isLocalPlayer || hasAuthority || cmdName == "CmdSendLoginMessage"))
+            if (!(isLocalPlayer || hasAuthority))
             {
                 Debug.LogWarning($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
                 return;
@@ -851,14 +843,5 @@ namespace Mirror
         {
             return true;
         }
-    }
-
-    [Serializable]
-    public class AuthenticatorMessage : MessageBase
-    {
-        public string email;
-        public string username;
-        public string password;
-        public bool newLogin;
     }
 }
