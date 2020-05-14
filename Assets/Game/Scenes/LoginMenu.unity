@@ -2335,8 +2335,8 @@ MonoBehaviour:
   newusername: {fileID: 976324186}
   newPassword: {fileID: 731390571}
   ComfirmPassword: {fileID: 1570901603}
-  AccountError: {fileID: 0}
-  NewAccountError: {fileID: 0}
+  AccountError: {fileID: 718549321}
+  NewAccountError: {fileID: 1574683935}
 --- !u!114 &574086567
 MonoBehaviour:
   m_ObjectHideFlags: 0
