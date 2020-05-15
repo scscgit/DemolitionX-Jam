@@ -24,7 +24,7 @@ public class CoreManager : NetworkBehaviour
         if (isServer)
             if (FreeIDList.Count < 100)
             {
-                var tmpid = long.MaxValue - Random.Range(int.MinValue, int.MinValue);
+                var tmpid = long.MaxValue - Random.Range(int.MinValue, int.MaxValue);
                 if (!PlayerDatabase.PlayerExist(tmpid))
                 {
                     FreeIDList.Add(tmpid);

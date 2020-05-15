@@ -9,34 +9,38 @@ using SQLite4Unity3d;
 
 public class PlayerDatabase
 {
-    private static SQLiteConnection con;
     private static List<long> PlayerIds;
     private static Dictionary<string, string> Usernames;
     private static Dictionary<long, PlayerData> playerDatabase;
     public static bool Loaded { get; private set; }
+    static string path;
     public static void StartDataBase()
     {
         PlayerIds = new List<long>();
         Usernames = new Dictionary<string, string>();
         playerDatabase = new Dictionary<long, PlayerData>();
         string dir = Directory.GetCurrentDirectory() + "/.Database";
-        string path = dir + @"/PlayerList.db";
+        path = dir + @"/PlayerList.db";
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
-        con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
-        if(con.GetTableInfo(nameof(PlayerData)).Count == 0)
-            con.CreateTable<PlayerData>();
-        PlayerIds = con.Table<PlayerData>().Select(x => x.PlayerID).ToList();
-        Usernames = con.Table<PlayerData>().Where(x => x.DemolitionID != string.Empty).ToDictionary(x =>x.DemolitionID,x=> x.DemolitionEmail);
-        Debug.Log("DataBase Started");
-        Loaded = true;
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+        {
+            if (con.GetTableInfo(nameof(PlayerData)).Count == 0)
+                con.CreateTable<PlayerData>();
+            PlayerIds = con.Table<PlayerData>().Select(x => x.PlayerID).ToList();
+            PlayerIds.ForEach(x => Debug.Log(x));
+            Usernames = con.Table<PlayerData>().Where(x => x.DemolitionID != string.Empty).ToDictionary(x => x.DemolitionID, x => x.DemolitionEmail);
+            Debug.Log("DataBase Started");
+            Loaded = true;
+        }
     }
 
     internal static void InsertPlayerData(PlayerData data)
     {
-        con.Insert(data);
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+            con.Insert(data);
     }
 
     public static bool PlayerExist(long PlayerID)
@@ -56,13 +60,17 @@ public class PlayerDatabase
             tmp = playerDatabase[PlayerID];
         }
         else
-            tmp = con.Get<PlayerData>(PlayerID);
+        {
+            using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+                tmp = con.Get<PlayerData>(PlayerID);
+        }
         return new KeyValuePair<bool, PlayerData>(active,tmp);
     }
 
     public static bool Authorise(long PlayerID, string Password)
     {
-        return con.Get<PlayerData>(PlayerID).DemolitionPaasword == Password;
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+            return con.Get<PlayerData>(PlayerID).DemolitionPaasword == Password;
     }
 
     /// <summary>
@@ -71,7 +79,8 @@ public class PlayerDatabase
     /// <param name="FBID">If FBID is true given id is checked in fb IDs. If false Google id list is checked</param>
     public static long GetPlayerID(string id)
     {
-        return con.Table<PlayerData>().Where(x => x.DemolitionID == id).FirstOrDefault().PlayerID;
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+            return con.Table<PlayerData>().Where(x => x.DemolitionID == id).FirstOrDefault().PlayerID;
     }
 
     /// <summary>
@@ -106,6 +115,7 @@ public class PlayerDatabase
             var id = GetPlayerID(Userid);
             if(!Authorise(id, DemolitionPaasword))
                 return new KeyValuePair<bool, long>(false, 0);
+            Debug.Log(id);
             return new KeyValuePair<bool, long>(LoadPlayerData(id), id);
         }
         if (Usernames.ContainsValue(Userid))
@@ -136,15 +146,19 @@ public class PlayerDatabase
             return false;
         if (playerDatabase.ContainsKey(PlayerID))
             return true;
-        var dat = con.Get<PlayerData>(PlayerID);
-        PlayerIds.Add(PlayerID);
-        playerDatabase[PlayerID] = dat;
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+        {
+            var dat = con.Get<PlayerData>(PlayerID);
+            PlayerIds.Add(PlayerID);
+            playerDatabase[PlayerID] = dat;
+        }
         return true;
     }
 
     public static void UpdatePlayerData(PlayerData PlayerID)
     {
-        con.Update(PlayerID);
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+            con.Update(PlayerID);
     }
 
     public static void RemovePlayerData(long PlayerID)
@@ -153,7 +167,8 @@ public class PlayerDatabase
             PlayerIds.Remove(PlayerID);
         if (playerDatabase.ContainsKey(PlayerID))
             playerDatabase.Remove(PlayerID);
-        con.Delete<PlayerData>(PlayerID);
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+            con.Delete<PlayerData>(PlayerID);
     }
     public static void Dispose()
     {
@@ -161,9 +176,6 @@ public class PlayerDatabase
             UpdatePlayerData(data.Value);
         playerDatabase.Clear();
         playerDatabase = null;
-        con.Close();
-        con.Dispose();
-        con = null;
     }
 }
 

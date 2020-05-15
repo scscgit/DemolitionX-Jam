@@ -69,7 +69,7 @@ public class AccountLogin : MonoBehaviour
             error = "*All fields must be filled";
             ErrorCount++;
         }
-        if (!PlayerDatabase.PlayerExist(username) || !PlayerDatabase.PlayerEmailExist(username))
+        if (!PlayerDatabase.PlayerExist(username) && !PlayerDatabase.PlayerEmailExist(username))
         {
             if (error != string.Empty)
                 error += "   *Username not Found";
