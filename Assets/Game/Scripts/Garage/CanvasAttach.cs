@@ -160,7 +160,7 @@ public class CanvasAttach : MonoBehaviour {
 	public void SetFrontCambersBySlider (Slider slider) {
 
 		Custamization.SetFrontCambers (Instance.activePlayerVehicle, slider.value);
-	
+
 	}
 
 	public void SetRearCambersBySlider (Slider slider) {
@@ -193,9 +193,9 @@ public class CanvasAttach : MonoBehaviour {
 
 	}
 
-	public void ChangeWheelsBySlider (Slider slider){
+	public void ChangeWheelsByDropdown (Dropdown dropdown) {
 
-		Custamization.ChangeWheels (Instance.activePlayerVehicle, ChangableWheels.Instance.wheels[(int)slider.value].wheel);
+		Custamization.ChangeWheels (Instance.activePlayerVehicle, ChangableWheels.Instance.wheels[dropdown.value].wheel);
 
 	}
 
@@ -344,7 +344,7 @@ public class CanvasAttach : MonoBehaviour {
 		Custamization.SetESP (Instance.activePlayerVehicle, toggle.isOn);
 
 	}
-		
+
 	public void SetABS(Toggle toggle){
 
 		Custamization.SetABS (Instance.activePlayerVehicle, toggle.isOn);
@@ -383,7 +383,7 @@ public class CanvasAttach : MonoBehaviour {
 	}
 
 	private float StringToFloat(string stringValue, float defaultValue){
-		
+
 		float result = defaultValue;
 		float.TryParse(stringValue, out result);
 		return result;
@@ -395,4 +395,16 @@ public class CanvasAttach : MonoBehaviour {
 		Custamization.SetCarBodyColor(Instance.activePlayerVehicle, colorSlider.color);
 
 	}
+
+    public void SetPaintMetalnessByColorPicker(ColorSlider colorSlider) {
+
+        Custamization.SetPaintMetalness(Instance.activePlayerVehicle, colorSlider.metalness);
+
+    }
+
+    public void SetPaintGlossinessByColorPicker(ColorSlider colorSlider) {
+
+        Custamization.SetPaintGlossiness(Instance.activePlayerVehicle, colorSlider.glossiness);
+
+    }
 }

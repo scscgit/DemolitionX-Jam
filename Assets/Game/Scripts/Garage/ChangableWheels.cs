@@ -6,19 +6,19 @@ using System.Collections;
 /// </summary>
 [System.Serializable, CreateAssetMenu(menuName = "Changable Wheels")]
 public class ChangableWheels : ScriptableObject {
-	
+
 	#region singleton
 	private static ChangableWheels instance;
-	public static ChangableWheels Instance{	get{if(instance == null) instance = Resources.Load("ScriptableObjects/ChangableWheel") as ChangableWheels; return instance;}}
+	public static ChangableWheels Instance{	get{if(instance == null) instance = Resources.Load("ScriptableObjects/ChangableWheels") as ChangableWheels; return instance;}}
 	#endregion
 
 	[System.Serializable]
 	public class ChangableWheel{
-		
+
 		public GameObject wheel;
 
 	}
-		
+
 	public ChangableWheel[] wheels;
 
 }

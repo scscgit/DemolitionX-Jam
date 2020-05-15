@@ -11,7 +11,7 @@ public class Custamization : MonoBehaviour {
 	public static void SetCustomizationMode(VehiclePhysics vehicle, bool state){
 
 		if (!vehicle) {
-			
+
 			Debug.LogError ("Get a vehicle you fool!!!");
 			return;
 
@@ -125,10 +125,10 @@ public class Custamization : MonoBehaviour {
 		VehiclePhysicsWheelCollider[] wc = vehicle.GetComponentsInChildren<VehiclePhysicsWheelCollider> ();
 
 		foreach (VehiclePhysicsWheelCollider w in wc) {
-			
+
 			if (w == vehicle.FrontLeftWheelCollider || w == vehicle.FrontRightWheelCollider)
 				w.camber = camberAngle;
-			
+
 		}
 
 		OverrideVehicle (vehicle);
@@ -146,10 +146,10 @@ public class Custamization : MonoBehaviour {
 		VehiclePhysicsWheelCollider[] wc = vehicle.GetComponentsInChildren<VehiclePhysicsWheelCollider> ();
 
 		foreach (VehiclePhysicsWheelCollider w in wc) {
-			
+
 			if (w != vehicle.FrontLeftWheelCollider && w != vehicle.FrontRightWheelCollider)
 				w.camber = camberAngle;
-			
+
 		}
 
 		OverrideVehicle (vehicle);
@@ -157,7 +157,7 @@ public class Custamization : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Change Wheel Models.
+	/// Change Wheel Models. Note : They need to be of same size
 	/// </summary>
 	public static void ChangeWheels(VehiclePhysics vehicle, GameObject wheel){
 
@@ -166,11 +166,8 @@ public class Custamization : MonoBehaviour {
 
 		for (int i = 0; i < vehicle.allWheelColliders.Length; i++) {
 
-			if (vehicle.allWheelColliders [i].wheelModel.GetComponent<MeshRenderer> ()) 
-				vehicle.allWheelColliders [i].wheelModel.GetComponent<MeshRenderer> ().enabled = false;
-
 			foreach (Transform t in vehicle.allWheelColliders [i].wheelModel.GetComponentInChildren<Transform> ())
-				t.gameObject.SetActive (false);
+				DestroyImmediate(t.gameObject);
 
 			GameObject newWheel = (GameObject)Instantiate (wheel, vehicle.allWheelColliders[i].wheelModel.position, vehicle.allWheelColliders[i].wheelModel.rotation, vehicle.allWheelColliders[i].wheelModel);
 
@@ -298,10 +295,10 @@ public class Custamization : MonoBehaviour {
 		vehicle.RearRightWheelCollider.wheelCollider.suspensionDistance = distance;
 
 		if (vehicle.ExtraRearWheelsCollider != null && vehicle.ExtraRearWheelsCollider.Length > 0) {
-			
+
 			foreach (VehiclePhysicsWheelCollider wc in vehicle.ExtraRearWheelsCollider)
 				wc.wheelCollider.suspensionDistance = distance;
-			
+
 		}
 
 		OverrideVehicle (vehicle);
@@ -323,7 +320,7 @@ public class Custamization : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Set Gear Shifting Threshold. Automatic gear will shift up at earlier rpm on lower values. Automatic gear will shift up at later rpm on higher values. 
+	/// Set Gear Shifting Threshold. Automatic gear will shift up at earlier rpm on lower values. Automatic gear will shift up at later rpm on higher values.
 	/// </summary>
 	public static void SetGearShiftingThreshold(VehiclePhysics vehicle, float targetValue){
 
@@ -337,7 +334,7 @@ public class Custamization : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Set Clutch Threshold. Automatic gear will shift up at earlier rpm on lower values. Automatic gear will shift up at later rpm on higher values. 
+	/// Set Clutch Threshold. Automatic gear will shift up at earlier rpm on lower values. Automatic gear will shift up at later rpm on higher values.
 	/// </summary>
 	public static void SetClutchThreshold(VehiclePhysics vehicle, float targetValue){
 
@@ -548,7 +545,7 @@ public class Custamization : MonoBehaviour {
 	/// Enable / Disable ESP.
 	/// </summary>
 	public static void SetESP(VehiclePhysics vehicle, bool state){
-		
+
 		if (!CheckVehicle (vehicle))
 			return;
 
@@ -606,14 +603,39 @@ public class Custamization : MonoBehaviour {
 
 	}
 
+    /// <summary>
+    /// Sets Body Color
+    /// </summary>
 	public static void SetCarBodyColor(VehiclePhysics vehicle, Color color){
-		
+
 		if(!CheckVehicle(vehicle))
 		return;
 
 		vehicle.carProperties.carMaterial.color = color;
 
 	}
+
+    /// <summary>
+    /// Sets metalness of the paint
+    /// </summary>
+    public static void SetPaintMetalness(VehiclePhysics vehicle, float value) {
+
+        if(!CheckVehicle(vehicle))
+        return;
+
+        vehicle.carProperties.carMaterial.SetFloat("_Metallic", value);
+    }
+
+    /// <summary>
+    /// Sets glossiness of the paint
+    /// </summary>
+    public static void SetPaintGlossiness(VehiclePhysics vehicle, float value) {
+
+        if(!CheckVehicle(vehicle))
+        return;
+
+        vehicle.carProperties.carMaterial.SetFloat("_Glossiness", value);
+    }
 
 	/// <summary>
 	/// Save all stats with PlayerPrefs.
@@ -647,9 +669,9 @@ public class Custamization : MonoBehaviour {
 		SaveData.SetBool(vehicle.transform.name + "_CounterSteering", vehicle.applyCounterSteering);
 
 		foreach(VehicleLights _light in vehicle.GetComponentsInChildren<VehicleLights>()){
-			
+
 			if (_light.lightType == VehicleLights.LightType.HeadLight) {
-				
+
 				SaveData.SetColor(vehicle.transform.name + "_HeadlightsColor", _light.GetComponentInChildren<Light>().color);
 				break;
 
@@ -662,6 +684,8 @@ public class Custamization : MonoBehaviour {
 
 		SaveData.SetColor(vehicle.transform.name + "_WheelsSmokeColor", psmain.startColor.color);
 		SaveData.SetColor(vehicle.transform.name + "_BodyColor", vehicle.carProperties.carMaterial.color);
+        PlayerPrefs.SetFloat(vehicle.transform.name + "_Metallic", vehicle.carProperties.carMaterial.GetFloat("_Metallic"));
+        PlayerPrefs.SetFloat(vehicle.transform.name + "_Glossiness", vehicle.carProperties.carMaterial.GetFloat("_Glossiness"));
 
 		SaveData.SetBool(vehicle.transform.name + "_ABS", vehicle.ABS);
 		SaveData.SetBool(vehicle.transform.name + "_ESP", vehicle.ESP);
@@ -739,9 +763,15 @@ public class Custamization : MonoBehaviour {
 
 		if(PlayerPrefs.HasKey(vehicle.transform.name + "_HeadlightsColor"))
 			SetHeadlightsColor (vehicle, SaveData.GetColor(vehicle.transform.name + "_HeadlightsColor"));
-		
+
 		if(PlayerPrefs.HasKey(vehicle.transform.name + "_BodyColor"))
 			SetCarBodyColor (vehicle, SaveData.GetColor(vehicle.transform.name + "_BodyColor"));
+
+        if(PlayerPrefs.HasKey(vehicle.transform.name + "_Metallic"))
+			SetPaintMetalness (vehicle, PlayerPrefs.GetFloat(vehicle.transform.name + "_Metallic"));
+
+        if(PlayerPrefs.HasKey(vehicle.transform.name + "_Glossiness"))
+			SetPaintGlossiness (vehicle, PlayerPrefs.GetFloat(vehicle.transform.name + "_Glossiness"));
 
 		OverrideVehicle (vehicle);
 
@@ -749,6 +779,7 @@ public class Custamization : MonoBehaviour {
 
 	/// <summary>
 	/// Resets all stats and saves default values with PlayerPrefs.
+    /// Still not working as expected....
 	/// </summary>
 	public static void ResetStats(VehiclePhysics vehicle, VehiclePhysics defaultCar){
 
