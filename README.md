@@ -1,4 +1,4 @@
-#### ** Demolition X **
+# Demolition X 
 
 Experience the ultimate form of destruction! Welcome to the online car demolition arena, where your goal is to survive as long as possible, gaining additional score for any damage dealt by jamming your opponents.
 
@@ -20,6 +20,7 @@ Experience the ultimate form of destruction! Welcome to the online car demolitio
 - Free Classic car by 1Poly : https://assetstore.unity.com/packages/3d/vehicles/land/low-poly-destructible-2-cars-no-8-45368
 - Free warehouse model by Jansin : https://free3d.com/3d-model/old-warehouse-upgrade-c4dfbx-954220.html
 - Free Engine sounds by Kristian Grundstrom : https://assetstore.unity.com/packages/audio/sound-fx/engines-123836
+- Free tyre models by Perfect Games : https://assetstore.unity.com/packages/3d/vehicles/wheels-pack-162987
 
 #### **Discord usernames**
 
