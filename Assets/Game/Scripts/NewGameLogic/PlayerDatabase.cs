@@ -1,4 +1,4 @@
-using SQLite4Unity3d;
+using SQLite;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,6 +27,7 @@ public class PlayerDatabase
             if (con.GetTableInfo(nameof(PlayerData)).Count == 0)
                 con.CreateTable<PlayerData>();
             Debug.Log("DataBase Started");
+            Debug.Log(con.Table<PlayerData>().Select(x => x.DemolitionID).FirstOrDefault());
             Loaded = true;
         }
     }
