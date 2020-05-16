@@ -1,7 +1,6 @@
-using UnityEngine;
-using System.Collections;
 using Mirror;
 using Mirror.Websocket;
+using UnityEngine;
 public class CoreNetwork : MonoBehaviour
 {
     public static CoreNetwork Core;
@@ -9,8 +8,15 @@ public class CoreNetwork : MonoBehaviour
     public WebsocketTransport telepathyTransport;
     void Awake()
     {
-        DontDestroyOnLoad(this);
-        Core = this;
+        if (Core)
+        {
+            DestroyImmediate(gameObject);
+        }
+        else
+        {
+            DontDestroyOnLoad(this);
+            Core = this;
+        }
     }
 
     // Use this for initialization

@@ -1,8 +1,7 @@
-using System.Collections;
+using Mirror;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Mirror;
 
 public class CoreManager : NetworkBehaviour
 {
@@ -14,8 +13,20 @@ public class CoreManager : NetworkBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        DontDestroyOnLoad(this);
-        Core = this;
+        if (Core)
+        {
+            DestroyImmediate(gameObject);
+        }
+        else
+        {
+            DontDestroyOnLoad(this);
+            Core = this;
+        }
+    }
+
+    public override void OnStartServer()
+    {
+        PlayerDatabase.StartDataBase();
     }
 
     // Update is called once per frame
@@ -25,16 +36,11 @@ public class CoreManager : NetworkBehaviour
             if (FreeIDList.Count < 100)
             {
                 var tmpid = long.MaxValue - Random.Range(int.MinValue, int.MaxValue);
-                if (!PlayerDatabase.PlayerExist(tmpid))
+                if (!PlayerDatabase.PlayerIDExist(tmpid))
                 {
                     FreeIDList.Add(tmpid);
                 }
             }
-    }
-
-    public override void OnStartServer()
-    {
-        PlayerDatabase.StartDataBase();
     }
 
     public override void OnStartClient()
@@ -53,15 +59,10 @@ public class CoreManager : NetworkBehaviour
         PlayerDatabase.LoadPlayerData(PlayerID);
     }
 
+
     public void Logout()
     {
-        CmdLogout(PlayerID);
-    }
-
-    [Command]
-    public void CmdLogout(long PlayerID)
-    {
-        PlayerDatabase.SignPlayerOut(PlayerID);
+        NetworkClient.Send(new LogoutRequestMessage() { playerID = PlayerID });
     }
 
     public AsyncOperation LoadScene(string name)

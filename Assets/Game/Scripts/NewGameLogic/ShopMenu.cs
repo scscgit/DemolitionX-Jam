@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
-using Mirror;
 
 public class ShopMenu : MonoBehaviour
 {
@@ -81,13 +78,13 @@ public class ShopMenu : MonoBehaviour
     public void Previous_Next(int value)
     {
         PreviewIndex += value;
-        if (PreviewIndex > datas.Length -1)
+        if (PreviewIndex > datas.Length - 1)
         {
             PreviewIndex = 0;
         }
         if (PreviewIndex < 0)
         {
-            PreviewIndex = datas.Length-1;
+            PreviewIndex = datas.Length - 1;
         }
         preview.Car.SetActive(false);
         preview = datas[PreviewIndex];
@@ -140,7 +137,8 @@ public class ShopMenu : MonoBehaviour
 
 #if UNITY_EDITOR
     [ContextMenu("Do")]
-    public void ResetSaves(){
+    public void ResetSaves()
+    {
         PlayerPrefs.DeleteAll();
     }
 #endif

@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Collections;
-using Mirror;
 
 public class LobbyMenu : MonoBehaviour
 {
@@ -25,13 +23,13 @@ public class LobbyMenu : MonoBehaviour
 
     public void Disconnect(string name)
     {
-        if (NetworkServer.active)
-            CoreNetwork.Core.NetManager.StopHost();
-        else
-            CoreNetwork.Core.NetManager.StopClient();
-        DestroyImmediate(CoreNetwork.Core.gameObject);
         CoreManager.Core.Logout();
-        CoreManager.Core.LoadScene(name);
-        DestroyImmediate(CoreManager.Core.gameObject);
+        CoreManager.Core.LoadScene(name).completed += StartDataBase;
+    }
+
+    private void StartDataBase(AsyncOperation obj)
+    {
+        //if(NetworkServer.active)
+        //PlayerDatabase.StartDataBase();
     }
 }

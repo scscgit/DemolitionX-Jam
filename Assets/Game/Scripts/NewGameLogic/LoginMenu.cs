@@ -1,7 +1,6 @@
+using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using Mirror;
 
 public class LoginMenu : MonoBehaviour
 {
@@ -21,7 +20,7 @@ public class LoginMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!string.IsNullOrEmpty(Address.text))
+        if (!string.IsNullOrEmpty(Address.text))
         {
             NetManager.networkAddress = Address.text;
         }

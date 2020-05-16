@@ -1,24 +1,21 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using System;
-using System.Linq;
-using System.IO;
-using Mirror;
 using SQLite4Unity3d;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
 
 public class PlayerDatabase
 {
-    private static List<long> PlayerIds;
-    private static Dictionary<string, string> Usernames;
-    private static Dictionary<long, PlayerData> playerDatabase;
-    public static bool Loaded { get; private set; }
-    static string path;
+    /// <summary>
+    /// Holds Player Id of online Players
+    /// </summary>
+    public static List<long> online;
+    public static string path;
+    public static bool Loaded;
+
     public static void StartDataBase()
     {
-        PlayerIds = new List<long>();
-        Usernames = new Dictionary<string, string>();
-        playerDatabase = new Dictionary<long, PlayerData>();
+        online = new List<long>();
         string dir = Directory.GetCurrentDirectory() + "/.Database";
         path = dir + @"/PlayerList.db";
         if (!Directory.Exists(dir))
@@ -29,9 +26,6 @@ public class PlayerDatabase
         {
             if (con.GetTableInfo(nameof(PlayerData)).Count == 0)
                 con.CreateTable<PlayerData>();
-            PlayerIds = con.Table<PlayerData>().Select(x => x.PlayerID).ToList();
-            PlayerIds.ForEach(x => Debug.Log(x));
-            Usernames = con.Table<PlayerData>().Where(x => x.DemolitionID != string.Empty).ToDictionary(x => x.DemolitionID, x => x.DemolitionEmail);
             Debug.Log("DataBase Started");
             Loaded = true;
         }
@@ -42,29 +36,20 @@ public class PlayerDatabase
         using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
             con.Insert(data);
     }
-
-    public static bool PlayerExist(long PlayerID)
+    public static bool PlayerIDExist(long playerID)
     {
-        return PlayerIds.Contains(PlayerID);
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+        {
+            return con.Table<PlayerData>().Where(x => x.PlayerID == playerID).Count() > 0;
+        }
     }
 
-    /// <summary>
-    /// Returns key pair with bool state true if player is online and the player data.....
-    /// </summary>
     public static KeyValuePair<bool, PlayerData> GetPlayerData(long PlayerID)
     {
-        PlayerData tmp;
-        var active = playerDatabase.ContainsKey(PlayerID);
-        if (active)
-        {
-            tmp = playerDatabase[PlayerID];
-        }
-        else
-        {
-            using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
-                tmp = con.Get<PlayerData>(PlayerID);
-        }
-        return new KeyValuePair<bool, PlayerData>(active,tmp);
+        PlayerData data = null;
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+            data = con.Get<PlayerData>(PlayerID);
+        return new KeyValuePair<bool, PlayerData>(data != null, data);
     }
 
     public static bool Authorise(long PlayerID, string Password)
@@ -77,32 +62,37 @@ public class PlayerDatabase
     /// Returns primary Player ID for the given id.
     /// </summary>
     /// <param name="FBID">If FBID is true given id is checked in fb IDs. If false Google id list is checked</param>
-    public static long GetPlayerID(string id)
+    public static long GetPlayerID(string username, bool isEmail = false)
     {
         using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
-            return con.Table<PlayerData>().Where(x => x.DemolitionID == id).FirstOrDefault().PlayerID;
+        {
+            if (isEmail)
+                return con.Table<PlayerData>().Where(x => x.DemolitionEmail == username).FirstOrDefault().PlayerID;
+            else
+                return con.Table<PlayerData>().Where(x => x.DemolitionID == username).FirstOrDefault().PlayerID;
+        }
     }
 
     /// <summary>
     /// Returns bool presenting existance.
     /// </summary>
     /// <param name="FBID">If FBID is true given id is checked in fb IDs. If false Google id list is checked</param>
-    public static bool PlayerExist(string id)
+    public static bool UsernameExist(string id)
     {
-        return Usernames.ContainsKey(id);
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+            return con.Table<PlayerData>().Where(x => x.DemolitionID == id).Count()>0;
     }
 
     public static bool PlayerEmailExist(string mail)
     {
-        return Usernames.ContainsValue(mail);
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+            return con.Table<PlayerData>().Where(x => x.DemolitionEmail == mail).Count() > 0;
     }
-    public static void AddPlayer(long PlayerID, string userid, string email,string DemolitionPaasword)
+    public static void AddPlayer(long PlayerID, string userid, string email, string DemolitionPaasword)
     {
-        PlayerIds.Add(PlayerID);
-        Usernames[userid] = email;
         var data = new PlayerData(PlayerID, userid, email, DemolitionPaasword);
         InsertPlayerData(data);
-        playerDatabase[PlayerID] = data;
+        online.Add(PlayerID);
     }
 
     /// <summary>
@@ -110,17 +100,16 @@ public class PlayerDatabase
     /// </summary>
     public static KeyValuePair<bool, long> SignPlayerIn(string Userid, string DemolitionPaasword)
     {
-        if (Usernames.ContainsKey(Userid))
+        if (UsernameExist(Userid))
         {
             var id = GetPlayerID(Userid);
-            if(!Authorise(id, DemolitionPaasword))
+            if (!Authorise(id, DemolitionPaasword))
                 return new KeyValuePair<bool, long>(false, 0);
-            Debug.Log(id);
             return new KeyValuePair<bool, long>(LoadPlayerData(id), id);
         }
-        if (Usernames.ContainsValue(Userid))
+        if (PlayerEmailExist(Userid))
         {
-            var id = GetPlayerID(Usernames.Where(x => x.Value == Userid).FirstOrDefault().Key);
+            var id = GetPlayerID(Userid, true);
             if (!Authorise(id, DemolitionPaasword))
                 return new KeyValuePair<bool, long>(false, 0);
             return new KeyValuePair<bool, long>(LoadPlayerData(id), id);
@@ -130,28 +119,29 @@ public class PlayerDatabase
 
     public static void SignPlayerOut(long PlayerID)
     {
-        if (playerDatabase.ContainsKey(PlayerID))
-             playerDatabase.Remove(PlayerID);
+        if (online.Contains(PlayerID))
+            online.Remove(PlayerID);
     }
 
     public static void AddPlayerUsername(long PlayerID, string userid, string DemolitionEmail)
     {
-        Usernames[userid] = DemolitionEmail;
-        playerDatabase[PlayerID].DemolitionEmail = DemolitionEmail;
-    }
-
-    public static bool LoadPlayerData(long PlayerID)
-    {
-        if (!PlayerExist(PlayerID))
-            return false;
-        if (playerDatabase.ContainsKey(PlayerID))
-            return true;
         using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
         {
-            var dat = con.Get<PlayerData>(PlayerID);
-            PlayerIds.Add(PlayerID);
-            playerDatabase[PlayerID] = dat;
+            var obj = con.Get<PlayerData>(PlayerID);
+            obj.DemolitionID = userid;
+            obj.DemolitionEmail = DemolitionEmail;
+            UpdatePlayerData(obj);
         }
+    }
+
+    public static bool LoadPlayerData(long playerID)
+    {
+        using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+            if (con.Table<PlayerData>().Where(x => x.PlayerID == playerID).Count() == 0)
+                return false;
+        if (online.Contains(playerID))
+            return true;
+        online.Add(playerID);
         return true;
     }
 
@@ -163,19 +153,16 @@ public class PlayerDatabase
 
     public static void RemovePlayerData(long PlayerID)
     {
-        if (PlayerIds.Contains(PlayerID))
-            PlayerIds.Remove(PlayerID);
-        if (playerDatabase.ContainsKey(PlayerID))
-            playerDatabase.Remove(PlayerID);
+        if (online.Contains(PlayerID))
+            online.Remove(PlayerID);
         using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
             con.Delete<PlayerData>(PlayerID);
     }
+
     public static void Dispose()
     {
-        foreach (var data in playerDatabase)
-            UpdatePlayerData(data.Value);
-        playerDatabase.Clear();
-        playerDatabase = null;
+        online.Clear();
+        online = null;
     }
 }
 

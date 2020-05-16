@@ -1,6 +1,3 @@
- using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using Mirror;
 
 /*
@@ -21,12 +18,13 @@ public class LoginHelper : NetworkAuthenticator
     {
         // register a handler for the authentication request we expect from client
         NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage, false);
+        NetworkServer.RegisterHandler<LogoutRequestMessage>(OnLogoutRequestMessage, false);
     }
 
-    /// <summary>
-    /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
-    /// </summary>
-    /// <param name="conn">Connection to client.</param>
+    public void OnLogoutRequestMessage(LogoutRequestMessage msg)
+    {
+        AccountLogin.Login.Logout(msg);
+    }
 
     public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
     {
@@ -72,6 +70,11 @@ public class AuthRequestMessage : MessageBase
     public string password;
     public string comfirmPassword;
     public bool newLogin;
+}
+
+public class LogoutRequestMessage : MessageBase
+{
+    public long playerID;
 }
 
 public class AuthResponseMessage : MessageBase

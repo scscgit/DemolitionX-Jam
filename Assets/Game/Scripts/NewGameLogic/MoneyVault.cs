@@ -1,7 +1,5 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using Mirror;
+using System.Collections.Generic;
 public class MoneyVault : NetworkBehaviour
 {
     public Dictionary<int, int> PlayerMoney;

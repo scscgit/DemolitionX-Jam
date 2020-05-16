@@ -1,7 +1,6 @@
+using Mirror;
 using System;
 using UnityEngine;
-using System.Collections;
-using Mirror;
 public class ShopInventory : NetworkBehaviour
 {
     public CarShopData[] cars;

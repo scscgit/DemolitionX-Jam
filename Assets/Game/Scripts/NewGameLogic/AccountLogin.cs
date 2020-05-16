@@ -1,9 +1,6 @@
+using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
-using Facebook;
-using Mirror;
 
 public class AccountLogin : MonoBehaviour
 {
@@ -30,7 +27,7 @@ public class AccountLogin : MonoBehaviour
 
     public void NewLogin()
     {
-        NetworkClient.Send(new AuthRequestMessage(){ email = email.text, username= newusername.text, password = newPassword.text, comfirmPassword = ComfirmPassword.text, newLogin = true});
+        NetworkClient.Send(new AuthRequestMessage() { email = email.text, username = newusername.text, password = newPassword.text, comfirmPassword = ComfirmPassword.text, newLogin = true });
     }
 
     public void OnServerReceiveLoginMessage(NetworkConnection conn, AuthRequestMessage message)
@@ -69,7 +66,7 @@ public class AccountLogin : MonoBehaviour
             error = "*All fields must be filled";
             ErrorCount++;
         }
-        if (!PlayerDatabase.PlayerExist(username) && !PlayerDatabase.PlayerEmailExist(username))
+        if (!PlayerDatabase.UsernameExist(username) && !PlayerDatabase.PlayerEmailExist(username))
         {
             if (error != string.Empty)
                 error += "   *Username not Found";
@@ -87,7 +84,7 @@ public class AccountLogin : MonoBehaviour
         }
         if (ErrorCount > 0)
             _success = false;
-        conn.Send(new AuthResponseMessage() {errors = error ,PlayerID = pair.Value, success = _success });
+        conn.Send(new AuthResponseMessage() { errors = error, PlayerID = pair.Value, success = _success });
     }
 
     public void InitNewAccoutLogin(NetworkConnection conn, string email, string username, string Password, string comfirmPassword)
@@ -111,7 +108,7 @@ public class AccountLogin : MonoBehaviour
                 error += "*Comfirm Password Dosent Match";
             ErrorCount++;
         }
-        if (PlayerDatabase.PlayerExist(username))
+        if (PlayerDatabase.UsernameExist(username))
         {
             if (error != string.Empty)
                 error += "   *Username is already used";
@@ -132,8 +129,13 @@ public class AccountLogin : MonoBehaviour
         var id = CoreManager.Core.FreeIDList[0];
         PlayerDatabase.AddPlayer(id, username, email, Password);
         CoreManager.Core.FreeIDList.Remove(id);
-        
+
         conn.Send(new AuthResponseMessage() { errors = error, PlayerID = id, success = _success });
+    }
+
+    public void Logout(LogoutRequestMessage msg)
+    {
+        PlayerDatabase.SignPlayerOut(msg.playerID);
     }
 
     public void RpcEnterLobby(long PlayerID)
