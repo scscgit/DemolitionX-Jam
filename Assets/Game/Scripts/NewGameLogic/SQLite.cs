@@ -2966,7 +2966,7 @@ namespace SQLite4Unity3d
             return q;
         }
 
-        public TableQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector)
+        public IEnumerable<TResult> Select<TResult>(Expression<Func<T, TResult>> selector)
         {
 
             if (selector.NodeType == ExpressionType.Lambda)
