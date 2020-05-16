@@ -21,6 +21,7 @@ public class CanvasAttach : MonoBehaviour {
 	public GameObject configurationMenu;
 	public GameObject steeringAssistancesMenu;
 	public GameObject colorsMenu;
+    public GameObject changePartsMenu;
 
 	[Header("UI Sliders")]
 	public Slider frontCamber;
@@ -53,6 +54,8 @@ public class CanvasAttach : MonoBehaviour {
 
 	[Header("UI Dropdown Menus")]
 	public Dropdown drivetrainMode;
+    public Dropdown spoilerDropdown;
+    public Dropdown wheelDropdown;
 
 	void Start(){
         // This vehicle is practically always disabled on start due to being a NetworkIdentity without any server
@@ -117,6 +120,8 @@ public class CanvasAttach : MonoBehaviour {
 
 		}
 
+        wheelDropdown.value = Custamization.wheelValue;
+        spoilerDropdown.value = Custamization.spoilerIndex;
 
 	}
 
@@ -131,6 +136,7 @@ public class CanvasAttach : MonoBehaviour {
 		configurationMenu.SetActive (false);
 		steeringAssistancesMenu.SetActive (false);
 		colorsMenu.SetActive (false);
+        changePartsMenu.SetActive(false);
 
 		activeMenu.SetActive (true);
 
@@ -142,6 +148,7 @@ public class CanvasAttach : MonoBehaviour {
 		configurationMenu.SetActive (false);
 		steeringAssistancesMenu.SetActive (false);
 		colorsMenu.SetActive (false);
+        changePartsMenu.SetActive(false);
 
 	}
 
@@ -195,7 +202,7 @@ public class CanvasAttach : MonoBehaviour {
 
 	public void ChangeWheelsByDropdown (Dropdown dropdown) {
 
-		Custamization.ChangeWheels (Instance.activePlayerVehicle, ChangableWheels.Instance.wheels[dropdown.value].wheel);
+		Custamization.ChangeWheels (Instance.activePlayerVehicle, ChangableWheels.Instance.wheels[dropdown.value].wheel, dropdown.value);
 
 	}
 
@@ -405,6 +412,12 @@ public class CanvasAttach : MonoBehaviour {
     public void SetPaintGlossinessByColorPicker(ColorSlider colorSlider) {
 
         Custamization.SetPaintGlossiness(Instance.activePlayerVehicle, colorSlider.glossiness);
+
+    }
+
+    public void SetCarPoilerByDropdown(Dropdown dropdown) {
+
+        Custamization.SetSpoiler(Instance.activePlayerVehicle, dropdown.value);
 
     }
 }

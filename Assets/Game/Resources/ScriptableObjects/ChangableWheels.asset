@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ecdc4d731a104e418976f399ecc04ed, type: 3}
+  m_Name: ChangableWheels
+  m_EditorClassIdentifier: 
+  wheels:
+  - wheel: {fileID: 7858385170257359738, guid: a813a8a4258ca5c43b17ee6ca5dd9aee, type: 3}
+  - wheel: {fileID: 3582996311554420033, guid: e0ef8bde8633ed34fa81235db59eced2, type: 3}
+  - wheel: {fileID: 804017452610757650, guid: 6df791bb8343f344e9c1b26aec5f16e8, type: 3}
+  - wheel: {fileID: 5875578223154741198, guid: 8be4a16534ba6354cb7322fd38c099ad, type: 3}
+  - wheel: {fileID: 3488024634846913513, guid: 8b0b42971c5344a4894fbc807dab6943, type: 3}
+  - wheel: {fileID: 4934272466277048016, guid: 93780f26e9b885247a60a8835c668722, type: 3}
+  - wheel: {fileID: 4730673915736054305, guid: 186ba2d2bbfa86d46980e688a0eb607b, type: 3}
+  - wheel: {fileID: 213254484371317201, guid: afc270471f8497e45b0caf01c126d47c, type: 3}
+  - wheel: {fileID: 2939573825613279620, guid: 8598cfae1ba4f7447b15939846035b07, type: 3}
+  - wheel: {fileID: 1056624220589443007, guid: f836ecb2c1f9be44087bfc47404eead9, type: 3}

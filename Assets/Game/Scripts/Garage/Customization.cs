@@ -156,10 +156,11 @@ public class Custamization : MonoBehaviour {
 
 	}
 
+    public static int wheelValue;
 	/// <summary>
 	/// Change Wheel Models. Note : They need to be of same size
 	/// </summary>
-	public static void ChangeWheels(VehiclePhysics vehicle, GameObject wheel){
+	public static void ChangeWheels(VehiclePhysics vehicle, GameObject wheel, int value){
 
 		if (!CheckVehicle (vehicle))
 			return;
@@ -175,6 +176,8 @@ public class Custamization : MonoBehaviour {
 				newWheel.transform.localScale = new Vector3 (newWheel.transform.localScale.x * -1f, newWheel.transform.localScale.y, newWheel.transform.localScale.z);
 
 		}
+
+        wheelValue = value;
 
 		OverrideVehicle (vehicle);
 
@@ -637,6 +640,30 @@ public class Custamization : MonoBehaviour {
         vehicle.carProperties.carMaterial.SetFloat("_Glossiness", value);
     }
 
+    public static int spoilerIndex;
+    public static GameObject sp;
+    /// <summary>
+    /// Changes Spoiler attached to car
+    /// </summary>
+    public static void SetSpoiler(VehiclePhysics vehicle, int value) {
+
+        if(!CheckVehicle(vehicle))
+        return;
+
+        if(sp)
+        DestroyImmediate(sp);
+
+        GameObject parent = GameObject.Find(vehicle.transform.name + "/Chassis/Spoiler");
+        GameObject spoiler = (GameObject) Instantiate(vehicle.carProperties.spoilers[value].spoiler);
+        spoiler.transform.parent = parent.transform;
+        spoiler.transform.localPosition = vehicle.carProperties.spoilers[value].position;
+        spoiler.transform.localRotation = Quaternion.Euler(vehicle.carProperties.spoilers[value].rotation);
+
+        spoilerIndex = value;
+        sp = spoiler;
+
+    }
+
 	/// <summary>
 	/// Save all stats with PlayerPrefs.
 	/// </summary>
@@ -697,6 +724,8 @@ public class Custamization : MonoBehaviour {
 		SaveData.SetBool(vehicle.transform.name + "ExhaustFlame", vehicle.useExhaustFlame);
 		SaveData.SetBool(vehicle.transform.name + "RevLimiter", vehicle.useRevLimiter);
 		SaveData.SetBool(vehicle.transform.name + "ClutchMargin", vehicle.useClutchMarginAtFirstGear);
+
+        PlayerPrefs.SetInt(vehicle.transform.name + "Spoiler", spoilerIndex);
 
 	}
 
@@ -772,6 +801,9 @@ public class Custamization : MonoBehaviour {
 
         if(PlayerPrefs.HasKey(vehicle.transform.name + "_Glossiness"))
 			SetPaintGlossiness (vehicle, PlayerPrefs.GetFloat(vehicle.transform.name + "_Glossiness"));
+
+        if(PlayerPrefs.HasKey(vehicle.transform.name + "Spoiler"))
+			SetSpoiler (vehicle, PlayerPrefs.GetInt(vehicle.transform.name + "Spoiler"));
 
 		OverrideVehicle (vehicle);
 

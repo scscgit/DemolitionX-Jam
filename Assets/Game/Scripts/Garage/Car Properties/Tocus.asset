@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44c02e7d0d0c62c4f802391b515d95e3, type: 3}
+  m_Name: Tocus
+  m_EditorClassIdentifier: 
+  name: Tocus
+  carMaterial: {fileID: 2100000, guid: 98391d2ee511f374dadc15d222c2f73d, type: 2}
+  TyreMaterial: {fileID: 0}
+  rimMaterial: {fileID: 0}
+  spoilers:
+  - spoiler: {fileID: 5118911368796202686, guid: a21ea8d9d916cd448881698235ca9b19,
+      type: 3}
+    position: {x: 0, y: 0.65, z: -2}
+    rotation: {x: 0, y: 0, z: 0}
+  - spoiler: {fileID: 5292600504976438956, guid: 29cabb121df3a5441a2aa3cc05056cc2,
+      type: 3}
+    position: {x: 0, y: 0.65, z: -2}
+    rotation: {x: 0, y: 0, z: 0}
+  - spoiler: {fileID: 6122086499347003526, guid: 26919e6bfb492fb4c9b9c324731c2cac,
+      type: 3}
+    position: {x: 0, y: 0.65, z: -2}
+    rotation: {x: 0, y: 0, z: 0}
+  - spoiler: {fileID: 1860151770147973717, guid: e3f5570fbe8de4745a2939113aecd487,
+      type: 3}
+    position: {x: 0, y: 0.6, z: -1.8}
+    rotation: {x: 0, y: 0, z: 0}
+  - spoiler: {fileID: 7174220827610861401, guid: 1996d108eff46824c84e6b40af46a5a1,
+      type: 3}
+    position: {x: 0, y: 0.6, z: -1.8}
+    rotation: {x: 0, y: 0, z: 0}
+  - spoiler: {fileID: 2359161523162079815, guid: 2ec31cb513af48b42853ab79c642b2d5,
+      type: 3}
+    position: {x: 0, y: 0.65, z: -2}
+    rotation: {x: 0, y: 0, z: 0}
+  - spoiler: {fileID: 8049013810964705725, guid: 42fa7eaf93ec029418592d8ecffaee7f,
+      type: 3}
+    position: {x: 0, y: 0.65, z: -2}
+    rotation: {x: 0, y: 0, z: 0}
