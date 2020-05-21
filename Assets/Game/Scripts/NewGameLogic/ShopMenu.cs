@@ -42,6 +42,7 @@ public class ShopMenu : MonoBehaviour
                 else
                     datas[i].isPurchased = PlayerPrefs.GetInt(datas[i].GameName) == 1 ? true : false;
             }
+
             if (PlayerPrefs.HasKey("SelectedCar"))
                 SelectedIndex = PlayerPrefs.GetInt("SelectedCar");
             else
@@ -55,9 +56,9 @@ public class ShopMenu : MonoBehaviour
         else
         {
             Debug.LogError("Hold There bro... " +
-                "Set atleast one element to datas field in editor inspector.. " +
-                "I dont like to fill ur console with any more error.. " +
-                "Script Auto Disabled..");
+                           "Set atleast one element to datas field in editor inspector.. " +
+                           "I dont like to fill ur console with any more error.. " +
+                           "Script Auto Disabled..");
             enabled = false;
         }
     }
@@ -68,6 +69,7 @@ public class ShopMenu : MonoBehaviour
         preview = selected;
         preview.Car.SetActive(true);
     }
+
     public void ShopClose()
     {
         preview.Car.SetActive(false);
@@ -82,10 +84,12 @@ public class ShopMenu : MonoBehaviour
         {
             PreviewIndex = 0;
         }
+
         if (PreviewIndex < 0)
         {
             PreviewIndex = datas.Length - 1;
         }
+
         preview.Car.SetActive(false);
         preview = datas[PreviewIndex];
         preview.Car.SetActive(true);
@@ -99,6 +103,7 @@ public class ShopMenu : MonoBehaviour
             datas[PreviewIndex].isPurchased = true;
             PlayerPrefs.SetInt(selected.GameName, selected.isPurchased ? 1 : 0);
         }
+
         selected = preview;
         SelectedIndex = PreviewIndex;
         PlayerPrefs.SetInt("SelectedCar", SelectedIndex);
@@ -118,6 +123,7 @@ public class ShopMenu : MonoBehaviour
                 Selected.interactable = true;
             SelectionText.text = "SELECT";
         }
+
         if (preview.isPurchased)
         {
             price.text = "PURCHASED";
@@ -127,7 +133,6 @@ public class ShopMenu : MonoBehaviour
             SelectionText.text = "BUY";
             price.text = "$" + preview.price;
         }
-
     }
 
     private void OnDisable()
@@ -143,5 +148,3 @@ public class ShopMenu : MonoBehaviour
     }
 #endif
 }
-
-

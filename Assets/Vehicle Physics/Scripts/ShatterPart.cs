@@ -8,14 +8,17 @@
 public class ShatterPart : MonoBehaviour
 {
     public GameObject parentBody;
+
     //[System.NonSerialized]
     //public Renderer rend;
-    [System.NonSerialized]
-    public bool shattered;
+    [System.NonSerialized] public bool shattered;
+
     public float breakForce = 5f;
+
 //
     //[Tooltip("Transform used for maintaining seams when deformed after shattering")]
     public Transform seamKeeper;
+
     //[System.NonSerialized]
     //public Material initialMat;
     //public Material brokenMaterial;
@@ -26,10 +29,10 @@ public class ShatterPart : MonoBehaviour
     void Update()
     {
         // parentBody can be destroyed if the car re-spawns
-        if(shattered && parentBody)
+        if (shattered && parentBody)
         {
             //Destroy(shatterParticles.gameObject, 2.02f);
-            if(parentBody.GetComponent<VehiclePhysics>().hasPivotIssues) 
+            if (parentBody.GetComponent<VehiclePhysics>().hasPivotIssues)
             {
                 transform.parent.transform.parent = null;
                 Destroy(transform.parent.gameObject, 2f);
@@ -39,6 +42,7 @@ public class ShatterPart : MonoBehaviour
                 transform.parent = null;
                 Destroy(gameObject, 2f);
             }
+
             //Destroy(GetComponent<ShatterPart>(), 2.5f);
         }
     }
@@ -53,15 +57,15 @@ public class ShatterPart : MonoBehaviour
             {
                 shatterParticles.Play();
             }
-            
-            GetComponent<Renderer>().enabled = false;            
 
-            
-            shatterSnd = CreateAudioSource.NewAudioSource(gameObject, "Shatter Sound AudioSource", 5, 20, 1, shatterClip, false, true, true);
+            GetComponent<Renderer>().enabled = false;
 
-            if(!shatterSnd.isPlaying)
-            shatterSnd.Play();
-            
+
+            shatterSnd = CreateAudioSource.NewAudioSource(gameObject, "Shatter Sound AudioSource", 5, 20, 1,
+                shatterClip, false, true, true);
+
+            if (!shatterSnd.isPlaying)
+                shatterSnd.Play();
         }
     }
 }

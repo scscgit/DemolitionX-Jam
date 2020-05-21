@@ -1,6 +1,7 @@
 using Mirror;
 using System;
 using UnityEngine;
+
 public class ShopInventory : NetworkBehaviour
 {
     public CarShopData[] cars;
@@ -27,7 +28,6 @@ public class ShopInventory : NetworkBehaviour
 
     public void buy()
     {
-
     }
 }
 

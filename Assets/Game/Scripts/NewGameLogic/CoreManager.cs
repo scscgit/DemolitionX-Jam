@@ -62,7 +62,7 @@ public class CoreManager : NetworkBehaviour
 
     public void Logout()
     {
-        NetworkClient.Send(new LogoutRequestMessage() { playerID = PlayerID });
+        NetworkClient.Send(new LogoutRequestMessage() {playerID = PlayerID});
     }
 
     public AsyncOperation LoadScene(string name)

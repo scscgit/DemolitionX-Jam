@@ -47,7 +47,8 @@ namespace Game.Scripts.UI
 
         private void HeadlessServerStart()
         {
-            Debug.Log("Running server in a headless mode. Following command line argument formats are supported:\n* Change the listening port:\n    port 7778\n* Enable remote administration using password:\n    admin MySecretPassword");
+            Debug.Log(
+                "Running server in a headless mode. Following command line argument formats are supported:\n* Change the listening port:\n    port 7778\n* Enable remote administration using password:\n    admin MySecretPassword");
             var args = System.Environment.GetCommandLineArgs();
             for (int argsIndex = 2; argsIndex < args.Length - 1; argsIndex += 2)
             {

@@ -10,6 +10,7 @@ public class PlayerDatabase
     /// Holds Player Id of online Players
     /// </summary>
     public static List<long> online;
+
     public static string path;
     public static bool Loaded;
 
@@ -22,6 +23,7 @@ public class PlayerDatabase
         {
             Directory.CreateDirectory(dir);
         }
+
         using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
         {
             if (con.GetTableInfo(nameof(PlayerData)).Count == 0)
@@ -37,6 +39,7 @@ public class PlayerDatabase
         using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
             con.Insert(data);
     }
+
     public static bool PlayerIDExist(long playerID)
     {
         using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
@@ -81,7 +84,7 @@ public class PlayerDatabase
     public static bool UsernameExist(string id)
     {
         using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
-            return con.Table<PlayerData>().Where(x => x.DemolitionID == id).Count()>0;
+            return con.Table<PlayerData>().Where(x => x.DemolitionID == id).Count() > 0;
     }
 
     public static bool PlayerEmailExist(string mail)
@@ -89,6 +92,7 @@ public class PlayerDatabase
         using (var con = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
             return con.Table<PlayerData>().Where(x => x.DemolitionEmail == mail).Count() > 0;
     }
+
     public static void AddPlayer(long PlayerID, string userid, string email, string DemolitionPaasword)
     {
         var data = new PlayerData(PlayerID, userid, email, DemolitionPaasword);
@@ -108,6 +112,7 @@ public class PlayerDatabase
                 return new KeyValuePair<bool, long>(false, 0);
             return new KeyValuePair<bool, long>(LoadPlayerData(id), id);
         }
+
         if (PlayerEmailExist(Userid))
         {
             var id = GetPlayerID(Userid, true);
@@ -115,6 +120,7 @@ public class PlayerDatabase
                 return new KeyValuePair<bool, long>(false, 0);
             return new KeyValuePair<bool, long>(LoadPlayerData(id), id);
         }
+
         return new KeyValuePair<bool, long>(false, 0);
     }
 
@@ -170,8 +176,7 @@ public class PlayerDatabase
 [Table(nameof(PlayerData))]
 public class PlayerData
 {
-    [PrimaryKey]
-    public long PlayerID { get; set; }
+    [PrimaryKey] public long PlayerID { get; set; }
     public string DemolitionID { get; set; }
     public string DemolitionPaasword { get; set; }
     public string DemolitionEmail { get; set; }
@@ -195,6 +200,7 @@ public class PlayerData
     {
         this.PlayerID = PlayerID;
     }
+
     public PlayerData(long PlayerID, string DemolitionID, string DemolitionEmail, string DemolitionPaasword)
     {
         this.PlayerID = PlayerID;
@@ -205,7 +211,9 @@ public class PlayerData
 
     public override string ToString()
     {
-        return string.Format("[Person: PlayerID={0},DemolitionID={1},DemolitionPaasword={2},Email={3},playerName={4},playerAge={5},playerGender={6},playerMoney={7},playerScore={8},playedTime ={9}, noWrecks ={10},noPlayersWrecked ={11}, noWins ={12}, matchesPlayed ={13}]",
-            PlayerID, DemolitionID, DemolitionPaasword, DemolitionEmail, playerName, playerAge, playerGender, playerMoney, playerScore, playedTime, noWrecks, noPlayersWrecked, noWins, matchesPlayed, purchases);
+        return string.Format(
+            "[Person: PlayerID={0},DemolitionID={1},DemolitionPaasword={2},Email={3},playerName={4},playerAge={5},playerGender={6},playerMoney={7},playerScore={8},playedTime ={9}, noWrecks ={10},noPlayersWrecked ={11}, noWins ={12}, matchesPlayed ={13}]",
+            PlayerID, DemolitionID, DemolitionPaasword, DemolitionEmail, playerName, playerAge, playerGender,
+            playerMoney, playerScore, playedTime, noWrecks, noPlayersWrecked, noWins, matchesPlayed, purchases);
     }
 }

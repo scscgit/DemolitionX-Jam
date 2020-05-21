@@ -5,22 +5,28 @@ using System.Collections;
 /// Changes wheels (visual only) at runtime. It holds changable wheels as prefab in an array.
 /// </summary>
 [System.Serializable, CreateAssetMenu(menuName = "Changable Wheels")]
-public class ChangableWheels : ScriptableObject {
+public class ChangableWheels : ScriptableObject
+{
+    #region singleton
 
-	#region singleton
-	private static ChangableWheels instance;
-	public static ChangableWheels Instance{	get{if(instance == null) instance = Resources.Load("ScriptableObjects/ChangableWheels") as ChangableWheels; return instance;}}
-	#endregion
+    private static ChangableWheels instance;
 
-	[System.Serializable]
-	public class ChangableWheel{
+    public static ChangableWheels Instance
+    {
+        get
+        {
+            if (instance == null) instance = Resources.Load("ScriptableObjects/ChangableWheels") as ChangableWheels;
+            return instance;
+        }
+    }
 
-		public GameObject wheel;
+    #endregion
 
-	}
+    [System.Serializable]
+    public class ChangableWheel
+    {
+        public GameObject wheel;
+    }
 
-	public ChangableWheel[] wheels;
-
+    public ChangableWheel[] wheels;
 }
-
-

@@ -4,220 +4,220 @@ using UnityEngine;
 using Mirror;
 using System.Collections;
 using System.Collections.Generic;
- 
+
 /// <summary>
 /// Streaming player input, or receiving data from server. And then feeds the RCC.
 /// </summary>
 [RequireComponent(typeof(NetworkIdentity))]
-public class VehicleSync : NetworkBehaviour {
-	
-	// Network Identity of the vehicle. All networked gameobjects must have this component.
-	private NetworkIdentity networkID;
+public class VehicleSync : NetworkBehaviour
+{
+    // Network Identity of the vehicle. All networked gameobjects must have this component.
+    private NetworkIdentity networkID;
 
-	// Main RCC, Rigidbody, and WheelColliders. 
-	public VehiclePhysics carController;
-	public VehiclePhysicsWheelCollider[] wheelColliders;
-	public Rigidbody rigid;
-	public bool l;// => isLocalPlayer;
+    // Main RCC, Rigidbody, and WheelColliders.
+    public VehiclePhysics carController;
+    public VehiclePhysicsWheelCollider[] wheelColliders;
+    public Rigidbody rigid;
+    public bool l; // => isLocalPlayer;
 
-	// Syncing transform, inputs, configurations, and lights of the vehicle. Not using any SyncVar. All synced data is organized via structs and lists.
-	#region STRUCTS
+    // Syncing transform, inputs, configurations, and lights of the vehicle. Not using any SyncVar. All synced data is organized via structs and lists.
 
-	#region Transform
+    #region STRUCTS
 
-	public struct VehicleTransform{
+    #region Transform
 
-		public Vector3 position;
-		public Quaternion rotation;
+    public struct VehicleTransform
+    {
+        public Vector3 position;
+        public Quaternion rotation;
 
-		public Vector3 rigidLinearVelocity;
-		public Vector3 rigidAngularVelocity;
+        public Vector3 rigidLinearVelocity;
+        public Vector3 rigidAngularVelocity;
+    }
 
-	}
+    public class SyncListVehicleTransform : SyncList<VehicleTransform>
+    {
+    }
 
-	public class SyncListVehicleTransform : SyncList<VehicleTransform>{}
+    public SyncListVehicleTransform m_Transform = new SyncListVehicleTransform();
 
-	public SyncListVehicleTransform m_Transform = new SyncListVehicleTransform();
+    #endregion Transform
 
-	#endregion Transform
+    #region Inputs
 
-	#region Inputs
+    public struct VehicleInput
+    {
+        public float gasInput;
+        public float brakeInput;
+        public float steerInput;
+        public float handbrakeInput;
+        public float boostInput;
+        public float clutchInput;
+        public float idleInput;
+        public int gear;
+        public int direction;
+        public bool changingGear;
+        public float fuelInput;
+        public bool engineRunning;
+        public bool canGoReverseNow;
+    }
 
-	public struct VehicleInput{
+    public class SyncListVehicleInput : SyncList<VehicleInput>
+    {
+    }
 
-		public float gasInput;
-		public float brakeInput;
-		public float steerInput;
-		public float handbrakeInput;
-		public float boostInput;
-		public float clutchInput;
-		public float idleInput;
-		public int gear;
-		public int direction;
-		public bool changingGear;
-		public float fuelInput;
-		public bool engineRunning;
-		public bool canGoReverseNow;
+    public SyncListVehicleInput m_Inputs = new SyncListVehicleInput();
 
-	}
+    #endregion Inputs
 
-	public class SyncListVehicleInput : SyncList<VehicleInput>{}
+    #endregion
 
-	public SyncListVehicleInput m_Inputs = new SyncListVehicleInput();
+    private float updateTime = 0;
 
-	#endregion Inputs
+    VehicleInput currentVehicleInputs = new VehicleInput();
 
-	#endregion
+    VehicleTransform currentVehicleTransform = new VehicleTransform();
 
-	private float updateTime = 0;
-
-	VehicleInput currentVehicleInputs = new VehicleInput ();
-	VehicleTransform currentVehicleTransform = new VehicleTransform ();
     // TODO: there was = new VehicleLights();
-	VehicleLights currentVehicleLights;
+    VehicleLights currentVehicleLights;
 
-	bool CB_running = false;
+    bool CB_running = false;
 
-	void Start(){
-		//l = true;
+    void Start()
+    {
+        //l = true;
 
-		// Getting RCC, wheelcolliders, rigidbody, and Network Identity of the vehicle. 
-		carController = GetComponent<VehiclePhysics>();
-		wheelColliders = GetComponentsInChildren<VehiclePhysicsWheelCollider> ();
-		rigid = GetComponent<Rigidbody>();
-		networkID = GetComponent<NetworkIdentity> ();
+        // Getting RCC, wheelcolliders, rigidbody, and Network Identity of the vehicle.
+        carController = GetComponent<VehiclePhysics>();
+        wheelColliders = GetComponentsInChildren<VehiclePhysicsWheelCollider>();
+        rigid = GetComponent<Rigidbody>();
+        networkID = GetComponent<NetworkIdentity>();
 
-		// If we are the owner of this vehicle, disable external controller and enable controller of the vehicle. Do opposite if we don't own this.
-		/*if (isLocalPlayer){
+        // If we are the owner of this vehicle, disable external controller and enable controller of the vehicle. Do opposite if we don't own this.
+        /*if (isLocalPlayer){
 
-			carController.canControl = true;
-			//carController.StartEngine();
+            carController.canControl = true;
+            //carController.StartEngine();
 
-		}else{
+        }else{
 
-			carController.canControl = false;
-		}*/
+            carController.canControl = false;
+        }*/
 
-		// Setting name of the gameobject with Network ID.
-		gameObject.name = gameObject.name + networkID.netId;
+        // Setting name of the gameobject with Network ID.
+        gameObject.name = gameObject.name + networkID.netId;
 
-		currentVehicleTransform = new VehicleTransform ();
+        currentVehicleTransform = new VehicleTransform();
+    }
 
-	}
+    void FixedUpdate()
+    {
+        // If we are the owner of this vehicle, disable external controller and enable controller of the vehicle. Do opposite if we don't own this.
+        //carController.canControl = isLocalPlayer;
 
-	void FixedUpdate(){
-
-		// If we are the owner of this vehicle, disable external controller and enable controller of the vehicle. Do opposite if we don't own this.
-		//carController.canControl = isLocalPlayer;
-
-		if (l) {
-
-			// If we are owner of this vehicle, stream all inputs from vehicle.
+        if (l)
+        {
+            // If we are owner of this vehicle, stream all inputs from vehicle.
 //			VehicleIsMein ();
-			if(!CB_running)
-				StartCoroutine(VehicleIsMein());
+            if (!CB_running)
+                StartCoroutine(VehicleIsMein());
+        }
+        else
+        {
+            // If we are not owner of this vehicle, receive all inputs from server.
+            VehicleIsClient();
+        }
+    }
 
-		} else {
+    IEnumerator VehicleIsMein()
+    {
+        CB_running = true;
 
-			// If we are not owner of this vehicle, receive all inputs from server.
-			VehicleIsClient ();
+        currentVehicleInputs.gasInput = carController.gasInput;
+        currentVehicleInputs.brakeInput = carController.brakeInput;
+        currentVehicleInputs.steerInput = carController.steerInput;
+        currentVehicleInputs.handbrakeInput = carController.handbrakeInput;
+        currentVehicleInputs.boostInput = carController.boostInput;
+        currentVehicleInputs.clutchInput = carController.clutchInput;
+        currentVehicleInputs.idleInput = carController.idleInput;
+        currentVehicleInputs.gear = carController.currentGear;
+        currentVehicleInputs.direction = carController.direction;
+        currentVehicleInputs.changingGear = carController.changingGear;
+        currentVehicleInputs.fuelInput = carController.fuelInput;
+        currentVehicleInputs.engineRunning = carController.engineRunning;
+        currentVehicleInputs.canGoReverseNow = carController.canGoReverseNow;
 
-		}
+        CmdVehicleInputs(currentVehicleInputs);
 
-	}
+        yield return new WaitForSeconds(.02f);
 
-	IEnumerator VehicleIsMein (){
+        currentVehicleTransform.position = transform.position;
+        currentVehicleTransform.rotation = transform.rotation;
+        currentVehicleTransform.rigidLinearVelocity = rigid.velocity;
+        currentVehicleTransform.rigidAngularVelocity = rigid.angularVelocity;
 
-		CB_running = true;
+        CmdVehicleTransform(currentVehicleTransform);
 
-		currentVehicleInputs.gasInput = carController.gasInput;
-		currentVehicleInputs.brakeInput = carController.brakeInput;
-		currentVehicleInputs.steerInput = carController.steerInput;
-		currentVehicleInputs.handbrakeInput = carController.handbrakeInput;
-		currentVehicleInputs.boostInput = carController.boostInput;
-		currentVehicleInputs.clutchInput = carController.clutchInput;
-		currentVehicleInputs.idleInput = carController.idleInput;
-		currentVehicleInputs.gear = carController.currentGear;
-		currentVehicleInputs.direction = carController.direction;
-		currentVehicleInputs.changingGear = carController.changingGear;
-		currentVehicleInputs.fuelInput = carController.fuelInput;
-		currentVehicleInputs.engineRunning = carController.engineRunning;
-		currentVehicleInputs.canGoReverseNow = carController.canGoReverseNow;
+        yield return new WaitForSeconds(.02f);
 
-		CmdVehicleInputs (currentVehicleInputs);
+        CB_running = false;
+    }
 
-		yield return new WaitForSeconds (.02f);
+    void VehicleIsClient()
+    {
+        if (m_Inputs != null && m_Inputs.Count >= 1)
+        {
+            carController.gasInput = m_Inputs[0].gasInput;
+            carController.brakeInput = m_Inputs[0].brakeInput;
+            carController.steerInput = m_Inputs[0].steerInput;
+            carController.handbrakeInput = m_Inputs[0].handbrakeInput;
+            carController.boostInput = m_Inputs[0].boostInput;
+            carController.clutchInput = m_Inputs[0].clutchInput;
+            carController.idleInput = m_Inputs[0].idleInput;
+            carController.currentGear = m_Inputs[0].gear;
+            carController.direction = m_Inputs[0].direction;
+            carController.changingGear = m_Inputs[0].changingGear;
+            carController.fuelInput = m_Inputs[0].fuelInput;
+            carController.engineRunning = m_Inputs[0].engineRunning;
+            carController.canGoReverseNow = m_Inputs[0].canGoReverseNow;
+        }
 
-		currentVehicleTransform.position = transform.position;
-		currentVehicleTransform.rotation = transform.rotation;
-		currentVehicleTransform.rigidLinearVelocity = rigid.velocity;
-		currentVehicleTransform.rigidAngularVelocity = rigid.angularVelocity;
+        if (m_Transform != null && m_Transform.Count >= 1)
+        {
+            Vector3 projectedPosition =
+                m_Transform[0].position + m_Transform[0].rigidLinearVelocity * (Time.time - updateTime);
 
-		CmdVehicleTransform (currentVehicleTransform);
+            if (Vector3.Distance(transform.position, m_Transform[0].position) < 15f)
+            {
+                transform.position = Vector3.Lerp(transform.position, projectedPosition, Time.deltaTime * 5f);
+                transform.rotation = Quaternion.Lerp(transform.rotation, m_Transform[0].rotation, Time.deltaTime * 5f);
+            }
+            else
+            {
+                transform.position = m_Transform[0].position;
+                transform.rotation = m_Transform[0].rotation;
+            }
+        }
 
-		yield return new WaitForSeconds (.02f);
+        updateTime = Time.time;
 
-		CB_running = false;
-
-	}
-
-	void VehicleIsClient(){
-
-		if (m_Inputs != null && m_Inputs.Count >= 1) {
-
-			carController.gasInput = m_Inputs [0].gasInput;
-			carController.brakeInput = m_Inputs [0].brakeInput;
-			carController.steerInput = m_Inputs [0].steerInput;
-			carController.handbrakeInput = m_Inputs [0].handbrakeInput;
-			carController.boostInput = m_Inputs [0].boostInput;
-			carController.clutchInput = m_Inputs [0].clutchInput;
-			carController.idleInput = m_Inputs [0].idleInput;
-			carController.currentGear = m_Inputs [0].gear;
-			carController.direction = m_Inputs [0].direction;
-			carController.changingGear = m_Inputs [0].changingGear;
-			carController.fuelInput = m_Inputs [0].fuelInput;
-			carController.engineRunning = m_Inputs [0].engineRunning;
-			carController.canGoReverseNow = m_Inputs [0].canGoReverseNow;
-
-		}
-
-		if (m_Transform != null && m_Transform.Count >= 1) {
-
-			Vector3 projectedPosition = m_Transform[0].position + m_Transform[0].rigidLinearVelocity * (Time.time - updateTime);
-
-			if(Vector3.Distance(transform.position, m_Transform[0].position) < 15f){
-				
-				transform.position = Vector3.Lerp (transform.position, projectedPosition, Time.deltaTime * 5f);
-				transform.rotation = Quaternion.Lerp (transform.rotation, m_Transform[0].rotation, Time.deltaTime * 5f);
-
-			}else{
-				
-				transform.position = m_Transform[0].position;
-				transform.rotation = m_Transform[0].rotation;
-
-			}
-
-		}
-
-		updateTime = Time.time;
-
-		// DıSABLED
+        // DıSABLED
 //		if (m_Configurations != null && m_Configurations.Count >= 1) {
 //
 //			carController.currentGear = m_Configurations[m_Configurations.Count - 1].gear;
 //			carController.direction = m_Configurations[m_Configurations.Count - 1].direction;
 //			carController.changingGear = m_Configurations[m_Configurations.Count - 1].changingGear;
 //			carController.semiAutomaticGear = m_Configurations[m_Configurations.Count - 1].semiAutomaticGear;
-//	
+//
 //			carController.fuelInput = m_Configurations[m_Configurations.Count - 1].fuelInput;
 //			carController.engineRunning = m_Configurations[m_Configurations.Count - 1].engineRunning;
-//	
+//
 //			for (int i = 0; i < wheelColliders.Length; i++) {
-//	
+//
 //				wheelColliders [i].camber = m_Configurations[m_Configurations.Count - 1].cambers [i];
-//	
+//
 //			}
-//	
+//
 //			carController.applyEngineTorqueToExtraRearWheelColliders = m_Configurations[m_Configurations.Count - 1].applyEngineTorqueToExtraRearWheelColliders;
 //			carController._wheelTypeChoise = m_Configurations[m_Configurations.Count - 1].wheelTypeChoise;
 //			carController.biasedWheelTorque = m_Configurations[m_Configurations.Count - 1].biasedWheelTorque;
@@ -254,20 +254,17 @@ public class VehicleSync : NetworkBehaviour {
 //			carController.useTurbo = m_Configurations[m_Configurations.Count - 1].useTurbo;
 //
 //		}
+    }
 
-	}
+    [Command]
+    public void CmdVehicleInputs(VehicleInput _input)
+    {
+        m_Inputs.Insert(0, _input);
+    }
 
-	[Command]
-	public void CmdVehicleInputs(VehicleInput _input){
-
-		m_Inputs.Insert (0, _input);
-		 
-	}
-
-	[Command]
-	public void CmdVehicleTransform(VehicleTransform _input){
-
-		m_Transform.Insert(0, _input);
-
-	}
+    [Command]
+    public void CmdVehicleTransform(VehicleTransform _input)
+    {
+        m_Transform.Insert(0, _input);
+    }
 }

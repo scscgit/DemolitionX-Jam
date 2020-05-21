@@ -1,11 +1,13 @@
 using Mirror;
 using Mirror.Websocket;
 using UnityEngine;
+
 public class CoreNetwork : MonoBehaviour
 {
     public static CoreNetwork Core;
     public NetworkManager NetManager;
     public WebsocketTransport telepathyTransport;
+
     void Awake()
     {
         if (Core)
@@ -29,6 +31,7 @@ public class CoreNetwork : MonoBehaviour
     void Update()
     {
     }
+
     public void AddPlayer(AsyncOperation obj)
     {
         SpawnPlayer(CoreManager.Core.CurrentCar);

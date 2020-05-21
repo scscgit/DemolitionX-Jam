@@ -10,15 +10,13 @@ public class CarProperties : ScriptableObject
     public Material TyreMaterial;
     public Material rimMaterial;
 
-    [Header("Spoilers")]
-    public Spoilers[] spoilers;
+    [Header("Spoilers")] public Spoilers[] spoilers;
 
     [System.Serializable]
-    public struct Spoilers {
-
+    public struct Spoilers
+    {
         public GameObject spoiler;
         public Vector3 position;
         public Vector3 rotation;
-
     }
 }

@@ -1,5 +1,6 @@
 using Mirror;
 using System.Collections.Generic;
+
 public class MoneyVault : NetworkBehaviour
 {
     public Dictionary<int, int> PlayerMoney;
@@ -8,6 +9,5 @@ public class MoneyVault : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-
     }
 }

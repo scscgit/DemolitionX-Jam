@@ -18,13 +18,15 @@ public class DetachablePart : NetworkBehaviour
 
     //[System.NonSerialized]
     //public HingeJoint hinge;
-    [System.NonSerialized]
-    public bool detached;
+    [System.NonSerialized] public bool detached;
+
     //[System.NonSerialized]
     //public Vector3 initialPos;
     public float mass = 0.1f;
     public float drag;
+
     public float angularDrag = 0.05f;
+
     //public float looseForce = -1;
     public float breakForce = 25;
 
@@ -41,12 +43,14 @@ public class DetachablePart : NetworkBehaviour
     Quaternion projectedRot;
     float updateTime = 0;
 
-    private void Start() {
+    private void Start()
+    {
         initPos = transform.position;
         initRot = transform.rotation;
     }
 
-    void FixedUpdate(){
+    void FixedUpdate()
+    {
 /*
         if(detached){
 
@@ -69,55 +73,47 @@ public class DetachablePart : NetworkBehaviour
         }*/
     }
 
-    bool PositionChanged(){
-
+    bool PositionChanged()
+    {
         bool changed = (transform.position - initPos).sqrMagnitude > 0.01f;
-        
-        if(changed) {
 
+        if (changed)
+        {
             initPos = transform.position;
-
         }
 
         return changed;
-
     }
 
-    bool RotationChanged(){
-
+    bool RotationChanged()
+    {
         bool changed = Quaternion.Angle(initRot, transform.localRotation) > 0.01f;
 
-        if(changed) {
-
+        if (changed)
+        {
             initRot = transform.rotation;
-
         }
 
         return changed;
-
     }
 
     [Command]
-    void CmdSyncPosition(){
-        
-        if((transform.position - initPos).sqrMagnitude < 10) {
-
+    void CmdSyncPosition()
+    {
+        if ((transform.position - initPos).sqrMagnitude < 10)
+        {
             transform.position = Vector3.Lerp(transform.position, projectedPosition, Time.deltaTime * 5f);
-
         }
-        else {
-
+        else
+        {
             transform.position = projectedPosition;
-            
         }
-
     }
 
     [Command]
-    void CmdSyncRotation() {
-
+    void CmdSyncRotation()
+    {
         transform.rotation = Quaternion.Lerp(transform.rotation, projectedRot, Time.deltaTime * 5f);
-
     }
 
     public void Detach()

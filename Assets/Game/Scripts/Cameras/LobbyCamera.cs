@@ -9,9 +9,10 @@ public class LobbyCamera : MonoBehaviour
 
     float rotY;
     float rotX;
-    private void Update() 
+
+    private void Update()
     {
-		if(Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0))
         {
             rotY += Input.GetAxis("Mouse X") * speed * Time.deltaTime;
             rotX += -Input.GetAxis("Mouse Y") * speed * Time.deltaTime;
@@ -19,14 +20,14 @@ public class LobbyCamera : MonoBehaviour
             rotX = Mathf.Clamp(rotX, -70, 90);
 
             Quaternion localRotation = Quaternion.Euler(rotX, rotY, 0.0f);
-            transform.rotation = localRotation;     
+            transform.rotation = localRotation;
         }
 
-        if(Input.GetAxis("Mouse ScrollWheel") > 0 || Input.GetAxis("Mouse ScrollWheel") < 0)
+        if (Input.GetAxis("Mouse ScrollWheel") > 0 || Input.GetAxis("Mouse ScrollWheel") < 0)
         {
             var pos = transform.GetChild(0).localPosition;
             pos.z += Input.GetAxis("Mouse ScrollWheel") * 10;
-            
+
             transform.GetChild(0).transform.localPosition = pos;
         }
     }
