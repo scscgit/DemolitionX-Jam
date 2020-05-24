@@ -142,12 +142,13 @@ public class Custamization : MonoBehaviour
         OverrideVehicle(vehicle);
     }
 
-    public static int wheelValue;
+    public static int wheelIndex;
+    public static int wheelSizeIndex;
 
     /// <summary>
     /// Change Wheel Models. Note : They need to be of same size
     /// </summary>
-    public static void ChangeWheels(VehiclePhysics vehicle, int value, int wheelIndex)
+    public static void ChangeWheels(VehiclePhysics vehicle, int value, int SizeIndex)
     {
         if (!CheckVehicle(vehicle))
             return;
@@ -158,7 +159,7 @@ public class Custamization : MonoBehaviour
             foreach (Transform t in vehicle.allWheelColliders[i].wheelModel.GetComponentInChildren<Transform>())
                 DestroyImmediate(t.gameObject);
 
-            GameObject wheel = ChangableWheels.Instance.wheels[value].wheel[wheelIndex];
+            GameObject wheel = ChangableWheels.Instance.wheels[value].wheel[SizeIndex];
 
             GameObject newWheel = (GameObject) Instantiate(wheel, vehicle.allWheelColliders[i].wheelModel.position,
                 vehicle.allWheelColliders[i].wheelModel.rotation, vehicle.allWheelColliders[i].wheelModel);
@@ -168,7 +169,8 @@ public class Custamization : MonoBehaviour
                     newWheel.transform.localScale.y, newWheel.transform.localScale.z);
         }
 
-        wheelValue = value;
+        wheelIndex = value;
+        wheelSizeIndex = SizeIndex;
 
         OverrideVehicle(vehicle);
     }
@@ -602,6 +604,43 @@ public class Custamization : MonoBehaviour
         vehicle.carProperties.carMaterial.SetFloat("_Glossiness", value);
     }
 
+    /// <summary>
+    /// Sets RIM Color
+    /// </summary>
+    public static void SetRimColor(VehiclePhysics vehicle, Color color)
+    {
+        if (!CheckVehicle(vehicle))
+            return;
+
+        ChangableWheels.Instance.wheels[wheelIndex].material.color = color;
+
+        if(ChangableWheels.Instance.wheels[wheelIndex].material2)
+        ChangableWheels.Instance.wheels[wheelIndex].material2.color = color;
+
+    }
+
+    /// <summary>
+    /// Sets metalness of the RIM
+    /// </summary>
+    public static void SetRIMPaintMetalness(VehiclePhysics vehicle, float value)
+    {
+        if (!CheckVehicle(vehicle))
+            return;
+
+        ChangableWheels.Instance.wheels[wheelIndex].material.SetFloat("_Metallic", value);
+    }
+
+    /// <summary>
+    /// Sets glossiness of the RIM
+    /// </summary>
+    public static void SetRIMPaintGlossiness(VehiclePhysics vehicle, float value)
+    {
+        if (!CheckVehicle(vehicle))
+            return;
+
+        ChangableWheels.Instance.wheels[wheelIndex].material.SetFloat("_Glossiness", value);
+    }
+
     public static int spoilerIndex;
     public static GameObject sp;
 
@@ -678,10 +717,15 @@ public class Custamization : MonoBehaviour
 
         SaveData.SetColor(vehicle.transform.name + "_WheelsSmokeColor", psmain.startColor.color);
         SaveData.SetColor(vehicle.transform.name + "_BodyColor", vehicle.carProperties.carMaterial.color);
+        SaveData.SetColor(vehicle.transform.name + "_RimColor", ChangableWheels.Instance.wheels[wheelIndex].material.color);
         PlayerPrefs.SetFloat(vehicle.transform.name + "_Metallic",
             vehicle.carProperties.carMaterial.GetFloat("_Metallic"));
         PlayerPrefs.SetFloat(vehicle.transform.name + "_Glossiness",
             vehicle.carProperties.carMaterial.GetFloat("_Glossiness"));
+        PlayerPrefs.SetFloat(vehicle.transform.name + "_RIMMetallic",
+            ChangableWheels.Instance.wheels[wheelIndex].material.GetFloat("_Metallic"));
+        PlayerPrefs.SetFloat(vehicle.transform.name + "_RIMGlossiness",
+            ChangableWheels.Instance.wheels[wheelIndex].material.GetFloat("_Glossiness"));
 
         SaveData.SetBool(vehicle.transform.name + "_ABS", vehicle.ABS);
         SaveData.SetBool(vehicle.transform.name + "_ESP", vehicle.ESP);
@@ -695,6 +739,9 @@ public class Custamization : MonoBehaviour
         SaveData.SetBool(vehicle.transform.name + "ClutchMargin", vehicle.useClutchMarginAtFirstGear);
 
         PlayerPrefs.SetInt(vehicle.transform.name + "Spoiler", spoilerIndex);
+        PlayerPrefs.SetInt(vehicle.transform.name + "WheelIndex", wheelIndex);
+        PlayerPrefs.SetInt(vehicle.transform.name + "WheelSizeIndex", wheelSizeIndex);
+
     }
 
     /// <summary>
@@ -789,8 +836,18 @@ public class Custamization : MonoBehaviour
         if (PlayerPrefs.HasKey(vehicle.transform.name + "_Glossiness"))
             SetPaintGlossiness(vehicle, PlayerPrefs.GetFloat(vehicle.transform.name + "_Glossiness"));
 
+        if (PlayerPrefs.HasKey(vehicle.transform.name + "_Metallic"))
+            SetRIMPaintMetalness(vehicle, PlayerPrefs.GetFloat(vehicle.transform.name + "_RIMMetallic"));
+
+        if (PlayerPrefs.HasKey(vehicle.transform.name + "_Glossiness"))
+            SetRIMPaintGlossiness(vehicle, PlayerPrefs.GetFloat(vehicle.transform.name + "_RIMGlossiness"));
+
         if (PlayerPrefs.HasKey(vehicle.transform.name + "Spoiler"))
             SetSpoiler(vehicle, PlayerPrefs.GetInt(vehicle.transform.name + "Spoiler"));
+
+        if (PlayerPrefs.HasKey(vehicle.transform.name + "WheelIndex"))
+            ChangeWheels(vehicle, PlayerPrefs.GetInt(vehicle.transform.name + "WheelIndex"),
+            PlayerPrefs.GetInt(vehicle.transform.name + "WheelSizeIndex"));
 
         OverrideVehicle(vehicle);
     }

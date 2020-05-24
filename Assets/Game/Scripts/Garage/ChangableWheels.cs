@@ -26,6 +26,8 @@ public class ChangableWheels : ScriptableObject
     public class ChangableWheel
     {
         public GameObject[] wheel;
+        public Material material;
+        public Material material2;
     }
 
     public ChangableWheel[] wheels;

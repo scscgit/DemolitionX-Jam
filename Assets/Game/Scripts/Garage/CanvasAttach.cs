@@ -61,6 +61,7 @@ public class CanvasAttach : MonoBehaviour
     [Header("UI Dropdown Menus")] public Dropdown drivetrainMode;
     public Dropdown spoilerDropdown;
     public Dropdown wheelDropdown;
+    public Dropdown wheelSizeDropdown;
 
     void Start()
     {
@@ -130,7 +131,8 @@ public class CanvasAttach : MonoBehaviour
                 break;
         }
 
-        wheelDropdown.value = Custamization.wheelValue;
+        wheelDropdown.value = Custamization.wheelIndex;
+        wheelSizeDropdown.value = Custamization.wheelSizeIndex;
         spoilerDropdown.value = Custamization.spoilerIndex;
     }
 
@@ -210,7 +212,7 @@ public class CanvasAttach : MonoBehaviour
 
     public void ChangeWheelSizeIndexByDropDown(Dropdown dropdown) {
 
-        Custamization.ChangeWheels(Instance.activePlayerVehicle, Custamization.wheelValue,
+        Custamization.ChangeWheels(Instance.activePlayerVehicle, Custamization.wheelIndex,
             dropdown.value);
 
     }
@@ -400,5 +402,20 @@ public class CanvasAttach : MonoBehaviour
     public void SetCarPoilerByDropdown(Dropdown dropdown)
     {
         Custamization.SetSpoiler(Instance.activePlayerVehicle, dropdown.value);
+    }
+
+    public void SetRimColorBySlider(ColorSlider colorSlider)
+    {
+        Custamization.SetRimColor(Instance.activePlayerVehicle, colorSlider.color);
+    }
+
+    public void SetRimMetalnessByColorPicker(ColorSlider colorSlider)
+    {
+        Custamization.SetRIMPaintMetalness(instance.activePlayerVehicle, colorSlider.metalness);
+    }
+
+    public void SetRimGlossinessByColorPicker(ColorSlider colorSlider)
+    {
+        Custamization.SetRIMPaintGlossiness(instance.activePlayerVehicle, colorSlider.glossiness);
     }
 }
