@@ -187,8 +187,8 @@ namespace Game.Scripts.Network
                 vehicleCamera.gameObject.SetActive(true);
                 vehicleCamera.playerCar = car.transform;
                 var vehiclePhysics = car.GetComponent<VehiclePhysics>();
-                var vehicleSync = car.GetComponent<VehicleSync>();
-                vehicleSync.l = true;
+                //var vehicleSync = car.GetComponent<VehicleSync>();
+                //vehicleSync.l = true;
                 vehiclePhysics.canControl = true;
                 vehiclePhysics.StartEngine();
                 // Always rotate HoveringDetails towards the current player

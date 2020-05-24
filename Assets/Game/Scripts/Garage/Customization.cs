@@ -147,15 +147,18 @@ public class Custamization : MonoBehaviour
     /// <summary>
     /// Change Wheel Models. Note : They need to be of same size
     /// </summary>
-    public static void ChangeWheels(VehiclePhysics vehicle, GameObject wheel, int value)
+    public static void ChangeWheels(VehiclePhysics vehicle, int value, int wheelIndex)
     {
         if (!CheckVehicle(vehicle))
             return;
+
 
         for (int i = 0; i < vehicle.allWheelColliders.Length; i++)
         {
             foreach (Transform t in vehicle.allWheelColliders[i].wheelModel.GetComponentInChildren<Transform>())
                 DestroyImmediate(t.gameObject);
+
+            GameObject wheel = ChangableWheels.Instance.wheels[value].wheel[wheelIndex];
 
             GameObject newWheel = (GameObject) Instantiate(wheel, vehicle.allWheelColliders[i].wheelModel.position,
                 vehicle.allWheelColliders[i].wheelModel.rotation, vehicle.allWheelColliders[i].wheelModel);

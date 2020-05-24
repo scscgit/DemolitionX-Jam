@@ -25,7 +25,7 @@ public class ChangableWheels : ScriptableObject
     [System.Serializable]
     public class ChangableWheel
     {
-        public GameObject wheel;
+        public GameObject[] wheel;
     }
 
     public ChangableWheel[] wheels;

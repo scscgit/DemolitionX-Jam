@@ -201,10 +201,18 @@ public class CanvasAttach : MonoBehaviour
         Custamization.SetHeadlightsColor(Instance.activePlayerVehicle, color.color);
     }
 
+    int wheelIndex;
     public void ChangeWheelsByDropdown(Dropdown dropdown)
     {
-        Custamization.ChangeWheels(Instance.activePlayerVehicle, ChangableWheels.Instance.wheels[dropdown.value].wheel,
+        Custamization.ChangeWheels(Instance.activePlayerVehicle, dropdown.value,
+            wheelIndex);
+    }
+
+    public void ChangeWheelSizeIndexByDropDown(Dropdown dropdown) {
+
+        Custamization.ChangeWheels(Instance.activePlayerVehicle, Custamization.wheelValue,
             dropdown.value);
+
     }
 
     public void SetFrontSuspensionTargetsBySlider(Slider slider)
