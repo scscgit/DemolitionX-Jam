@@ -225,8 +225,8 @@ namespace Game.Scripts.Network
             _hoveringDetails.DisplayHealth(health);
             //var healthAndScores = car.GetComponent<HealthAndScores>();
             //healthAndScores.Player = this;
-            _vehiclePhysics = car.GetComponent<VehiclePhysics>();
-            _vehiclePhysics.Player = this;
+            //_vehiclePhysics = car.GetComponent<VehiclePhysics>();
+            //_vehiclePhysics.Player = this;
         }
 
         public void SetScore(int setScore)
@@ -242,8 +242,6 @@ namespace Game.Scripts.Network
                 return;
             }
 
-            health = setHealth < 0 ? 0 : setHealth;
-            _vehiclePhysics.health = setHealth;
             RpcDisplayHealth(setHealth);
         }
 

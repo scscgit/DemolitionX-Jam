@@ -207,13 +207,19 @@ public class CanvasAttach : MonoBehaviour
     public void ChangeWheelsByDropdown(Dropdown dropdown)
     {
         Custamization.ChangeWheels(Instance.activePlayerVehicle, dropdown.value,
-            wheelIndex);
+            Custamization.wheelSizeIndex, Custamization.tyreIndex);
+    }
+
+    public void ChangeTyreTextureByDropdown(Dropdown dropdown)
+    {
+        Custamization.ChangeWheels(Instance.activePlayerVehicle, Custamization.wheelIndex,
+            Custamization.wheelSizeIndex, dropdown.value);
     }
 
     public void ChangeWheelSizeIndexByDropDown(Dropdown dropdown) {
 
         Custamization.ChangeWheels(Instance.activePlayerVehicle, Custamization.wheelIndex,
-            dropdown.value);
+            dropdown.value, Custamization.tyreIndex);
 
     }
 
@@ -422,5 +428,10 @@ public class CanvasAttach : MonoBehaviour
     public void SetCarFrontBumperByDropdown(Dropdown dropdown)
     {
         Custamization.SetFrontBumper(Instance.activePlayerVehicle, dropdown.value);
+    }
+
+    public void SetTyreTextureByDropdown(Dropdown dropdown)
+    {
+
     }
 }

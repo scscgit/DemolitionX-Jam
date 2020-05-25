@@ -472,7 +472,7 @@ public class VehiclePhysics : MonoBehaviour
 
 
     // Maximum Speed For Current Gear.
-    public GameNetworkPlayer Player { protected get; set; }
+    ///public GameNetworkPlayer Player { protected get; set; }
     private bool permanentGas = false;
 
     #endregion
@@ -721,7 +721,7 @@ public class VehiclePhysics : MonoBehaviour
                     }
 
                     DamageApplication(curCol.point, col.relativeVelocity, maxCollisionMagnitude, curCol.normal, curCol,
-                        true, col.transform.FindComponentIncludingParents<VehiclePhysics>());
+                        true);
                     //Stop checking collision points when limit reached
                     if (colsChecked >= maxCollisionPoints)
                     {
@@ -1713,7 +1713,7 @@ public class VehiclePhysics : MonoBehaviour
     }
 
     void DamageApplication(Vector3 damagePoint, Vector3 damageForce, float damageForceLimit, Vector3 surfaceNormal,
-        ContactPoint colPoint, bool useContactPoint, VehiclePhysics targetVehicle)
+        ContactPoint colPoint, bool useContactPoint)
     {
         float colMag = Mathf.Min(damageForce.magnitude, maxCollisionMagnitude) * (1 - strength)
                                                                                * damageFactor; //Magnitude of collision
@@ -1756,23 +1756,16 @@ public class VehiclePhysics : MonoBehaviour
                 (clampedColMag * 0.01f)
                 / Mathf.Pow(Vector3.Distance(transform.position, damagePoint), clampedColMag / 10));
 
-        if (Player.isServer)
+        health = health < 0 ? 0 : (damagePartFactor * 10f);
+
+        if(GetComponent<HealthAndScores>())
         {
+            var h = GetComponent<HealthAndScores>();
 
-            healthLost = damagePartFactor * 10f;
-            healthLost = healthLost < 0.5 ? 0.5f : healthLost < 1 ? 1 : healthLost;
-            Player.SetHealth(health - healthLost);
+            scoreGained = (int) (speed / maxspeed * colMag * massFactor * clampedVel.magnitude);
 
-            if (!ReferenceEquals(targetVehicle, null))
-            {
-                scoreGained = (int) (speed / maxspeed * colMag * massFactor * clampedVel.magnitude);
-                Player.SetScore(Player.score + scoreGained);
-                Player.RpcDisplayPlayerHitEvent(targetVehicle.Player.playerName, healthLost, scoreGained);
-            }
-            else
-            {
-                Player.RpcDisplayObjectHitEvent("a random collision", healthLost);
-            }
+            h.SetHealth(health);
+            h.SetScores(scoreGained);
         }
 
         //Deform meshes
@@ -1896,34 +1889,6 @@ public class VehiclePhysics : MonoBehaviour
             }
         }
     }
-
-    /*[Command]
-    public void CmdLosePart(int partIndex, float healthLost)
-    {
-        RpcLosePart(partIndex);
-        Player.SetHealth(health - healthLost);
-        Player.RpcDisplayObjectHitEvent("losing a component", healthLost);
-    }
-
-    [ClientRpc]
-    public void RpcLosePart(int partIndex)
-    {
-        displaceParts[partIndex].GetComponent<DetachablePart>().Detach();
-    }
-
-    [Command]
-    public void CmdLoseWheel(int partIndex, float healthLost)
-    {
-        RpcLoseWheel(partIndex);
-        Player.SetHealth(health - healthLost);
-        Player.RpcDisplayObjectHitEvent("losing a wheel", healthLost);
-    }
-
-    [ClientRpc]
-    public void RpcLoseWheel(int partIndex)
-    {
-        displaceParts[partIndex].GetComponent<VehiclePhysicsWheelCollider>().Detach();
-    }*/
 
     void FinalizeDamage()
     {

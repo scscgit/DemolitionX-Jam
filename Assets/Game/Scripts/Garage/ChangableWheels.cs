@@ -30,5 +30,10 @@ public class ChangableWheels : ScriptableObject
         public Material material2;
     }
 
+    [Header("Wheels")]
     public ChangableWheel[] wheels;
+
+    [Header("Wheel MAterials")]
+    public Material[] wheelWaterials;
+
 }

@@ -153,3 +153,10 @@ MonoBehaviour:
     - {fileID: 8380097582561044821, guid: 6ed639c56e78c4b4795f24a7d2b3dc32, type: 3}
     material: {fileID: 2100000, guid: ce7c028073bb0b84fa5894b7b9043b43, type: 2}
     material2: {fileID: 0}
+  wheelWaterials:
+  - {fileID: 2100000, guid: 6d28f3786261cee42b5ddb3d2861f4ce, type: 2}
+  - {fileID: 2100000, guid: 850f79bf6efdbc047afc242db07df2fa, type: 2}
+  - {fileID: 2100000, guid: 2679be90f341f3a49bb87f5ff9cc3eff, type: 2}
+  - {fileID: 2100000, guid: 3b446a8bf22e6164fa1ebdb9afd7ab7d, type: 2}
+  - {fileID: 2100000, guid: b48a7cd8ffa9b0e4c92e297bf5ff36ed, type: 2}
+  - {fileID: 2100000, guid: a876eabb5ecaf844f835d80bec1101ec, type: 2}

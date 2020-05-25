@@ -144,11 +144,12 @@ public class Custamization : MonoBehaviour
 
     public static int wheelIndex;
     public static int wheelSizeIndex;
+    public static int tyreIndex;
 
     /// <summary>
     /// Change Wheel Models. Note : They need to be of same size
     /// </summary>
-    public static void ChangeWheels(VehiclePhysics vehicle, int value, int SizeIndex)
+    public static void ChangeWheels(VehiclePhysics vehicle, int value, int SizeIndex, int tyre)
     {
         if (!CheckVehicle(vehicle))
             return;
@@ -164,6 +165,9 @@ public class Custamization : MonoBehaviour
             GameObject newWheel = (GameObject) Instantiate(wheel, vehicle.allWheelColliders[i].wheelModel.position,
                 vehicle.allWheelColliders[i].wheelModel.rotation, vehicle.allWheelColliders[i].wheelModel);
 
+            //GameObject tyres = GameObject.Find(newWheel.transform.name + "/Tyre_Lod0");
+            newWheel.transform.GetChild(0).GetComponent<MeshRenderer>().sharedMaterial = ChangableWheels.Instance.wheelWaterials[tyre];
+
             if (vehicle.allWheelColliders[i].wheelModel.localPosition.x > 0f)
                 newWheel.transform.localScale = new Vector3(newWheel.transform.localScale.x * -1f,
                     newWheel.transform.localScale.y, newWheel.transform.localScale.z);
@@ -171,6 +175,7 @@ public class Custamization : MonoBehaviour
 
         wheelIndex = value;
         wheelSizeIndex = SizeIndex;
+        tyreIndex = tyre;
 
         OverrideVehicle(vehicle);
     }
@@ -776,6 +781,7 @@ public class Custamization : MonoBehaviour
         PlayerPrefs.SetInt(vehicle.transform.name + "Spoiler", spoilerIndex);
         PlayerPrefs.SetInt(vehicle.transform.name + "WheelIndex", wheelIndex);
         PlayerPrefs.SetInt(vehicle.transform.name + "WheelSizeIndex", wheelSizeIndex);
+        PlayerPrefs.SetInt(vehicle.transform.name + "TyreIndex", tyreIndex);
         PlayerPrefs.SetInt(vehicle.transform.name + "Front Bumper", frontBumperIndex);
 
     }
@@ -886,7 +892,8 @@ public class Custamization : MonoBehaviour
 
         if (PlayerPrefs.HasKey(vehicle.transform.name + "WheelIndex"))
             ChangeWheels(vehicle, PlayerPrefs.GetInt(vehicle.transform.name + "WheelIndex"),
-            PlayerPrefs.GetInt(vehicle.transform.name + "WheelSizeIndex"));
+            PlayerPrefs.GetInt(vehicle.transform.name + "WheelSizeIndex"),
+            PlayerPrefs.GetInt(vehicle.transform.name + "TyreIndex"));
 
         OverrideVehicle(vehicle);
     }
