@@ -655,6 +655,9 @@ public class Custamization : MonoBehaviour
         if (sp)
             DestroyImmediate(sp);
 
+        if(!vehicle.carProperties.spoilers[value].spoiler)
+        return;
+
         GameObject parent = GameObject.Find(vehicle.transform.name + "/Chassis/Spoiler");
         GameObject spoiler = (GameObject) Instantiate(vehicle.carProperties.spoilers[value].spoiler);
         spoiler.transform.parent = parent.transform;
@@ -663,6 +666,38 @@ public class Custamization : MonoBehaviour
 
         spoilerIndex = value;
         sp = spoiler;
+    }
+
+    public static int frontBumperIndex;
+    public static GameObject fb;
+
+    /// <summary>
+    /// Changes Front Bumpers attached to car
+    /// </summary>
+    public static void SetFrontBumper(VehiclePhysics vehicle, int value)
+    {
+        if (!CheckVehicle(vehicle))
+            return;
+
+        if (fb)
+        DestroyImmediate(fb);
+
+        vehicle.RemoveArrayNullElements();
+
+        if(!vehicle.carProperties.frontBumpers[value].bumper)
+        return;
+
+        GameObject parent = GameObject.Find(vehicle.transform.name + "/Chassis/Front Bumper");
+        GameObject bumper = (GameObject) Instantiate(vehicle.carProperties.frontBumpers[value].bumper);
+        bumper.transform.parent = parent.transform;
+        bumper.transform.localPosition = vehicle.carProperties.frontBumpers[value].position;
+        bumper.transform.localRotation = Quaternion.Euler(vehicle.carProperties.frontBumpers[value].rotation);
+
+        frontBumperIndex = value;
+        fb = bumper;
+
+        vehicle.deformMeshes.Add(bumper.GetComponent<MeshFilter>());
+        vehicle.DamageInit();
     }
 
     /// <summary>
@@ -741,6 +776,7 @@ public class Custamization : MonoBehaviour
         PlayerPrefs.SetInt(vehicle.transform.name + "Spoiler", spoilerIndex);
         PlayerPrefs.SetInt(vehicle.transform.name + "WheelIndex", wheelIndex);
         PlayerPrefs.SetInt(vehicle.transform.name + "WheelSizeIndex", wheelSizeIndex);
+        PlayerPrefs.SetInt(vehicle.transform.name + "Front Bumper", frontBumperIndex);
 
     }
 
@@ -844,6 +880,9 @@ public class Custamization : MonoBehaviour
 
         if (PlayerPrefs.HasKey(vehicle.transform.name + "Spoiler"))
             SetSpoiler(vehicle, PlayerPrefs.GetInt(vehicle.transform.name + "Spoiler"));
+
+        if (PlayerPrefs.HasKey(vehicle.transform.name + "Front Bumper"))
+            SetFrontBumper(vehicle, PlayerPrefs.GetInt(vehicle.transform.name + "Front Bumper"));
 
         if (PlayerPrefs.HasKey(vehicle.transform.name + "WheelIndex"))
             ChangeWheels(vehicle, PlayerPrefs.GetInt(vehicle.transform.name + "WheelIndex"),

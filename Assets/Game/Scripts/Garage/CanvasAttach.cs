@@ -418,4 +418,9 @@ public class CanvasAttach : MonoBehaviour
     {
         Custamization.SetRIMPaintGlossiness(instance.activePlayerVehicle, colorSlider.glossiness);
     }
+
+    public void SetCarFrontBumperByDropdown(Dropdown dropdown)
+    {
+        Custamization.SetFrontBumper(Instance.activePlayerVehicle, dropdown.value);
+    }
 }

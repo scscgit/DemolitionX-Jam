@@ -1,13 +1,10 @@
 using Game.Scripts.Network;
 using UnityEngine;
-using Mirror;
 
-
-[DisallowMultipleComponent]
 [AddComponentMenu("Detachable Part", 1)]
 
 //Class for parts that can detach
-public class DetachablePart : NetworkBehaviour
+public class DetachablePart : MonoBehaviour
 {
     //Transform tr;
     Rigidbody rb;
@@ -49,7 +46,7 @@ public class DetachablePart : NetworkBehaviour
         initRot = transform.rotation;
     }
 
-    void FixedUpdate()
+    /*void FixedUpdate()
     {
 /*
         if(detached){
@@ -61,7 +58,7 @@ public class DetachablePart : NetworkBehaviour
 
                 CmdSyncPosition();
 
-            } 
+            }
 
             if(RotationChanged()) {
 
@@ -69,8 +66,8 @@ public class DetachablePart : NetworkBehaviour
 
             }
 
-            updateTime = Time.time;           
-        }*/
+            updateTime = Time.time;
+        }*
     }
 
     bool PositionChanged()
@@ -114,7 +111,7 @@ public class DetachablePart : NetworkBehaviour
     void CmdSyncRotation()
     {
         transform.rotation = Quaternion.Lerp(transform.rotation, projectedRot, Time.deltaTime * 5f);
-    }
+    }*/
 
     public void Detach()
     {
@@ -125,7 +122,7 @@ public class DetachablePart : NetworkBehaviour
             // gameObject.name = gameObject.name + net.netId;
 
             // Both server and client will remove the object for themselves after the match ends, without syncing that
-            Environment.Instance.RegisterObjectForCleanup(gameObject);
+            //Environment.Instance.RegisterObjectForCleanup(gameObject);
 
             transform.parent = null;
             //tr.parent = null;

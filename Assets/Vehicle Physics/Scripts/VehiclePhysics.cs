@@ -2,16 +2,16 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using Game.Scripts.Network;
 //using Game.Scripts.Network;
+using Game.Scripts.Network;
 using Game.Scripts.Util;
-using Mirror;
+//using Mirror;
 
 /// <summary>
 /// Main vehicle controller that includes Wheels, Steering, Suspensions, Mechanic Configuration, Stability, Lights, Sounds, and Damage.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
-public class VehiclePhysics : NetworkBehaviour
+public class VehiclePhysics : MonoBehaviour
 {
     #region Variables
 
@@ -72,8 +72,8 @@ public class VehiclePhysics : NetworkBehaviour
     public bool applyEngineTorqueToExtraRearWheelColliders = true; //Applies Engine Torque To Extra Rear Wheels.
 
     // Steering wheel model.
-    [Header("Steering")] public Transform
-        SteeringWheel; // Driver Steering Wheel. In case of if your vehicle has individual steering wheel model in interior.
+    [Header("Steering")]
+    public Transform SteeringWheel; // Driver Steering Wheel. In case of if your vehicle has individual steering wheel model in interior.
 
     private Quaternion orgSteeringWheelRot; // Original rotation of Steering Wheel.
     public SteeringWheelRotateAround steeringWheelRotateAround; // Current rotation of Steering Wheel.
@@ -84,9 +84,7 @@ public class VehiclePhysics : NetworkBehaviour
     public float steerAngle = 40f; // Maximum Steer Angle Of Your Vehicle.
     public float highspeedsteerAngle = 15f; // Maximum Steer Angle At Highest Speed.
 
-    public float
-        highspeedsteerAngleAtspeed =
-            100f; // Highest Speed For Maximum Steer Angle.					// Angle multiplier of Steering Wheel.
+    public float highspeedsteerAngleAtspeed = 100f; // Highest Speed For Maximum Steer Angle.					// Angle multiplier of Steering Wheel.
 
     [Header("Center Of Mass")] public Transform COM; // Center of mass.
 
@@ -94,9 +92,7 @@ public class VehiclePhysics : NetworkBehaviour
     // Bools.
     public bool canControl = true; // Enables / Disables controlling the vehicle.
 
-    public bool
-        engineRunning =
-            false; // Enables / Disables auto reversing when player press brake button. Useful for if you are making parking style game.
+    public bool engineRunning = false; // Enables / Disables auto reversing when player press brake button. Useful for if you are making parking style game.
 
     public bool automaticGear = true; // Enables / Disables automatic gear shifting of the vehicle.
     internal bool semiAutomaticGear = false; // Enables / Disables automatic gear shifting of the vehicle.
@@ -122,9 +118,7 @@ public class VehiclePhysics : NetworkBehaviour
 
     public float antiRollRearHorizontal = 5000f; // Anti Roll Horizontal Force For Preventing Flip Overs And Stability.
 
-    public float
-        antiRollVertical =
-            0f; // Anti Roll Vertical Force For Preventing Flip Overs And Stability. I know it doesn't exist, but it can improve gameplay if you have height COM vehicles like monster trucks.
+    public float antiRollVertical = 0f; // Anti Roll Vertical Force For Preventing Flip Overs And Stability. I know it doesn't exist, but it can improve gameplay if you have height COM vehicles like monster trucks.
 
     // Downforce.
     public float downForce = 25f; // Applies downforce related with vehicle speed.
@@ -217,7 +211,8 @@ public class VehiclePhysics : NetworkBehaviour
     // Main Gameobjects for keep the Hierarchy clean and organized.
     private GameObject allContactParticles;
 
-    [Header("Inputs")] public float gasInput = 0f;
+    [Header("Inputs")]
+    public float gasInput = 0f;
     public float brakeInput = 0f;
     public float steerInput = 0f;
     public float clutchInput = 0f;
@@ -361,6 +356,8 @@ public class VehiclePhysics : NetworkBehaviour
     [Header("Damage System")] public float health = 100;
     public bool useDamage = true;
     public bool hasPivotIssues = false; // Use Damage.
+    [HideInInspector] public float healthLost;
+    [HideInInspector] public int scoreGained;
 
     [Range(0, 1)] public float strength;
     public float damageFactor = 1;
@@ -389,18 +386,19 @@ public class VehiclePhysics : NetworkBehaviour
     [Tooltip("Recalculate normals of deformed meshes")]
     public bool calculateNormals = true;
 
-    [Tooltip("Meshes that are deformed")] public MeshFilter[] deformMeshes;
+    [Tooltip("Meshes that are deformed")]
+    public List<MeshFilter> deformMeshes;
     bool[] damagedMeshes;
     Mesh[] tempMeshes;
     meshVerts[] meshVertices;
 
-    [Tooltip("Parts that are displaced")] public Transform[] displaceParts;
+    [Tooltip("Parts that are displaced")]
+    public List<Transform> displaceParts;
     //Vector3[] initialPartPositions;
 
     ContactPoint nullContact = new ContactPoint();
 
-    public GameObject
-        contactSparkle
+    public GameObject contactSparkle
     {
         get { return commonSettings.contactParticles; }
     } // Contact Particles for collisions. It must be Particle System.
@@ -433,9 +431,7 @@ public class VehiclePhysics : NetworkBehaviour
     [Range(.05f, 1f)] public float ESPStrength = .5f;
     public bool steeringHelper = true;
 
-    public bool
-        applyCounterSteering =
-            true; // Applies counter steering when vehicle is drifting. It helps to keep the control fine of the vehicle.
+    public bool applyCounterSteering = true; // Applies counter steering when vehicle is drifting. It helps to keep the control fine of the vehicle.
 
     [Range(0f, 1f)] public float steerHelperLinearVelStrength = .1f;
     [Range(0f, 1f)] public float steerHelperAngularVelStrength = .1f;
@@ -1668,31 +1664,37 @@ public class VehiclePhysics : NetworkBehaviour
     #region Damage System
 
     // Collecting all meshes for damage.
-    void DamageInit()
+    public void DamageInit()
     {
-        if (contactSparkle)
-        {
-            for (int i = 0; i < maximumContactSparkle; i++)
-            {
-                GameObject sparks =
-                    (GameObject) Instantiate(contactSparkle, transform.position, Quaternion.identity) as GameObject;
-                sparks.transform.SetParent(allContactParticles.transform);
-                contactSparkeList.Add(sparks.GetComponent<ParticleSystem>());
-                ParticleSystem.EmissionModule em = sparks.GetComponent<ParticleSystem>().emission;
-                em.enabled = false;
-            }
-        }
+        if(contactSparkeList.Count < 1)
+        ContactSparkleInit();
 
-        tempMeshes = new Mesh[deformMeshes.Length];
-        damagedMeshes = new bool[deformMeshes.Length];
-        meshVertices = new meshVerts[deformMeshes.Length];
-        for (int i = 0; i < deformMeshes.Length; i++)
+        tempMeshes = new Mesh[deformMeshes.Count];
+        damagedMeshes = new bool[deformMeshes.Count];
+        meshVertices = new meshVerts[deformMeshes.Count];
+        for (int i = 0; i < deformMeshes.Count; i++)
         {
             tempMeshes[i] = deformMeshes[i].mesh;
             meshVertices[i] = new meshVerts();
             meshVertices[i].verts = deformMeshes[i].mesh.vertices;
             meshVertices[i].initialVerts = deformMeshes[i].mesh.vertices;
             damagedMeshes[i] = false;
+        }
+    }
+
+    void ContactSparkleInit()
+    {
+        if (contactSparkle)
+        {
+            for (int i = 0; i < maximumContactSparkle; i++)
+            {
+                GameObject sparks =
+                    (GameObject) Instantiate(contactSparkle, transform.position, Quaternion.identity);
+                sparks.transform.SetParent(allContactParticles.transform);
+                contactSparkeList.Add(sparks.GetComponent<ParticleSystem>());
+                ParticleSystem.EmissionModule em = sparks.GetComponent<ParticleSystem>().emission;
+                em.enabled = false;
+            }
         }
     }
 
@@ -1749,17 +1751,21 @@ public class VehiclePhysics : NetworkBehaviour
 
         surfaceDot = Mathf.Clamp01(Vector3.Dot(surfaceNormal, normalizedVel))
                      * (Vector3.Dot((transform.position - damagePoint).normalized, normalizedVel) + 1) * 0.5f;
-        if (Player.isServer)
-        {
-            damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.1f,
+
+        damagePartFactor = colMag * surfaceDot * massFactor * Mathf.Min(clampedColMag * 0.1f,
                 (clampedColMag * 0.01f)
                 / Mathf.Pow(Vector3.Distance(transform.position, damagePoint), clampedColMag / 10));
-            var healthLost = damagePartFactor * 10f;
+
+        if (Player.isServer)
+        {
+
+            healthLost = damagePartFactor * 10f;
             healthLost = healthLost < 0.5 ? 0.5f : healthLost < 1 ? 1 : healthLost;
             Player.SetHealth(health - healthLost);
+
             if (!ReferenceEquals(targetVehicle, null))
             {
-                var scoreGained = (int) (speed / maxspeed * colMag * massFactor * clampedVel.magnitude);
+                scoreGained = (int) (speed / maxspeed * colMag * massFactor * clampedVel.magnitude);
                 Player.SetScore(Player.score + scoreGained);
                 Player.RpcDisplayPlayerHitEvent(targetVehicle.Player.playerName, healthLost, scoreGained);
             }
@@ -1770,7 +1776,7 @@ public class VehiclePhysics : NetworkBehaviour
         }
 
         //Deform meshes
-        for (int i = 0; i < deformMeshes.Length; i++)
+        for (int i = 0; i < deformMeshes.Count; i++)
         {
             curDamageMesh = deformMeshes[i];
             localPos = curDamageMesh.transform.InverseTransformPoint(damagePoint);
@@ -1846,7 +1852,7 @@ public class VehiclePhysics : NetworkBehaviour
 
 
         //Displace parts
-        for (int i = 0; i < displaceParts.Length; i++)
+        for (int i = 0; i < displaceParts.Count; i++)
         {
             curDisplacePart = displaceParts[i];
             translation = clampedVel;
@@ -1873,7 +1879,7 @@ public class VehiclePhysics : NetworkBehaviour
                         {
                             if (colMag * surfaceDot * massFactor > detachedPart.breakForce)
                             {
-                                CmdLosePart(i, detachedPart.mass / 5);
+                                detachedPart.Detach();
                             }
                         }
                     }
@@ -1883,7 +1889,7 @@ public class VehiclePhysics : NetworkBehaviour
                     {
                         if (clampedColMag * surfaceDot * distClamp * 10 * massFactor > wheelCol.detachForce)
                         {
-                            CmdLoseWheel(i, 20);
+                            wheelCol.Detach();
                         }
                     }
                 }
@@ -1891,7 +1897,7 @@ public class VehiclePhysics : NetworkBehaviour
         }
     }
 
-    [Command]
+    /*[Command]
     public void CmdLosePart(int partIndex, float healthLost)
     {
         RpcLosePart(partIndex);
@@ -1917,12 +1923,12 @@ public class VehiclePhysics : NetworkBehaviour
     public void RpcLoseWheel(int partIndex)
     {
         displaceParts[partIndex].GetComponent<VehiclePhysicsWheelCollider>().Detach();
-    }
+    }*/
 
     void FinalizeDamage()
     {
         //Apply vertices to actual meshes
-        for (int i = 0; i < deformMeshes.Length; i++)
+        for (int i = 0; i < deformMeshes.Count; i++)
         {
             if (damagedMeshes[i])
             {
@@ -2064,17 +2070,10 @@ public class VehiclePhysics : NetworkBehaviour
         Array.Resize(ref arr, arr.Length - 1);
     }
 
-    void RemoveArrayNullElements()
+    public void RemoveArrayNullElements()
     {
-        MeshFilter[] a = deformMeshes;
-        List<MeshFilter> aList = new List<MeshFilter>(a);
-        aList.RemoveAll(x => x == null);
-        deformMeshes = aList.ToArray();
-
-        Transform[] t = displaceParts;
-        List<Transform> tList = new List<Transform>(t);
-        tList.RemoveAll(x => x == null);
-        displaceParts = tList.ToArray();
+        deformMeshes.RemoveAll(x => x == null);
+        displaceParts.RemoveAll(x => x == null);
     }
 
     // Method was used for creating new WheelColliders on Editor.

@@ -17,9 +17,8 @@ MonoBehaviour:
   TyreMaterial: {fileID: 0}
   rimMaterial: {fileID: 0}
   spoilers:
-  - spoiler: {fileID: 5118911368796202686, guid: a21ea8d9d916cd448881698235ca9b19,
-      type: 3}
-    position: {x: 0, y: 0.65, z: -2}
+  - spoiler: {fileID: 0}
+    position: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0}
   - spoiler: {fileID: 5292600504976438956, guid: 29cabb121df3a5441a2aa3cc05056cc2,
       type: 3}
@@ -44,4 +43,27 @@ MonoBehaviour:
   - spoiler: {fileID: 8049013810964705725, guid: 42fa7eaf93ec029418592d8ecffaee7f,
       type: 3}
     position: {x: 0, y: 0.65, z: -2}
+    rotation: {x: 0, y: 0, z: 0}
+  - spoiler: {fileID: 5118911368796202686, guid: a21ea8d9d916cd448881698235ca9b19,
+      type: 3}
+    position: {x: 0, y: 0.65, z: -2}
+    rotation: {x: 0, y: 0, z: 0}
+  frontBumpers:
+  - bumper: {fileID: 0}
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+  - bumper: {fileID: 91982425285883283, guid: f4e684cc92ba1064697dfcb46deea0c6, type: 3}
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+  - bumper: {fileID: 6266037340381741308, guid: b86251b1112e8b141aea0dea83938757,
+      type: 3}
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+  - bumper: {fileID: 4704491709833219370, guid: c7fb47a6149e58c439183bd1d0b1061e,
+      type: 3}
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+  - bumper: {fileID: 3989385493916700886, guid: 955a94c1dd196b74c8a30ecc38ee52ea,
+      type: 3}
+    position: {x: 0, y: 0, z: 0}
     rotation: {x: 0, y: 0, z: 0}
